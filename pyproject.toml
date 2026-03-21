@@ -1,0 +1,96 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "artsleuth"
+version = "0.1.0"
+description = "AI Art Forensics & Analysis Framework — Brushstroke analysis, style attribution, forgery detection, and interpretable visual explanations powered by vision transformers."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Danielle Lesin", email = "ladyfaye1998@users.noreply.github.com" },
+]
+keywords = [
+    "art-analysis",
+    "computer-vision",
+    "forgery-detection",
+    "brushstroke-analysis",
+    "style-attribution",
+    "vision-transformers",
+    "art-history",
+    "cultural-heritage",
+    "deep-learning",
+    "explainable-ai",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Topic :: Multimedia :: Graphics",
+    "Typing :: Typed",
+]
+dependencies = [
+    "torch>=2.0",
+    "torchvision>=0.15",
+    "transformers>=4.36",
+    "Pillow>=10.0",
+    "numpy>=1.24",
+    "scikit-learn>=1.3",
+    "scipy>=1.11",
+    "click>=8.1",
+    "rich>=13.0",
+    "pydantic>=2.0",
+    "huggingface-hub>=0.20",
+    "matplotlib>=3.7",
+]
+
+[project.optional-dependencies]
+mcp = ["mcp>=1.0"]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.4",
+    "mypy>=1.8",
+    "pre-commit>=3.6",
+]
+all = ["artsleuth[mcp,dev]"]
+
+[project.scripts]
+artsleuth = "artsleuth.cli.main:cli"
+
+[project.urls]
+Homepage = "https://github.com/ladyFaye1998/ArtSleuth"
+Documentation = "https://github.com/ladyFaye1998/ArtSleuth/tree/main/docs"
+Repository = "https://github.com/ladyFaye1998/ArtSleuth"
+Issues = "https://github.com/ladyFaye1998/ArtSleuth/issues"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "ANN", "B", "SIM", "RUF"]
+ignore = ["ANN101", "ANN102", "ANN401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["artsleuth"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"

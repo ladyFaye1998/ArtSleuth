@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "If ArtSleuth contributes to your research, please cite it as below."
+type: software
+title: "ArtSleuth: AI Art Forensics & Analysis Framework"
+authors:
+  - family-names: "Lesin"
+    given-names: "Danielle"
+    orcid: ""
+    affiliation: "Georgia Institute of Technology"
+version: 0.1.0
+date-released: 2026-03-21
+url: "https://github.com/ladyFaye1998/ArtSleuth"
+repository-code: "https://github.com/ladyFaye1998/ArtSleuth"
+license: MIT
+keywords:
+  - art-analysis
+  - computer-vision
+  - forgery-detection
+  - brushstroke-analysis
+  - style-attribution
+  - vision-transformers
+  - cultural-heritage
+  - deep-learning
+  - explainable-ai
+abstract: >
+  ArtSleuth is a computational art-analysis framework that bridges
+  art-historical connoisseurship and deep learning.  It provides
+  brushstroke forensics, style classification, artist attribution,
+  forgery detection, and interpretable visual explanations powered
+  by self-supervised vision transformers (DINOv2) and contrastive
+  vision-language models (CLIP).

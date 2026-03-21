@@ -1,0 +1,55 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# --- Virtual Environments ---
+.venv/
+venv/
+env/
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Testing & Coverage ---
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Model Weights ---
+*.pt
+*.pth
+*.onnx
+*.safetensors
+weights/
+checkpoints/
+
+# --- Data ---
+data/
+*.csv
+*.tsv
+!examples/*.csv
+
+# --- Secrets ---
+.env
+*.key
