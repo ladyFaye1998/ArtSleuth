@@ -21,7 +21,7 @@ Example
 
 from __future__ import annotations
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "Danielle Lesin"
 
 from artsleuth.config import AnalysisConfig
@@ -30,6 +30,9 @@ from artsleuth.core.brushstroke import BrushstrokeAnalyzer
 from artsleuth.core.explainability import ExplainabilityEngine
 from artsleuth.core.forgery import ForgeryDetector
 from artsleuth.core.style import StyleClassifier
+from artsleuth.core.temporal import TemporalRegistry, TemporalStyleModel
+from artsleuth.core.workshop import WorkshopDecomposition
+from artsleuth.models.fusion import DualBackboneFusion, StyleGuidedAttention
 
 __all__ = [
     "AnalysisConfig",
@@ -38,6 +41,11 @@ __all__ = [
     "AttributionAnalyzer",
     "ForgeryDetector",
     "ExplainabilityEngine",
+    "TemporalStyleModel",
+    "TemporalRegistry",
+    "WorkshopDecomposition",
+    "DualBackboneFusion",
+    "StyleGuidedAttention",
     "analyze",
 ]
 

@@ -153,6 +153,171 @@ def compare(image_a: Path, image_b: Path, device: str | None) -> None:
     console.print(Panel(panel_text, title="Comparison", border_style="gold1"))
 
 
+# --- Workshop ---------------------------------------------------------------
+
+
+@cli.command()
+@click.argument("image", type=click.Path(exists=True, path_type=Path))
+@click.option("--max-hands", default=6, help="Maximum number of hands to infer.")
+@click.option("--device", "-d", default=None, help="PyTorch device.")
+def workshop(image: Path, max_hands: int, device: str | None) -> None:
+    """Decompose a painting into distinct workshop hands."""
+    import numpy as np
+    from PIL import Image
+
+    from artsleuth.config import AnalysisConfig
+    from artsleuth.core.brushstroke import BrushstrokeAnalyzer
+    from artsleuth.core.workshop import WorkshopDecomposition
+
+    with console.status("[bold]Decomposing workshop hands…", spinner="aesthetic"):
+        config = AnalysisConfig(device=device)
+        analyzer = BrushstrokeAnalyzer(config)
+        img = Image.open(str(image)).convert("RGB")
+        report = analyzer.analyze(img)
+
+        embeddings = np.stack([d.embedding for d in report.descriptors])
+        bboxes = [d.bbox for d in report.descriptors]
+        coherences = np.array([d.coherence for d in report.descriptors])
+        energies = np.array([d.energy for d in report.descriptors])
+
+        decomposer = WorkshopDecomposition(max_hands=max_hands)
+        ws = decomposer.decompose(
+            embeddings, bboxes, img.size,
+            coherences=coherences, energies=energies,
+        )
+
+    table = Table(title="Workshop Decomposition", border_style="dim")
+    table.add_column("Hand", style="bold")
+    table.add_column("Patches", justify="right")
+    table.add_column("Coverage", justify="right")
+    table.add_column("Coherence", justify="right")
+    table.add_column("Energy", justify="right")
+    table.add_column("Confidence", justify="right")
+
+    for a in ws.assignments:
+        table.add_row(
+            a.label,
+            str(a.patch_count),
+            f"{a.spatial_extent:.1%}",
+            f"{a.mean_coherence:.3f}",
+            f"{a.mean_energy:.3f}",
+            f"{a.confidence:.1%}",
+        )
+
+    console.print(table)
+    if ws.is_workshop:
+        console.print(
+            f"\n[bold]Workshop production detected:[/bold] "
+            f"{ws.num_hands} distinct hands identified."
+        )
+    else:
+        console.print("\n[dim]Single-hand execution (no workshop detected).[/dim]")
+
+
+# --- Robustness -------------------------------------------------------------
+
+
+@cli.command()
+@click.argument("image", type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--reference-artist", "-r", required=True,
+    help="Artist name for forgery screening.",
+)
+@click.option("--device", "-d", default=None, help="PyTorch device.")
+def robustness(image: Path, reference_artist: str, device: str | None) -> None:
+    """Test forgery detection robustness against adversarial techniques."""
+    from PIL import Image
+
+    from artsleuth.config import AnalysisConfig
+    from artsleuth.core.adversarial import ForgerySimulator, RobustnessEvaluator
+    from artsleuth.core.forgery import ForgeryDetector
+
+    with console.status("[bold red]Running adversarial robustness tests…", spinner="aesthetic"):
+        config = AnalysisConfig(device=device)
+        detector = ForgeryDetector(config)
+        simulator = ForgerySimulator()
+        evaluator = RobustnessEvaluator(detector=detector, simulator=simulator)
+
+        img = Image.open(str(image)).convert("RGB")
+        report = evaluator.evaluate(img, reference_artist)
+
+    table = Table(title="Adversarial Robustness", border_style="dim")
+    table.add_column("Technique", style="bold")
+    table.add_column("Detected", justify="center")
+    table.add_column("Score Delta", justify="right")
+
+    for ar in report.technique_results:
+        detected_str = "[green]Yes[/green]" if ar.detected else "[red]No[/red]"
+        table.add_row(
+            ar.technique.name,
+            detected_str,
+            f"{ar.score_delta:+.3f}",
+        )
+
+    console.print(table)
+    console.print(
+        f"\n[bold]Overall detection rate:[/bold] {report.overall_detection_rate:.0%}"
+    )
+
+
+# --- Benchmark --------------------------------------------------------------
+
+
+@cli.command()
+@click.option(
+    "--backbone", "-b", default=None, multiple=True,
+    help="Backbone(s) to benchmark (dinov2, clip, fusion). Omit for all.",
+)
+@click.option("--max-samples", default=None, type=int, help="Cap samples per split.")
+@click.option("--device", "-d", default=None, help="PyTorch device.")
+@click.option(
+    "--output-dir", "-o", default="benchmark_results",
+    type=click.Path(path_type=Path),
+)
+def benchmark(
+    backbone: tuple[str, ...],
+    max_samples: int | None,
+    device: str | None,
+    output_dir: Path,
+) -> None:
+    """Run WikiArt benchmarks and produce comparison tables."""
+    from artsleuth.benchmarks.evaluate import run_all_benchmarks
+
+    backbones = list(backbone) if backbone else None
+
+    with console.status("[bold]Running benchmarks…", spinner="aesthetic"):
+        table = run_all_benchmarks(
+            backbones=backbones,
+            device=device or "cpu",
+            max_samples=max_samples,
+            output_dir=output_dir,
+        )
+
+    console.print(table.to_markdown())
+    console.print(f"\n[dim]Full results saved to {output_dir}/[/dim]")
+
+
+# --- Demo (Web UI) ----------------------------------------------------------
+
+
+@cli.command()
+@click.option("--port", "-p", default=7860, help="Port for the Gradio server.")
+@click.option("--share", is_flag=True, help="Create a public Gradio link.")
+def demo(port: int, share: bool) -> None:
+    """Launch the ArtSleuth web demo."""
+    try:
+        from web.app import create_app
+    except ImportError:
+        console.print(
+            "[red]Web UI dependencies not installed. "
+            "Run: pip install artsleuth[web][/red]"
+        )
+        return
+
+    app = create_app()
+    app.launch(server_port=port, share=share)
+
+
 # --- Server -----------------------------------------------------------------
 
 

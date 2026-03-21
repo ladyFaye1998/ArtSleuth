@@ -27,6 +27,8 @@ Open a [GitHub Issue](https://github.com/ladyFaye1998/ArtSleuth/issues) using th
 | **Reference corpora** | Curated, well-attributed image sets for specific artists or periods. Provenance documentation is essential. |
 | **Preprocessing** | Transforms for non-Western painting traditions (ink wash, ukiyo-e, miniature painting) that the current Western-easel-focused pipeline may handle poorly. |
 | **Evaluation benchmarks** | Standardised test sets with known attributions for quantitative evaluation. |
+| **Temporal references** | Dated, attributed works for training the temporal style drift model. More data points per artist improve the GP regression. |
+| **Web UI** | Gradio component improvements, accessibility, and visualisation refinements. |
 | **Documentation** | Improving methodology docs, adding tutorials, translating to other languages. |
 | **Art-historical review** | Ensuring the taxonomy, terminology, and interpretive framing remain academically defensible. |
 

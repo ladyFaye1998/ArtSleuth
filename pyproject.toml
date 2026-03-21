@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "artsleuth"
-version = "0.1.0"
+version = "0.2.0"
 description = "AI Art Forensics & Analysis Framework — Brushstroke analysis, style attribution, forgery detection, and interpretable visual explanations powered by vision transformers."
 readme = "README.md"
 license = "MIT"
@@ -56,6 +56,13 @@ dependencies = [
 
 [project.optional-dependencies]
 mcp = ["mcp>=1.0"]
+web = [
+    "gradio>=5.0",
+    "plotly>=5.18",
+]
+benchmarks = [
+    "datasets>=2.16",
+]
 dev = [
     "pytest>=7.4",
     "pytest-cov>=4.1",
@@ -63,7 +70,7 @@ dev = [
     "mypy>=1.8",
     "pre-commit>=3.6",
 ]
-all = ["artsleuth[mcp,dev]"]
+all = ["artsleuth[mcp,web,benchmarks,dev]"]
 
 [project.scripts]
 artsleuth = "artsleuth.cli.main:cli"

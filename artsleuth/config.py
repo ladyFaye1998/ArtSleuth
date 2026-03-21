@@ -99,6 +99,30 @@ class AnalysisConfig(BaseModel):
         description="Dataloader worker count for batch operations.",
     )
 
+    # --- Novel module settings -----------------------------------------------
+
+    use_fusion: bool = Field(
+        default=True,
+        description="Use cross-attention backbone fusion instead of naive concat.",
+    )
+    enable_temporal: bool = Field(
+        default=True,
+        description="Enable temporal style drift adjustment in attribution.",
+    )
+    enable_workshop: bool = Field(
+        default=True,
+        description=(
+            "Use Bayesian workshop decomposition instead of flat k-means "
+            "for brushstroke clustering."
+        ),
+    )
+    workshop_max_hands: int = Field(
+        default=6,
+        ge=2,
+        le=12,
+        description="Upper bound on number of workshop hands to infer.",
+    )
+
     model_config = {"frozen": True}
 
     def resolve_device(self) -> str:

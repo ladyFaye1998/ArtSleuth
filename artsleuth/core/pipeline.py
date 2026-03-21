@@ -20,6 +20,8 @@ if TYPE_CHECKING:
     from artsleuth.core.explainability import ExplanationMap
     from artsleuth.core.forgery import ForgeryReport
     from artsleuth.core.style import StyleReport
+    from artsleuth.core.temporal import TemporalPrediction
+    from artsleuth.core.workshop import WorkshopReport
 
 
 @dataclass
@@ -46,6 +48,8 @@ class AnalysisResult:
     brushstrokes: "BrushstrokeReport"
     attribution: "AttributionReport"
     forgery: "ForgeryReport | None" = None
+    workshop: "WorkshopReport | None" = None
+    temporal: "TemporalPrediction | None" = None
 
     def explain(self, target: str = "attribution") -> "ExplanationMap":
         """Generate an interpretable visual overlay for the analysis.
@@ -79,8 +83,18 @@ class AnalysisResult:
             f"  Attribution: {self.attribution.consensus_artist} "
             f"({self.attribution.consensus_confidence:.0%})",
         ]
-        if self.attribution.multi_hand_flag:
+        if self.workshop and self.workshop.is_workshop:
+            lines.append(
+                f"  ⚑ Workshop production detected ({self.workshop.num_hands} hands)."
+            )
+        elif self.attribution.multi_hand_flag:
             lines.append("  ⚑ Multiple hands detected (possible workshop production).")
+        if self.temporal:
+            lines.append(
+                f"  ⚑ Estimated date: c.{self.temporal.estimated_year:.0f} "
+                f"({self.temporal.confidence_band[0]:.0f}"
+                f"–{self.temporal.confidence_band[1]:.0f})."
+            )
         if self.forgery and self.forgery.is_flagged:
             lines.append(
                 f"  ⚑ Anomaly flag raised (score {self.forgery.anomaly_score:.2f}) — "
@@ -131,6 +145,52 @@ def run_pipeline(
         style_report=style_report,
     )
 
+    # Workshop decomposition (Bayesian mixture, replaces flat k-means)
+    workshop_report = None
+    if config.enable_workshop and brushstroke_report.descriptors:
+        try:
+            from artsleuth.core.workshop import WorkshopDecomposition
+
+            import numpy as np
+
+            decomposer = WorkshopDecomposition(
+                max_hands=config.workshop_max_hands,
+            )
+            embeddings = np.stack(
+                [d.embedding for d in brushstroke_report.descriptors]
+            )
+            bboxes = [d.bbox for d in brushstroke_report.descriptors]
+            coherences = np.array(
+                [d.coherence for d in brushstroke_report.descriptors]
+            )
+            energies = np.array(
+                [d.energy for d in brushstroke_report.descriptors]
+            )
+            workshop_report = decomposer.decompose(
+                embeddings,
+                bboxes,
+                image.size,
+                coherences=coherences,
+                energies=energies,
+            )
+        except Exception:
+            pass
+
+    # Temporal style drift estimation
+    temporal_prediction = None
+    if config.enable_temporal:
+        try:
+            from artsleuth.core.temporal import TemporalRegistry
+
+            registry = TemporalRegistry()
+            if attribution_report.consensus_artist != "Unknown":
+                temporal_prediction = registry.predict(
+                    attribution_report.consensus_artist,
+                    style_report.embedding,
+                )
+        except Exception:
+            pass
+
     forgery_report = None
     if reference_artist is not None:
         detector = ForgeryDetector(config)
@@ -147,4 +207,6 @@ def run_pipeline(
         brushstrokes=brushstroke_report,
         attribution=attribution_report,
         forgery=forgery_report,
+        workshop=workshop_report,
+        temporal=temporal_prediction,
     )
