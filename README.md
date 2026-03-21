@@ -1,45 +1,65 @@
-<p align="center">
-  <img src="assets/banner.png" alt="ArtSleuth Banner" width="100%" />
-</p>
+<div align="center">
 
-<p align="center">
-  <a href="https://github.com/ladyFaye1998/ArtSleuth/actions"><img src="https://img.shields.io/github/actions/workflow/status/ladyFaye1998/ArtSleuth/ci.yml?style=for-the-badge&color=1A2E48&label=CI" alt="CI"></a>
-  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10+-9DC0D8?style=for-the-badge&logo=python&logoColor=white" alt="Python"></a>
-  <a href="https://pytorch.org/"><img src="https://img.shields.io/badge/PyTorch-2.0+-D4899A?style=for-the-badge&logo=pytorch&logoColor=white" alt="PyTorch"></a>
-  <a href="https://huggingface.co/"><img src="https://img.shields.io/badge/HuggingFace-Models-d4af37?style=for-the-badge&logo=huggingface&logoColor=white" alt="HuggingFace"></a>
-  <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-Server-1A2E48?style=for-the-badge" alt="MCP"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-9DC0D8?style=for-the-badge" alt="License"></a>
-</p>
+<br>
 
-<p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Crimson+Text&weight=600&size=22&pause=3000&color=1A2E48&center=true&vCenter=true&width=650&lines=Brushstroke+forensics+%C2%B7+Style+attribution+%C2%B7+Forgery+detection;Where+connoisseurship+meets+computation;The+hand+that+painted+it+left+a+signature+in+every+stroke" alt="Typing SVG" />
-</p>
+<img src="assets/banner.png" alt="ArtSleuth Banner" width="100%" />
+
+<br><br>
+
+[![CI](https://img.shields.io/github/actions/workflow/status/ladyFaye1998/ArtSleuth/ci.yml?style=for-the-badge&color=9DC0D8&labelColor=1A2E48&label=CI)](https://github.com/ladyFaye1998/ArtSleuth/actions)&nbsp;
+[![Python](https://img.shields.io/badge/Python-3.10+-9DC0D8?style=for-the-badge&labelColor=1A2E48&logo=python&logoColor=9DC0D8)](https://www.python.org/)&nbsp;
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-D4899A?style=for-the-badge&labelColor=1A2E48&logo=pytorch&logoColor=D4899A)](https://pytorch.org/)&nbsp;
+[![HuggingFace](https://img.shields.io/badge/HuggingFace-Models-d4af37?style=for-the-badge&labelColor=1A2E48&logo=huggingface&logoColor=d4af37)](https://huggingface.co/)&nbsp;
+[![MCP](https://img.shields.io/badge/MCP-Server-9DC0D8?style=for-the-badge&labelColor=1A2E48)](https://modelcontextprotocol.io/)&nbsp;
+[![License](https://img.shields.io/badge/License-MIT-D4899A?style=for-the-badge&labelColor=1A2E48)](LICENSE)
+
+<br>
+
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Lora&weight=500&size=22&pause=2800&color=9DC0D8&center=true&vCenter=true&width=680&lines=Brushstroke+forensics+%C2%B7+Style+attribution+%C2%B7+Forgery+detection;Where+connoisseurship+meets+computation;The+hand+that+painted+it+left+a+signature+in+every+stroke)](https://github.com/ladyFaye1998/ArtSleuth)
+
+<br>
+
+</div>
 
 ---
 
-## 👁️ What Is This?
+<br>
+
+### ✦ About
 
 **ArtSleuth** is a computational art-analysis framework that formalises what connoisseurs have done for centuries — examining the physical evidence a painter leaves on a canvas — using machine learning.
 
 Brushstroke directionality, impasto relief, palette temperature, the habitual gestures that reside in the least-scrutinised passages of a painting — drapery folds, background foliage, the rendering of earlobes. These are the signals that distinguish one hand from another, and they map naturally onto what self-supervised vision transformers learn to encode.
 
-It bridges **art history** and **deep learning** to provide:
+<br>
 
-- 🔬 **Brushstroke Analysis** — Structure-tensor decomposition of stroke orientation, coherence, energy, and curvature, with patch-level clustering to detect multiple hands.
-- 🏛️ **Style Classification** — Period, school, and technique prediction via CLIP embeddings projected through learned linear heads.
-- 🎨 **Artist Attribution** — Embedding-space comparison against a reference gallery of authenticated works, with calibrated confidence intervals.
-- 🔍 **Forgery Detection** — One-class anomaly scoring via Mahalanobis distance in the learned feature space.
-- 💡 **Explainability** — Grad-CAM and attention-rollout heatmaps overlaid at full resolution, showing *where* the model looks and *why*.
+<div align="center">
 
-> *"A forged painting, however skilfully executed, must deviate from the statistical regularities of the artist it imitates."*
+| | Capability | Method |
+|:---:|:---|:---|
+| ![Brushstroke](https://img.shields.io/badge/-Brushstroke_Analysis-1A2E48?style=flat-square) | Stroke orientation, coherence, energy, curvature · patch-level clustering for multiple hands | Structure tensor decomposition via DINOv2 |
+| ![Style](https://img.shields.io/badge/-Style_Classification-1A2E48?style=flat-square) | Period, school, and technique prediction | CLIP embeddings · learned linear heads |
+| ![Attribution](https://img.shields.io/badge/-Artist_Attribution-1A2E48?style=flat-square) | Embedding-space comparison against authenticated reference works | Cosine similarity · calibrated confidence intervals |
+| ![Forgery](https://img.shields.io/badge/-Forgery_Detection-1A2E48?style=flat-square) | One-class anomaly scoring | Mahalanobis distance in learned feature space |
+| ![Explainability](https://img.shields.io/badge/-Explainability-1A2E48?style=flat-square) | Visual heatmaps showing *where* the model looks and *why* | Grad-CAM · attention rollout |
+
+</div>
+
+<br>
 
 ---
 
-## ⚡ Quick Start
+<br>
+
+### ✦ Quick Start
 
 ```bash
 pip install artsleuth
 ```
+
+<br>
+
+**Python**
 
 ```python
 import artsleuth
@@ -47,12 +67,13 @@ import artsleuth
 result = artsleuth.analyze("judith_slaying_holofernes.jpg")
 print(result.summary())
 
-# Generate a visual explanation overlay
 explanation = result.explain()
 explanation.save("analysis_overlay.png")
 ```
 
-**CLI:**
+<br>
+
+**CLI**
 
 ```bash
 artsleuth analyze painting.jpg
@@ -60,25 +81,30 @@ artsleuth style painting.jpg --top-k 5
 artsleuth compare painting_a.jpg painting_b.jpg
 ```
 
+<br>
+
 ---
 
-## 🏗️ Architecture
+<br>
+
+### ✦ Architecture
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1A2E48', 'primaryTextColor': '#F0F0F0', 'primaryBorderColor': '#9DC0D8', 'lineColor': '#9DC0D8', 'secondaryColor': '#1A2E48', 'tertiaryColor': '#1A2E48', 'edgeLabelBackground': '#0D1117', 'clusterBkg': '#0D1117', 'clusterBorder': '#9DC0D8', 'titleColor': '#9DC0D8'}}}%%
+
 graph TD
-    Input["🖼️ Artwork Image"] --> Preprocess["Preprocessing"]
+    Input["🖼️ Artwork Image"] --> Preprocess
 
     subgraph prep ["Preprocessing"]
-        Preprocess --> Varnish["Varnish Correction"]
-        Preprocess --> Crack["Craquelure Suppression"]
-        Preprocess --> Canvas["Canvas Texture Filtering"]
+        Preprocess["Varnish Correction"] --> Crack["Craquelure Suppression"]
+        Crack --> Canvas["Canvas Texture Filtering"]
     end
 
     prep --> Patches["Patch Extraction"]
     prep --> FullImage["Full-Image Encoding"]
 
-    Patches --> DINO["DINOv2 Backbone"]
-    FullImage --> CLIP["CLIP Backbone"]
+    Patches --> DINO["DINOv2"]
+    FullImage --> CLIP["CLIP"]
 
     DINO --> Brushstroke["Brushstroke Analysis"]
     DINO --> BrushCluster["Stroke Clustering"]
@@ -88,25 +114,33 @@ graph TD
     Brushstroke --> Fusion["Feature Fusion"]
     Style --> Fusion
     Fusion --> Forgery["Forgery Detection"]
-    Fusion --> Explain["Explainability Engine"]
+    Fusion --> Explain["Explainability"]
 
-    Forgery --> Report["📋 Analysis Report"]
+    Forgery --> Report["📋 Report"]
     Attribution --> Report
     Style --> Report
     Brushstroke --> Report
     Explain --> Report
 ```
 
-**Two backbones, two purposes:**
+<br>
+
+<div align="center">
 
 | Backbone | Strength | Used For |
-|----------|----------|----------|
-| **DINOv2** (ViT-S/14) | Fine-grained texture & structure | Brushstroke analysis, patch-level features |
-| **CLIP** (ViT-B/32) | Semantic-stylistic understanding | Style classification, attribution |
+|:---|:---|:---|
+| **DINOv2** · ViT-S/14 | Fine-grained texture and structure | Brushstroke analysis · patch-level features |
+| **CLIP** · ViT-B/32 | Semantic-stylistic understanding | Style classification · attribution |
+
+</div>
+
+<br>
 
 ---
 
-## 🔧 MCP Server
+<br>
+
+### ✦ MCP Server
 
 ArtSleuth ships as an [MCP](https://modelcontextprotocol.io/) server, enabling AI assistants to perform art analysis conversationally.
 
@@ -114,16 +148,25 @@ ArtSleuth ships as an [MCP](https://modelcontextprotocol.io/) server, enabling A
 artsleuth server
 ```
 
-**Available tools:**
+<br>
+
+<div align="center">
 
 | Tool | Description |
-|------|-------------|
+|:---|:---|
 | `analyze_artwork` | Full analysis pipeline |
 | `classify_style` | Period, school, technique classification |
 | `compare_works` | Side-by-side stylistic comparison |
 | `detect_anomalies` | Forgery screening against a reference corpus |
 
-**Claude Desktop configuration:**
+</div>
+
+<br>
+
+<details>
+<summary>&nbsp;Claude Desktop configuration</summary>
+
+<br>
 
 ```json
 {
@@ -136,9 +179,15 @@ artsleuth server
 }
 ```
 
+</details>
+
+<br>
+
 ---
 
-## 📂 Repository Structure
+<br>
+
+### ✦ Repository Structure
 
 ```
 ArtSleuth/
@@ -170,42 +219,49 @@ ArtSleuth/
 └── assets/                  # Visual assets
 ```
 
+<br>
+
 ---
 
-## 🧪 Development
+<br>
+
+### ✦ Development
 
 ```bash
 git clone https://github.com/ladyFaye1998/ArtSleuth.git
 cd ArtSleuth
 pip install -e ".[dev]"
 
-# Run tests
 pytest
-
-# Lint & type-check
 ruff check .
 mypy artsleuth
 ```
 
+<br>
+
 ---
 
-## 📖 Methodology
+<br>
 
-ArtSleuth's analytical framework draws on two traditions:
+### ✦ Methodology
 
-**From art history** — Giovanni Morelli's observation (1890) that an artist's most characteristic habits reside in the least-conscious passages. Bernard Berenson's refinement of this into systematic connoisseurship. The workshop-attribution methodology developed for the Gentileschi debate, where master and assistants each contribute recognisable passages to a shared canvas.
+ArtSleuth draws on two traditions:
 
-**From computer science** — Self-supervised vision transformers (Caron et al., 2021; Oquab et al., 2024) that learn rich visual features without task-specific labels. Contrastive vision-language models (Radford et al., 2021) that ground visual concepts in linguistic semantics. One-class anomaly detection (Schölkopf et al., 2001) for identifying statistical outliers in high-dimensional feature spaces.
+**Art history** — Giovanni Morelli's observation (1890) that an artist's most characteristic habits reside in the least-conscious passages. Bernard Berenson's refinement of this into systematic connoisseurship. The workshop-attribution methodology developed for the Gentileschi debate, where master and assistants each contribute recognisable passages to a shared canvas.
+
+**Computer science** — Self-supervised vision transformers (Caron et al., 2021; Oquab et al., 2024) that learn rich visual features without task-specific labels. Contrastive vision-language models (Radford et al., 2021) that ground visual concepts in linguistic semantics. One-class anomaly detection (Schölkopf et al., 2001) for identifying statistical outliers in high-dimensional feature spaces.
 
 The two complement each other: art history provides the *questions*; machine learning provides a *scale* of analysis that would be impractical by eye alone.
 
-For a detailed technical discussion, see [`docs/methodology.md`](docs/methodology.md).
+See [`docs/methodology.md`](docs/methodology.md) for the full technical discussion.
+
+<br>
 
 ---
 
-## 📜 Citation
+<br>
 
-If ArtSleuth contributes to your research, please cite:
+### ✦ Citation
 
 ```bibtex
 @software{lesin2026artsleuth,
@@ -217,23 +273,43 @@ If ArtSleuth contributes to your research, please cite:
 }
 ```
 
+<br>
+
 ---
 
-## 🤝 Contributing
+<br>
+
+### ✦ Contributing
 
 Contributions are welcome from art historians, ML researchers, conservators, and anyone interested in computational approaches to cultural heritage.
 
-**Ways to contribute:**
+<br>
 
-- 🖼️ **Reference corpora** — Curated, well-attributed image sets for specific artists or periods.
-- 🧠 **Model improvements** — Better backbones, training strategies, or evaluation benchmarks.
-- 📝 **Art-historical grounding** — Helping the taxonomy, terminology, and methodology stay honest.
-- 🐛 **Bug reports & feature requests** — [Open an issue](https://github.com/ladyFaye1998/ArtSleuth/issues).
+<div align="center">
+
+| Area | What's Needed |
+|:---|:---|
+| **Reference corpora** | Curated, well-attributed image sets for specific artists or periods |
+| **Model improvements** | Better backbones, training strategies, evaluation benchmarks |
+| **Art-historical review** | Ensuring taxonomy, terminology, and methodology stay sound |
+| **Bug reports** | [Open an issue](https://github.com/ladyFaye1998/ArtSleuth/issues) with reproduction steps |
+
+</div>
+
+<br>
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) for guidelines.
 
+<br>
+
 ---
 
-<p align="center">
-  <sub>Built with 🫖 by <a href="https://github.com/ladyFaye1998">Danielle Lesin</a> · Where connoisseurship meets computation</sub>
-</p>
+<br>
+
+<div align="center">
+
+<sub>Built with 🫖 by <a href="https://github.com/ladyFaye1998">Danielle Lesin</a> · Where connoisseurship meets computation</sub>
+
+<br><br>
+
+</div>
