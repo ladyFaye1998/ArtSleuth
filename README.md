@@ -6,12 +6,11 @@
 
 <br><br>
 
-[![CI](https://img.shields.io/github/actions/workflow/status/ladyFaye1998/ArtSleuth/ci.yml?style=for-the-badge&color=9DC0D8&labelColor=1A2E48&label=CI)](https://github.com/ladyFaye1998/ArtSleuth/actions)&nbsp;
 [![Python](https://img.shields.io/badge/Python-3.10+-9DC0D8?style=for-the-badge&labelColor=1A2E48&logo=python&logoColor=9DC0D8)](https://www.python.org/)&nbsp;
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-D4899A?style=for-the-badge&labelColor=1A2E48&logo=pytorch&logoColor=D4899A)](https://pytorch.org/)&nbsp;
-[![HuggingFace](https://img.shields.io/badge/HuggingFace-Models-d4af37?style=for-the-badge&labelColor=1A2E48&logo=huggingface&logoColor=d4af37)](https://huggingface.co/)&nbsp;
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-9DC0D8?style=for-the-badge&labelColor=1A2E48&logo=pytorch&logoColor=9DC0D8)](https://pytorch.org/)&nbsp;
+[![HuggingFace](https://img.shields.io/badge/HuggingFace-Models-9DC0D8?style=for-the-badge&labelColor=1A2E48&logo=huggingface&logoColor=9DC0D8)](https://huggingface.co/)&nbsp;
 [![MCP](https://img.shields.io/badge/MCP-Server-9DC0D8?style=for-the-badge&labelColor=1A2E48)](https://modelcontextprotocol.io/)&nbsp;
-[![License](https://img.shields.io/badge/License-MIT-D4899A?style=for-the-badge&labelColor=1A2E48)](LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-9DC0D8?style=for-the-badge&labelColor=1A2E48)](LICENSE)
 
 <br>
 
