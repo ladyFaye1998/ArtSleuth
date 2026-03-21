@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArtSleuth — AI Art Forensics &amp; Analysis</title>
+  <meta name="description" content="Computational art-analysis framework combining vision transformers with art-historical connoisseurship. Brushstroke forensics, style attribution, forgery detection, workshop decomposition, and temporal dating.">
+  <meta name="keywords" content="art analysis, AI, computer vision, brushstroke, forgery detection, style attribution, DINOv2, CLIP, art history, machine learning, connoisseurship">
+  <meta name="author" content="ladyFaye1998">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="ArtSleuth — AI Art Forensics">
+  <meta property="og:description" content="Where connoisseurship meets computation. Brushstroke forensics, style attribution, forgery detection — powered by vision transformers.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://ladyfaye1998.github.io/ArtSleuth/">
+  <meta property="og:image" content="https://raw.githubusercontent.com/ladyFaye1998/ArtSleuth/main/assets/banner.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ArtSleuth — AI Art Forensics">
+  <meta name="twitter:description" content="Where connoisseurship meets computation.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/ladyFaye1998/ArtSleuth/main/assets/banner.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Reset ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Palette ───────────────────────────────────────────── */
+    :root {
+      --navy:       #1A2E48;
+      --navy-light: #243a58;
+      --blue:       #9DC0D8;
+      --blue-muted: rgba(157,192,216,0.18);
+      --rose:       #D4899A;
+      --gold:       #d4af37;
+      --cream:      #F5F0EB;
+      --white:      #FFFFFF;
+      --muted:      #68594a;
+      --text-light: #F0F0F0;
+      --font-serif: 'Lora', Georgia, serif;
+      --font-mono:  'Fira Code', Consolas, monospace;
+    }
+
+    /* ── Global ────────────────────────────────────────────── */
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-serif);
+      background: var(--cream);
+      color: var(--navy);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    a { color: var(--rose); text-decoration: none; transition: color 0.2s; }
+    a:hover { color: var(--gold); }
+    img { max-width: 100%; display: block; }
+    code, pre { font-family: var(--font-mono); }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* ── Nav ───────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(26,46,72,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(157,192,216,0.15);
+      transition: box-shadow 0.3s;
+    }
+    nav.scrolled { box-shadow: 0 2px 20px rgba(26,46,72,0.25); }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    nav .logo {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.04em;
+    }
+    nav .logo span { color: var(--blue); font-weight: 400; }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 1.8rem;
+    }
+    nav ul a {
+      color: var(--text-light);
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      transition: color 0.2s;
+    }
+    nav ul a:hover { color: var(--gold); }
+
+    /* ── Hero ──────────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: linear-gradient(160deg, var(--navy) 0%, var(--navy-light) 50%, #2a4a6a 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 600px 600px at 20% 80%, rgba(212,175,55,0.06) 0%, transparent 70%),
+        radial-gradient(ellipse 400px 400px at 80% 20%, rgba(157,192,216,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 300px 300px at 50% 50%, rgba(212,137,154,0.05) 0%, transparent 70%);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      padding: 2rem 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2.8rem, 6vw, 4.5rem);
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+      margin-bottom: 0.4rem;
+    }
+    .hero .subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.35rem);
+      color: var(--text-light);
+      font-style: italic;
+      font-weight: 400;
+      margin-bottom: 1.5rem;
+    }
+    .hero .tagline {
+      font-size: 0.95rem;
+      color: var(--blue);
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.8;
+    }
+    .hero-badges {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .hero-badges .badge {
+      display: inline-block;
+      background: rgba(157,192,216,0.12);
+      border: 1px solid rgba(157,192,216,0.25);
+      color: var(--blue);
+      padding: 0.3rem 0.9rem;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+    }
+    .hero-cta {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.8rem;
+      border-radius: 6px;
+      font-family: var(--font-serif);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.25s ease;
+    }
+    .btn-primary {
+      background: var(--gold);
+      color: var(--navy);
+    }
+    .btn-primary:hover {
+      background: #c5a030;
+      color: var(--navy);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(212,175,55,0.3);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-light);
+      border-color: var(--blue);
+    }
+    .btn-secondary:hover {
+      background: rgba(157,192,216,0.1);
+      color: var(--gold);
+      border-color: var(--gold);
+    }
+
+    /* ── Section common ────────────────────────────────────── */
+    section { padding: 5rem 0; }
+    .section-title {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+    .section-title .marker {
+      color: var(--gold);
+      font-size: 1.1rem;
+    }
+    .section-title h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 0.3rem 0 0.6rem;
+    }
+    .section-title p {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto;
+      font-style: italic;
+    }
+
+    /* ── Features ──────────────────────────────────────────── */
+    #features { background: var(--white); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.8rem;
+    }
+    .feature-card {
+      background: var(--cream);
+      border: 1px solid rgba(157,192,216,0.3);
+      border-radius: 8px;
+      padding: 1.8rem;
+      transition: transform 0.25s, box-shadow 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: var(--gold);
+      border-radius: 8px 0 0 8px;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .feature-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(26,46,72,0.1);
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon {
+      font-size: 1.6rem;
+      margin-bottom: 0.8rem;
+      display: block;
+    }
+    .feature-card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 0.5rem;
+    }
+    .feature-card p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .feature-card .tech-tag {
+      display: inline-block;
+      background: var(--blue-muted);
+      color: var(--navy);
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-top: 0.8rem;
+      margin-right: 4px;
+    }
+
+    /* ── Novel ─────────────────────────────────────────────── */
+    #novel { background: var(--cream); }
+    .novel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+    .novel-card {
+      background: var(--white);
+      border-radius: 8px;
+      border: 1px solid rgba(157,192,216,0.3);
+      padding: 1.5rem;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .novel-card:hover { transform: translateY(-2px); }
+    .novel-card .novel-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px; height: 36px;
+      background: var(--navy);
+      color: var(--gold);
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.8rem;
+    }
+    .novel-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 0.4rem;
+    }
+    .novel-card p {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── Demo ──────────────────────────────────────────────── */
+    #demo { background: var(--white); }
+    .demo-wrapper {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .demo-upload {
+      background: var(--cream);
+      border: 2px dashed var(--blue);
+      border-radius: 12px;
+      padding: 3rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .demo-upload:hover,
+    .demo-upload.dragover {
+      border-color: var(--gold);
+      background: rgba(212,175,55,0.04);
+    }
+    .demo-upload .upload-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: block;
+      opacity: 0.7;
+    }
+    .demo-upload h3 {
+      font-size: 1.15rem;
+      color: var(--navy);
+      margin-bottom: 0.4rem;
+    }
+    .demo-upload p {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .demo-upload input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .demo-results {
+      display: none;
+      margin-top: 2rem;
+      gap: 1.2rem;
+    }
+    .demo-results.active {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .demo-results.active .result-full {
+      grid-column: 1 / -1;
+    }
+
+    .result-card {
+      background: var(--cream);
+      border: 1px solid rgba(157,192,216,0.3);
+      border-radius: 8px;
+      padding: 1.2rem;
+    }
+    .result-card h4 {
+      font-size: 0.95rem;
+      color: var(--navy);
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid var(--gold);
+    }
+    .result-bar {
+      margin: 8px 0;
+    }
+    .result-bar .bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--navy);
+      margin-bottom: 3px;
+    }
+    .result-bar .bar-track {
+      height: 8px;
+      background: var(--white);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .result-bar .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .gauge-ring {
+      width: 130px; height: 130px;
+      border-radius: 50%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gauge-inner {
+      width: 96px; height: 96px;
+      border-radius: 50%;
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    .gauge-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .gauge-label {
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .demo-preview {
+      display: none;
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+    .demo-preview.active { display: block; }
+    .demo-preview img {
+      max-height: 280px;
+      border-radius: 8px;
+      margin: 0 auto;
+      border: 1px solid rgba(157,192,216,0.3);
+    }
+    .demo-preview .filename {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+
+    .demo-note {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── Architecture ──────────────────────────────────────── */
+    #architecture { background: var(--cream); }
+    .arch-diagram {
+      max-width: 700px;
+      margin: 0 auto;
+      background: var(--white);
+      border-radius: 12px;
+      border: 1px solid rgba(157,192,216,0.3);
+      padding: 2rem;
+      box-shadow: 0 2px 12px rgba(26,46,72,0.06);
+    }
+    .arch-flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .arch-node {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.7rem 1.4rem;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      min-width: 200px;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+    .arch-node:hover { transform: scale(1.03); }
+    .arch-node.input {
+      background: var(--navy);
+      color: var(--cream);
+    }
+    .arch-node.backbone {
+      background: var(--blue);
+      color: var(--navy);
+    }
+    .arch-node.fusion {
+      background: var(--gold);
+      color: var(--navy);
+      font-weight: 600;
+    }
+    .arch-node.analysis {
+      background: var(--rose);
+      color: var(--white);
+    }
+    .arch-node.output {
+      background: var(--navy);
+      color: var(--gold);
+      font-weight: 600;
+    }
+    .arch-arrow {
+      color: var(--blue);
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+    .arch-branch {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .arch-branch .arch-node { min-width: 140px; font-size: 0.82rem; }
+
+    /* ── Install ───────────────────────────────────────────── */
+    #install { background: var(--white); }
+    .install-block {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .code-block {
+      background: var(--navy);
+      color: var(--text-light);
+      border-radius: 8px;
+      padding: 1.2rem 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      line-height: 1.8;
+      overflow-x: auto;
+      margin: 1rem 0;
+      position: relative;
+    }
+    .code-block .comment { color: var(--blue); opacity: 0.65; }
+    .code-block .command { color: var(--cream); }
+    .code-block .flag { color: var(--gold); }
+    .code-block .copy-btn {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      background: rgba(157,192,216,0.15);
+      border: 1px solid rgba(157,192,216,0.25);
+      color: var(--blue);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .code-block .copy-btn:hover {
+      background: rgba(157,192,216,0.25);
+      color: var(--gold);
+    }
+
+    /* ── Footer ────────────────────────────────────────────── */
+    footer {
+      background: var(--navy);
+      color: var(--text-light);
+      padding: 3rem 0 2rem;
+    }
+    footer .container {
+      text-align: center;
+    }
+    footer .footer-logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+    footer .footer-tagline {
+      font-style: italic;
+      color: var(--blue);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    footer .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    footer .footer-links a {
+      color: var(--text-light);
+      font-size: 0.88rem;
+      transition: color 0.2s;
+    }
+    footer .footer-links a:hover { color: var(--gold); }
+    footer .footer-note {
+      font-size: 0.78rem;
+      color: rgba(240,240,240,0.5);
+      border-top: 1px solid rgba(157,192,216,0.15);
+      padding-top: 1.2rem;
+    }
+
+    /* ── Animations ────────────────────────────────────────── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .animate-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Responsive ────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav ul { gap: 1rem; }
+      nav ul a { font-size: 0.8rem; }
+      .demo-results.active { grid-template-columns: 1fr; }
+      .arch-branch { flex-direction: column; align-items: center; }
+      footer .footer-links { flex-direction: column; gap: 0.8rem; }
+    }
+    @media (max-width: 480px) {
+      nav ul { display: none; }
+      .hero h1 { letter-spacing: 0.03em; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ──────────────────────────────────────────── -->
+<nav id="nav">
+  <div class="container">
+    <div class="logo">ArtSleuth <span>✦</span></div>
+    <ul>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#novel">What's Novel</a></li>
+      <li><a href="#demo">Demo</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#install">Install</a></li>
+      <li><a href="https://github.com/ladyFaye1998/ArtSleuth" target="_blank">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── Hero ────────────────────────────────────────────────── -->
+<section class="hero" id="top">
+  <div class="hero-content">
+    <h1>ArtSleuth</h1>
+    <div class="subtitle">Where connoisseurship meets computation</div>
+    <p class="tagline">
+      A computational art-analysis framework that formalises what connoisseurs have done for
+      centuries — examining the physical evidence a painter leaves on a canvas — using
+      vision transformers, Bayesian methods, and cross-attention feature fusion.
+    </p>
+    <div class="hero-badges">
+      <span class="badge">Python 3.10+</span>
+      <span class="badge">PyTorch</span>
+      <span class="badge">DINOv2 + CLIP</span>
+      <span class="badge">Cross-Attention Fusion</span>
+      <span class="badge">Gaussian Process</span>
+      <span class="badge">Bayesian Mixture</span>
+      <span class="badge">MCP Server</span>
+      <span class="badge">MIT License</span>
+    </div>
+    <div class="hero-cta">
+      <a href="#install" class="btn btn-primary">Get Started</a>
+      <a href="#demo" class="btn btn-secondary">Try the Demo</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ────────────────────────────────────────────── -->
+<section id="features">
+  <div class="container">
+    <div class="section-title">
+      <span class="marker">✦</span>
+      <h2>Capabilities</h2>
+      <p>Six analytical axes, each grounded in both art-historical practice and modern computer vision</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card animate-in">
+        <span class="feature-icon">🖌️</span>
+        <h3>Brushstroke Forensics</h3>
+        <p>Structure-tensor analysis and coherence clustering reveal the characteristic
+        facture of individual painters — the rhythmic signatures embedded in paint application.</p>
+        <span class="tech-tag">Structure Tensor</span>
+        <span class="tech-tag">DINOv2</span>
+        <span class="tech-tag">K-Means</span>
+      </div>
+      <div class="feature-card animate-in">
+        <span class="feature-icon">🎨</span>
+        <h3>Style Classification</h3>
+        <p>Multi-axis classification along period, school, and technique using CLIP zero-shot
+        embeddings — mapping a work's position in the broader landscape of art history.</p>
+        <span class="tech-tag">CLIP</span>
+        <span class="tech-tag">Zero-Shot</span>
+        <span class="tech-tag">Multi-Axis</span>
+      </div>
+      <div class="feature-card animate-in">
+        <span class="feature-icon">🔍</span>
+        <h3>Artist Attribution</h3>
+        <p>Cosine-similarity ranking against a reference gallery with confidence intervals,
+        cross-validated by temporal plausibility scoring via Gaussian process models.</p>
+        <span class="tech-tag">Cosine Similarity</span>
+        <span class="tech-tag">Bayesian CI</span>
+      </div>
+      <div class="feature-card animate-in">
+        <span class="feature-icon">🛡️</span>
+        <h3>Forgery Detection</h3>
+        <p>Anomaly-based screening with z-score indicators across multiple feature dimensions,
+        hardened against adversarial forgery simulations including age-craquelure and patina.</p>
+        <span class="tech-tag">Anomaly Detection</span>
+        <span class="tech-tag">Adversarial Robust</span>
+      </div>
+      <div class="feature-card animate-in">
+        <span class="feature-icon">👥</span>
+        <h3>Workshop Decomposition</h3>
+        <p>Dirichlet Process Gaussian Mixture Models automatically infer how many distinct
+        hands contributed to a painting — a question central to Old Master attribution.</p>
+        <span class="tech-tag">DPGMM</span>
+        <span class="tech-tag">Bayesian</span>
+        <span class="tech-tag">Non-parametric</span>
+      </div>
+      <div class="feature-card animate-in">
+        <span class="feature-icon">⏳</span>
+        <h3>Temporal Dating</h3>
+        <p>Gaussian process regression over dated reference embeddings models an artist's stylistic
+        evolution — estimating when a work was created and whether it fits the chronological arc.</p>
+        <span class="tech-tag">Gaussian Process</span>
+        <span class="tech-tag">Style Drift</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── What's Novel ────────────────────────────────────────── -->
+<section id="novel">
+  <div class="container">
+    <div class="section-title">
+      <span class="marker">✦</span>
+      <h2>What's Novel</h2>
+      <p>Four contributions that, to our knowledge, have not been combined in an open-source art-analysis tool</p>
+    </div>
+    <div class="novel-grid">
+      <div class="novel-card animate-in">
+        <div class="novel-num">1</div>
+        <h3>Cross-Attention Backbone Fusion</h3>
+        <p>CLIP queries attend to DINOv2 keys/values, letting semantic style understanding guide patch-level structural analysis.</p>
+      </div>
+      <div class="novel-card animate-in">
+        <div class="novel-num">2</div>
+        <h3>Temporal Style Drift</h3>
+        <p>GP regression over dated embeddings models an artist's evolving style — detecting anachronisms and estimating creation date.</p>
+      </div>
+      <div class="novel-card animate-in">
+        <div class="novel-num">3</div>
+        <h3>Workshop Decomposition</h3>
+        <p>Bayesian non-parametric mixture models infer the number of hands in a painting without a priori hand count.</p>
+      </div>
+      <div class="novel-card animate-in">
+        <div class="novel-num">4</div>
+        <h3>Adversarial Forgery Robustness</h3>
+        <p>Systematic simulation of historical forgery techniques — varnish darkening, craquelure, patina — to stress-test the detector.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Demo ────────────────────────────────────────────────── -->
+<section id="demo">
+  <div class="container">
+    <div class="section-title">
+      <span class="marker">✦</span>
+      <h2>Interactive Demo</h2>
+      <p>Upload a painting and see ArtSleuth's analysis — right in your browser</p>
+    </div>
+    <div class="demo-wrapper">
+      <div class="demo-upload" id="dropZone">
+        <span class="upload-icon">🖼️</span>
+        <h3>Drop an artwork here</h3>
+        <p>or click to browse &mdash; JPG, PNG, WebP accepted</p>
+        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp">
+      </div>
+
+      <div class="demo-preview" id="preview">
+        <img id="previewImg" alt="Uploaded artwork">
+        <div class="filename" id="fileName"></div>
+      </div>
+
+      <div class="demo-results" id="results">
+        <!-- Style -->
+        <div class="result-card">
+          <h4>Style Classification</h4>
+          <div class="result-bar">
+            <div class="bar-label"><span id="period-label">—</span><span id="period-val">—</span></div>
+            <div class="bar-track"><div class="bar-fill" id="period-bar" style="width:0;background:var(--navy)"></div></div>
+          </div>
+          <div class="result-bar">
+            <div class="bar-label"><span id="school-label">—</span><span id="school-val">—</span></div>
+            <div class="bar-track"><div class="bar-fill" id="school-bar" style="width:0;background:var(--blue)"></div></div>
+          </div>
+          <div class="result-bar">
+            <div class="bar-label"><span id="tech-label">—</span><span id="tech-val">—</span></div>
+            <div class="bar-track"><div class="bar-fill" id="tech-bar" style="width:0;background:var(--rose)"></div></div>
+          </div>
+        </div>
+
+        <!-- Attribution -->
+        <div class="result-card">
+          <h4>Attribution Candidates</h4>
+          <div id="attr-list"></div>
+        </div>
+
+        <!-- Forgery Gauge -->
+        <div class="result-card" style="text-align:center;">
+          <h4>Forgery Screening</h4>
+          <div class="gauge-ring" id="forgery-gauge">
+            <div class="gauge-inner">
+              <span class="gauge-value" id="forgery-val">—</span>
+              <span class="gauge-label" id="forgery-verdict">awaiting</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workshop -->
+        <div class="result-card">
+          <h4>Workshop Decomposition</h4>
+          <div id="workshop-info"></div>
+        </div>
+
+        <!-- Note -->
+        <div class="result-full">
+          <p class="demo-note">
+            This client-side demo simulates ArtSleuth's analysis pipeline for illustration purposes.
+            For production-grade results with actual model inference, install the Python package and
+            run <code>artsleuth analyze</code> locally or deploy via <code>artsleuth demo</code>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Architecture ────────────────────────────────────────── -->
+<section id="architecture">
+  <div class="container">
+    <div class="section-title">
+      <span class="marker">✦</span>
+      <h2>Architecture</h2>
+      <p>A modular pipeline connecting preprocessing, dual backbones, cross-attention fusion, and six analytical heads</p>
+    </div>
+    <div class="arch-diagram animate-in">
+      <div class="arch-flow">
+        <div class="arch-node input">🖼️&ensp;Artwork Input</div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-node backbone">Art-Specific Preprocessing</div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-branch">
+          <div class="arch-node backbone">DINOv2 · Texture</div>
+          <div class="arch-node backbone">CLIP · Semantics</div>
+        </div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-node fusion">✦ Cross-Attention Fusion</div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-branch">
+          <div class="arch-node analysis">Brushstroke</div>
+          <div class="arch-node analysis">Style</div>
+          <div class="arch-node analysis">Attribution</div>
+          <div class="arch-node analysis">Forgery</div>
+          <div class="arch-node analysis">Workshop</div>
+          <div class="arch-node analysis">Temporal</div>
+        </div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-node output">✦ Unified Analysis Report</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Install ─────────────────────────────────────────────── -->
+<section id="install">
+  <div class="container">
+    <div class="section-title">
+      <span class="marker">✦</span>
+      <h2>Getting Started</h2>
+      <p>From pip install to first analysis in under a minute</p>
+    </div>
+    <div class="install-block">
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <span class="comment"># Install core package</span><br>
+        <span class="command">pip install artsleuth</span><br><br>
+        <span class="comment"># Quick analysis</span><br>
+        <span class="command">artsleuth analyze painting.jpg</span><br><br>
+        <span class="comment"># With all optional features</span><br>
+        <span class="command">pip install artsleuth<span class="flag">[web,benchmarks]</span></span><br><br>
+        <span class="comment"># Launch the interactive web demo</span><br>
+        <span class="command">artsleuth demo</span><br><br>
+        <span class="comment"># Run benchmarks on WikiArt</span><br>
+        <span class="command">artsleuth benchmark <span class="flag">--device cuda</span></span>
+      </div>
+
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <span class="comment"># Python API</span><br>
+        <span style="color:#9DC0D8">from</span> <span class="command">artsleuth</span> <span style="color:#9DC0D8">import</span> <span class="command">analyze</span><br><br>
+        <span class="command">result = analyze(</span><span style="color:#D4899A">"painting.jpg"</span><span class="command">)</span><br>
+        <span class="command">print(result.summary())</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ──────────────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <div class="footer-logo">ArtSleuth</div>
+    <div class="footer-tagline">AI Art Forensics &amp; Analysis Framework</div>
+    <div class="footer-links">
+      <a href="https://github.com/ladyFaye1998/ArtSleuth" target="_blank">GitHub</a>
+      <a href="https://github.com/ladyFaye1998/ArtSleuth/blob/main/docs/methodology.md" target="_blank">Methodology</a>
+      <a href="https://github.com/ladyFaye1998/ArtSleuth/blob/main/CONTRIBUTING.md" target="_blank">Contributing</a>
+      <a href="https://github.com/ladyFaye1998/ArtSleuth/blob/main/LICENSE" target="_blank">MIT License</a>
+    </div>
+    <div class="footer-note">
+      Results are probabilistic and should be reviewed by qualified art historians.<br>
+      Built with care at the intersection of art history and artificial intelligence.
+    </div>
+  </div>
+</footer>
+
+<!-- ── Scripts ─────────────────────────────────────────────── -->
+<script>
+(function() {
+  // ── Nav scroll effect ──
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // ── Scroll-reveal animation ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.animate-in').forEach(el => observer.observe(el));
+
+  // ── Demo interaction ──
+  const dropZone  = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const preview   = document.getElementById('preview');
+  const previewImg = document.getElementById('previewImg');
+  const fileName  = document.getElementById('fileName');
+  const results   = document.getElementById('results');
+
+  function handleFile(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewImg.src = e.target.result;
+      fileName.textContent = file.name;
+      preview.classList.add('active');
+      simulateAnalysis(file);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    handleFile(e.dataTransfer.files[0]);
+  });
+
+  // ── Simulated analysis ──
+  const periods    = ['Renaissance','Baroque','Romantic','Impressionist','Post-Impressionist','Modern','Contemporary','Mannerist','Neoclassical'];
+  const schools    = ['Florentine','Venetian','Dutch Golden Age','French Academic','Northern Renaissance','Spanish','Flemish','German Expressionist'];
+  const techniques = ['Oil on Canvas','Tempera on Panel','Fresco','Oil on Panel','Watercolour','Gouache','Mixed Media','Encaustic'];
+  const artists    = ['Artemisia Gentileschi','Rembrandt van Rijn','Caravaggio','Vermeer','Rubens','Titian','Velázquez','El Greco','Raphael','Monet','Van Gogh','Cézanne'];
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function rand(lo, hi) { return lo + Math.random() * (hi - lo); }
+
+  function simulateAnalysis(file) {
+    results.classList.add('active');
+
+    const img = new Image();
+    img.onload = () => {
+      const seed = (img.width * img.height + file.size) % 10000;
+      const rng = () => { const x = Math.sin(seed + Math.random() * 999) * 10000; return x - Math.floor(x); };
+
+      setTimeout(() => {
+        // Style
+        const pIdx = Math.floor(rng() * periods.length);
+        const sIdx = Math.floor(rng() * schools.length);
+        const tIdx = Math.floor(rng() * techniques.length);
+        const pConf = 0.55 + rng() * 0.4;
+        const sConf = 0.45 + rng() * 0.4;
+        const tConf = 0.50 + rng() * 0.4;
+
+        setBar('period', periods[pIdx], pConf);
+        setBar('school', schools[sIdx], sConf);
+        setBar('tech', techniques[tIdx], tConf);
+
+        // Attribution
+        const numCands = 3;
+        const attrHtml = [];
+        let scores = Array.from({length: numCands}, () => rng());
+        const total = scores.reduce((a, b) => a + b, 0);
+        scores = scores.map(s => s / total).sort((a, b) => b - a);
+
+        for (let i = 0; i < numCands; i++) {
+          const artist = artists[(pIdx + sIdx + i) % artists.length];
+          const score = scores[i];
+          const color = i === 0 ? 'var(--navy)' : 'var(--blue)';
+          attrHtml.push(
+            '<div class="result-bar">' +
+            '<div class="bar-label"><span>#' + (i+1) + ' ' + artist + '</span><span>' + (score*100).toFixed(1) + '%</span></div>' +
+            '<div class="bar-track"><div class="bar-fill" style="width:' + (score*100).toFixed(1) + '%;background:' + color + '"></div></div>' +
+            '</div>'
+          );
+        }
+        document.getElementById('attr-list').innerHTML = attrHtml.join('');
+
+        // Forgery
+        const anomaly = rng() * 0.6;
+        const gaugeEl = document.getElementById('forgery-gauge');
+        const verdict = anomaly < 0.3 ? 'LOW RISK' : anomaly < 0.55 ? 'MODERATE' : 'HIGH RISK';
+        const ringColor = anomaly < 0.3 ? '#4caf50' : anomaly < 0.55 ? '#ff9800' : '#f44336';
+        const deg = anomaly * 360;
+        gaugeEl.style.background = 'conic-gradient(' + ringColor + ' 0deg ' + deg.toFixed(1) + 'deg, var(--cream) ' + deg.toFixed(1) + 'deg 360deg)';
+        document.getElementById('forgery-val').textContent = anomaly.toFixed(2);
+        document.getElementById('forgery-verdict').textContent = verdict;
+
+        // Workshop
+        const hands = 1 + Math.floor(rng() * 3);
+        const wsHtml = '<div style="font-size:2rem;font-weight:700;color:var(--navy);text-align:center">' + hands + '</div>' +
+          '<div style="text-align:center;font-size:0.85rem;color:var(--muted)">detected hand' + (hands > 1 ? 's' : '') + '</div>' +
+          (hands > 1 ? '<div style="text-align:center;margin-top:0.5rem"><span style="display:inline-block;background:var(--gold);color:var(--navy);font-size:0.72rem;padding:2px 8px;border-radius:10px;font-weight:600">WORKSHOP PRODUCTION</span></div>' : '');
+        document.getElementById('workshop-info').innerHTML = wsHtml;
+      }, 600);
+    };
+    img.src = URL.createObjectURL(file);
+  }
+
+  function setBar(prefix, label, conf) {
+    document.getElementById(prefix + '-label').textContent = label;
+    document.getElementById(prefix + '-val').textContent = (conf * 100).toFixed(1) + '%';
+    const bar = document.getElementById(prefix + '-bar');
+    requestAnimationFrame(() => {
+      bar.style.width = (conf * 100).toFixed(1) + '%';
+    });
+  }
+})();
+
+function copyCode(btn) {
+  const block = btn.parentElement;
+  const text = block.innerText.replace('Copy', '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+</script>
+
+</body>
+</html>

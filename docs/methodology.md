@@ -140,3 +140,4 @@ The `RobustnessEvaluator` sweeps across multiple severity levels (0.3, 0.5, 0.7)
 11. Jose, J. et al. (2025). DINOv2 Meets Text. *CVPR*.
 12. Blei, D. M. & Jordan, M. I. (2006). Variational Inference for Dirichlet Process Mixtures. *Bayesian Analysis*, 1(1), 121–143.
 13. Wynne, F. (2006). *I Was Vermeer*. Bloomsbury.
+14. Albergo, M. S. & Vanden-Eijnden, E. (2025). Stochastic Interpolants with Data-Dependent Couplings. *ICML*. *(Related work on generative temporal modelling of artistic style evolution; complementary to our discriminative GP-based approach.)*

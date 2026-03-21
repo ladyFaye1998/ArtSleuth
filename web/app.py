@@ -491,40 +491,26 @@ def _hand_map_palette(n: int) -> list[list[int]]:
 
 
 def _build_benchmark_table() -> str:
-    """Return a static HTML table summarising benchmark results."""
-    rows = [
-        ("DINOv2-B/14", "71.4%", "0.684", "58.2%", "82.1%", "74.3%"),
-        ("CLIP ViT-L/14", "68.9%", "0.661", "61.7%", "85.4%", "71.8%"),
-        (
-            "ArtSleuth Fusion",
-            "<strong>74.2%</strong>",
-            "<strong>0.718</strong>",
-            "<strong>65.3%</strong>",
-            "<strong>88.0%</strong>",
-            "<strong>76.1%</strong>",
-        ),
-    ]
-    header = (
-        "<tr>"
-        "<th>Backbone</th>"
-        "<th>Style Acc</th><th>Style F1</th>"
-        "<th>Artist Acc</th><th>Artist Top-5</th>"
-        "<th>Genre Acc</th>"
-        "</tr>"
-    )
-    body = "".join(
-        f"<tr><td><strong>{r[0]}</strong></td>"
-        + "".join(f"<td>{c}</td>" for c in r[1:])
-        + "</tr>"
-        for r in rows
-    )
+    """Return an HTML panel explaining how to run the benchmark."""
     return (
-        '<div style="overflow-x:auto;margin:1rem 0">'
-        '<table style="width:100%;border-collapse:collapse;'
-        'text-align:center">'
-        f"<thead>{header}</thead>"
-        f"<tbody>{body}</tbody>"
-        "</table></div>"
+        '<div style="text-align:center;padding:2rem 1rem;'
+        'background:#F5F0EB;border-radius:8px;margin:1rem 0">'
+        '<h3 style="color:#1A2E48;margin:0 0 0.5rem">'
+        'Linear Probe Evaluation · WikiArt</h3>'
+        '<p style="color:#68594a;font-size:0.95rem;'
+        'max-width:500px;margin:0 auto 1.2rem">'
+        'Three backbone configurations (DINOv2, CLIP, '
+        'Fusion) evaluated on 81k artworks with frozen '
+        'features and logistic regression.</p>'
+        '<code style="display:inline-block;background:#1A2E48;'
+        'color:#F5F0EB;padding:0.6rem 1.2rem;border-radius:6px;'
+        'font-size:0.9rem">'
+        'pip install artsleuth[benchmarks] && '
+        'artsleuth benchmark --device cuda</code>'
+        '<p style="color:#988b7e;font-size:0.82rem;'
+        'margin-top:0.8rem">'
+        'Results are saved as JSON, Markdown, and LaTeX tables.'
+        '</p></div>'
     )
 
 
@@ -532,15 +518,15 @@ def _benchmark_methodology() -> str:
     """Return Markdown text explaining the benchmark methodology."""
     return (
         "### Methodology\n\n"
-        "All models were evaluated on the **WikiArt** test split "
+        "All models are evaluated on the **WikiArt** test split "
         "(≈ 10 000 images, 27 styles, 195 artists, 10 genres). "
         "Style and genre accuracy use single-label top-1 matching; "
         "artist accuracy reports both top-1 and top-5 retrieval "
         "against a gallery of 195 reference embeddings.\n\n"
         "**ArtSleuth Fusion** combines DINOv2 texture features with "
-        "CLIP semantic embeddings via a cross-attention fusion head "
-        "trained on 80 000 WikiArt images for 20 epochs. Metrics "
-        "reflect the checkpoint with the best validation F1.\n\n"
+        "CLIP semantic embeddings via a learnable cross-attention "
+        "fusion head. The benchmark script handles dataset download, "
+        "embedding extraction, and evaluation automatically.\n\n"
         "*All numbers are macro-averaged across classes to avoid "
         "inflating scores on over-represented styles.*"
     )

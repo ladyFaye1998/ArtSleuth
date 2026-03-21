@@ -123,6 +123,24 @@ def artsleuth_theme() -> gr.themes.Base:
 # Custom CSS
 # ---------------------------------------------------------------------------
 
+HEADER_HTML = (
+    '<div class="artsleuth-header">'
+    "  <h1>ArtSleuth</h1>"
+    "  <p>AI Art Forensics &amp; Analysis Framework</p>"
+    "</div>"
+)
+
+FOOTER_HTML = (
+    '<div class="artsleuth-footer">'
+    "  ArtSleuth &mdash; AI Art Forensics &amp; Analysis"
+    "  Framework &bull; Research use only<br>"
+    '  <span style="font-size:0.78rem;color:#988b7e;">'
+    "    Results are probabilistic and should be reviewed"
+    "    by qualified art historians."
+    "  </span>"
+    "</div>"
+)
+
 CUSTOM_CSS = """
 @import url(
     'https://fonts.googleapis.com/css2?family=Lora:'

@@ -9,7 +9,7 @@
 [![Python](https://img.shields.io/badge/Python-3.10+-9DC0D8?style=for-the-badge&labelColor=1A2E48&logo=python&logoColor=9DC0D8)](https://www.python.org/)&nbsp;
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-9DC0D8?style=for-the-badge&labelColor=1A2E48&logo=pytorch&logoColor=9DC0D8)](https://pytorch.org/)&nbsp;
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-Models-9DC0D8?style=for-the-badge&labelColor=1A2E48&logo=huggingface&logoColor=9DC0D8)](https://huggingface.co/)&nbsp;
-[![Demo](https://img.shields.io/badge/Demo-Live-d4af37?style=for-the-badge&labelColor=1A2E48)](https://huggingface.co/spaces/ladyFaye1998/ArtSleuth)&nbsp;
+[![Demo](https://img.shields.io/badge/Demo-Live-d4af37?style=for-the-badge&labelColor=1A2E48)](https://ladyfaye1998.github.io/ArtSleuth/)&nbsp;
 [![MCP](https://img.shields.io/badge/MCP-Server-9DC0D8?style=for-the-badge&labelColor=1A2E48)](https://modelcontextprotocol.io/)&nbsp;
 [![License](https://img.shields.io/badge/License-MIT-9DC0D8?style=for-the-badge&labelColor=1A2E48)](LICENSE)
 
@@ -179,21 +179,28 @@ graph TD
 
 ### ✦ Benchmark
 
-Linear probe evaluation on [WikiArt](https://huggingface.co/datasets/huggan/wikiart) (81k artworks, frozen backbones, logistic regression):
+Linear probe evaluation on [WikiArt](https://huggingface.co/datasets/huggan/wikiart) (81k artworks, frozen backbones, logistic regression) across three backbone configurations:
 
 <div align="center">
 
-| Backbone | Style Acc | Style F1 | Artist Top-1 | Artist Top-5 | Genre Acc |
-|:---|:---:|:---:|:---:|:---:|:---:|
-| DINOv2 | 54.2% | 0.481 | 38.7% | 62.1% | 61.3% |
-| CLIP | 61.8% | 0.572 | 44.3% | 71.6% | 67.9% |
-| **Fusion** | **65.1%** | **0.612** | **48.9%** | **75.2%** | **70.4%** |
+| Backbone | Style | Artist | Genre | Method |
+|:---|:---:|:---:|:---:|:---|
+| DINOv2 · ViT-S/14 | — | — | — | Texture-structural features |
+| CLIP · ViT-B/32 | — | — | — | Semantic-stylistic features |
+| **Fusion** · Cross-Attention | — | — | — | Style-guided structural features |
 
 </div>
 
 <br>
 
-Reproduce with `artsleuth benchmark` or see [`artsleuth/benchmarks/`](artsleuth/benchmarks/).
+Run the benchmark yourself to fill in the numbers:
+
+```bash
+pip install artsleuth[benchmarks]
+artsleuth benchmark --device cuda
+```
+
+Results are saved as JSON, Markdown, and LaTeX tables. See [`artsleuth/benchmarks/`](artsleuth/benchmarks/) for details.
 
 <br>
 
@@ -210,7 +217,7 @@ pip install artsleuth[web]
 artsleuth demo
 ```
 
-Or try the hosted version on [HuggingFace Spaces](https://huggingface.co/spaces/ladyFaye1998/ArtSleuth).
+Or try the hosted version at [ladyfaye1998.github.io/ArtSleuth](https://ladyfaye1998.github.io/ArtSleuth/).
 
 <br>
 
@@ -305,7 +312,8 @@ ArtSleuth/
 ├── tests/                     # Pytest suite (9 test modules)
 ├── examples/                  # Jupyter notebooks
 ├── docs/                      # Methodology & guides
-└── assets/                    # Visual assets
+├── assets/                    # Visual assets
+└── index.html                 # GitHub Pages landing site
 ```
 
 <br>
