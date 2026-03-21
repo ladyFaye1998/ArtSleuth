@@ -1,22 +1,19 @@
 """
 Artist and workshop attribution scoring.
 
-Attribution — determining *who* painted a given work — is among the most
-consequential judgements in art history.  A single re-attribution can
-shift a painting's market value by orders of magnitude and rewrite the
-narrative of an artist's career.
+Attribution is the question that keeps art historians up at night — and
+occasionally tanks auction prices.  "Who painted this?" sounds simple
+until you remember that Renaissance workshops were essentially small
+factories where a master designed the composition, painted the good bits,
+and handed the background to whoever showed up that Tuesday.
 
-Traditional connoisseurship relies on an expert's accumulated visual
-memory: "this hand recalls Artemisia's action nodes in the Uffizi
-*Judith*."  ArtSleuth formalises this intuition as a learned metric
-space where paintings by the same hand cluster together and paintings
-by different hands separate.
-
-The module computes an **attribution score** — a calibrated probability
-that a query painting was produced by (or under the supervision of) each
-candidate artist in a reference corpus.  Confidence intervals account
-for the inherent ambiguity of workshop production, where master and
-assistants may each contribute passages to a single canvas.
+Traditional connoisseurship boils down to visual memory: "this hand
+recalls Artemisia's action nodes in the Uffizi *Judith*."  Beautiful
+intuition, terrible reproducibility.  I wanted to keep the intuition
+and add the reproducibility — so this module learns a metric space where
+paintings by the same hand cluster together and paintings by different
+hands separate.  Confidence intervals included, because honestly,
+sometimes even the embedding is uncertain, and that's okay.
 
 References
 ----------

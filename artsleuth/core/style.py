@@ -1,21 +1,15 @@
 """
 Style classification — period, school, and technique.
 
-Art historians organise paintings along three principal axes of style:
+Wölfflin would have loved this module (and also hated it, probably).
 
-  * **Period** — the broad chronological era (e.g. Renaissance, Baroque,
-    Impressionism) characterised by shared visual conventions.
-  * **School** — the geographic or ideological grouping (e.g. Venetian,
-    Dutch Golden Age, Pre-Raphaelite).
-  * **Technique** — the material execution (e.g. oil on canvas, tempera
-    on panel, watercolour, fresco).
-
-ArtSleuth's style classifier leverages CLIP embeddings — which encode
-both visual and semantic information — projected through learned linear
-heads.  The choice of CLIP over a purely visual backbone is deliberate:
-stylistic categories are *culturally constructed* labels, and CLIP's
-vision-language pre-training captures exactly this kind of socially
-grounded visual concept.
+Three axes: *period* (Renaissance, Baroque, …), *school* (Venetian,
+Flemish, …), and *technique* (oil on canvas, tempera on panel, …).
+The key insight is that these labels are culturally constructed — "Baroque"
+isn't a pixel value, it's a vibe backed by 400 years of art-historical
+consensus.  Which is exactly why CLIP works better here than a purely
+visual backbone: its vision-language pre-training already encodes this
+kind of socially grounded concept.  Neat trick.
 
 References
 ----------

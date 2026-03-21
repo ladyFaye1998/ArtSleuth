@@ -1,11 +1,11 @@
 """
 Task-specific classification and projection heads.
 
-Each analytical task in ArtSleuth is served by a lightweight linear
-head that projects the backbone's embedding space into the target
-label space.  Heads are designed to be independently trainable: a
-researcher can fine-tune the style head on a new corpus without
-affecting the brushstroke analysis.
+Thin linear layers on top of the backbone — one per task, deliberately
+kept independent so you can fine-tune the style head on a new corpus
+without messing up the brushstroke analysis.  Nothing fancy here,
+and that's the point.  The backbone does the heavy lifting; these
+just translate.
 """
 
 from __future__ import annotations

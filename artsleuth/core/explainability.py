@@ -1,24 +1,20 @@
 """
 Interpretable visual explanations for ArtSleuth analyses.
 
-A black-box attribution or forgery flag is of limited value to an art
-historian or conservator.  What matters is *where* the model is looking
-and *why* it reaches a given conclusion.  ArtSleuth's explainability
-engine produces spatial attention overlays that highlight the image
-regions most influential to each analytical verdict.
+If I tell you "this painting is 82% likely Artemisia" and can't show
+you *where* the model is looking, I haven't really told you anything
+useful.  Conservators and art historians need to see the evidence —
+they need the equivalent of a colleague pointing at the canvas and
+saying "look at this passage here."
 
-The module implements two complementary techniques:
+Two techniques, both composited at full resolution so the output is
+publication-ready (I've spent enough evenings wrestling matplotlib
+into submission for conference figures, so you don't have to):
 
-  * **GradCAM** — gradient-weighted class activation mapping, which
-    produces coarse heatmaps indicating high-level "important" regions
-    (Selvaraju et al., 2017).
-  * **Attention rollout** — aggregated attention maps from each layer
-    of the vision transformer, yielding finer-grained patch-level
-    salience (Abnar & Zuidema, 2020).
-
-Both outputs are composited onto the original artwork at full resolution,
-producing publication-quality figures suitable for catalogue entries or
-conservation reports.
+  * **GradCAM** — coarse heatmaps of what the network considers
+    "important" (Selvaraju et al., 2017).
+  * **Attention rollout** — finer-grained patch-level salience
+    aggregated across transformer layers (Abnar & Zuidema, 2020).
 
 References
 ----------
@@ -218,7 +214,8 @@ class ExplainabilityEngine:
 
         rgb = np.array(image.convert("RGB"), dtype=np.float32) / 255.0
 
-        # Apply a warm colourmap evocative of gallery lighting
+        # Inferno colourmap — warm tones that feel like gallery lighting
+        # rather than the clinical viridis default
         colored_heatmap = cm.inferno(heatmap)[..., :3].astype(np.float32)
 
         blended = (1 - alpha) * rgb + alpha * colored_heatmap

@@ -1,21 +1,15 @@
 """
 Art-specific image transforms.
 
-Standard computer-vision preprocessing assumes clean, uniformly-lit
-photographs.  Artwork images present unique challenges:
+ImageNet preprocessing assumes clean, uniformly-lit photos.  Paintings
+are… not that.  Centuries of varnish have turned half the Old Masters
+amber.  Craquelure crosshatches every surface.  The canvas weave hums
+at its own spatial frequency.  And don't get me started on gallery
+lighting and glass reflections.
 
-  * **Varnish yellowing** — accumulated surface coatings shift the
-    colour temperature toward warm amber.
-  * **Craquelure** — age-induced cracks form a high-frequency noise
-    pattern orthogonal to the artist's brushwork.
-  * **Canvas texture** — the weave of the support fabric introduces
-    periodic spatial frequencies unrelated to pictorial content.
-  * **Photographic distortion** — gallery lighting, glass reflections,
-    and perspective keystoning degrade capture quality.
-
-This module provides corrective transforms that precede backbone
-encoding, bringing artwork images closer to the idealised conditions
-under which pre-trained vision transformers perform optimally.
+These transforms try to peel back the noise of age and photography
+so the backbone can focus on what the artist actually put there.
+Not perfect — a good conservator still sees more — but it helps.
 """
 
 from __future__ import annotations
@@ -113,7 +107,7 @@ def correct_varnish(
 
     arr = np.array(image, dtype=np.float32)
 
-    # Reduce red and green channels relative to blue
+    # Pull back the warm amber shift — most old varnish pushes R and G up
     arr[..., 0] *= 1.0 - 0.15 * strength  # red
     arr[..., 1] *= 1.0 - 0.05 * strength  # green
     arr[..., 2] *= 1.0 + 0.10 * strength  # blue

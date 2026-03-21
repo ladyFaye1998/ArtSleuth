@@ -1,13 +1,15 @@
 """
 ArtSleuth — AI Art Forensics & Analysis Framework.
 
-A computational toolkit for brushstroke analysis, style attribution,
-forgery detection, and interpretable visual explanations in fine art,
-powered by vision transformers and grounded in art-historical methodology.
+I built this because I got tired of the gap between what connoisseurs
+*feel* when they look at a painting and what we can actually quantify.
+Brushstroke directionality, palette warmth, impasto thickness — these
+are measurable, and yet most attribution debates still come down to
+"trust my eye."  This toolkit is my attempt to put numbers under the
+intuition, without pretending the numbers are the whole story.
 
-Developed at the intersection of computer science and art history,
-ArtSleuth bridges quantitative machine-learning techniques with the
-qualitative reasoning that has guided connoisseurship for centuries.
+Powered by DINOv2 and CLIP.  Grounded in Morelli, Berenson, and a
+healthy scepticism toward both art historians and algorithms.
 
 Example
 -------

@@ -1,1 +1,1 @@
-"""Shared utilities — visualization, I/O, and convenience helpers."""
+"""Shared utilities — the glue that keeps everything gallery-presentable."""

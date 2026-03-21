@@ -1,17 +1,16 @@
 """
 Brushstroke pattern extraction and analysis.
 
-This module implements the computational analogue of what connoisseurs
-call *facture* — the characteristic handling of paint that distinguishes
-one artist's hand from another.  By decomposing a painting into local
-patches and projecting each through a self-supervised vision transformer,
-we obtain dense feature maps that encode directional energy, texture
-granularity, and impasto relief.
+This is where it gets personal — *facture*, the physical handling of
+paint, is the closest thing to an artist's fingerprint.  Morelli figured
+this out in the 1870s: don't look at the Madonna's face (the artist was
+trying there), look at her earlobes (that's pure motor habit).
 
-The approach draws on the observation — formalised by Morelli in the
-1870s and refined by Berenson — that an artist's most habitual gestures
-reside in the least-scrutinised passages: drapery folds, background
-foliage, the rendering of fingernails and earlobes.
+We formalise exactly that intuition.  Decompose the painting into local
+patches, push each through DINOv2, and out come dense feature maps
+encoding directional energy, texture granularity, and impasto relief.
+Cluster them, and workshop paintings practically label themselves —
+the master's passages separate from the assistants' like oil from water.
 
 References
 ----------
@@ -234,7 +233,8 @@ class BrushstrokeAnalyzer:
         jxy = (gx * gy).mean()
         jyy = (gy * gy).mean()
 
-        # Eigenvalues of the 2×2 structure tensor
+        # Eigenvalue decomposition of the 2×2 structure tensor — the math
+        # version of "which direction do the strokes go, and how confidently?"
         discriminant = np.sqrt(max((jxx - jyy) ** 2 + 4 * jxy**2, 0.0))
         lambda1 = 0.5 * (jxx + jyy + discriminant)
         lambda2 = 0.5 * (jxx + jyy - discriminant)
@@ -277,7 +277,8 @@ class BrushstrokeAnalyzer:
             x, y, pw, ph = d.bbox
             energy_map[y : y + ph, x : x + pw] = d.energy
 
-        # Cluster patch embeddings to reveal distinct hands
+        # Cluster patch embeddings — if there are multiple hands in a
+        # workshop painting, they'll often separate here quite cleanly
         embeddings = np.stack([d.embedding for d in descriptors])
         n_clusters = min(4, len(descriptors))
         if n_clusters >= 2:

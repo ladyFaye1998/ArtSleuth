@@ -1,19 +1,17 @@
 """
 Anomaly-based forgery detection.
 
-A forged painting, however skilfully executed, must deviate from the
-statistical regularities of the artist it imitates.  The forger faces
-an impossible task: reproducing not just the *appearance* of an artist's
-style, but the full joint distribution over thousands of low-level
-feature dimensions that the artist's motor habits, material choices,
-and visual instincts collectively define.
+Here's the thing about forgeries: the forger can copy what they *see*,
+but they can't copy what they don't know they're missing.  An artist's
+motor habits, material quirks, the way they instinctively load a brush —
+these produce statistical regularities across thousands of feature
+dimensions that no forger fully reproduces.  Van Meegeren fooled the
+experts but he wouldn't have fooled a good embedding space.  (Probably.)
 
-ArtSleuth formalises this insight through one-class anomaly detection.
-Given a reference corpus for a candidate artist, we model the "normal"
-feature distribution and flag query paintings that fall outside its
-support as potential forgeries.  The approach is deliberately conservative
-— a high anomaly score raises a flag for expert review; it does not
-constitute a definitive judgement.
+This module does one-class anomaly detection against a reference corpus.
+Deliberately conservative — a high score means "you should definitely
+get a second opinion from a conservator," not "this is fake."  I've seen
+too many confident attributions go sideways to promise more than that.
 
 References
 ----------
@@ -183,7 +181,8 @@ class ForgeryDetector:
         mean = feature_vectors.mean(axis=0)
         cov = np.cov(feature_vectors, rowvar=False)
 
-        # Regularise the covariance to avoid singular matrices with small corpora
+        # Regularise — small corpora produce singular covariance matrices,
+        # and the last thing we want is a LinAlgError mid-attribution
         cov += np.eye(cov.shape[0]) * 1e-6
 
         try:
@@ -244,7 +243,7 @@ class ForgeryDetector:
         mahal_sq = float(diff @ ci @ diff)
         mahal = np.sqrt(max(mahal_sq, 0.0))
 
-        # Normalise to 0–1 via sigmoid
+        # Squash to 0–1 via sigmoid — human-readable beats mathematically pure
         anomaly_score = float(1.0 / (1.0 + np.exp(-0.1 * (mahal - 10.0))))
 
         # Per-feature z-scores for interpretability

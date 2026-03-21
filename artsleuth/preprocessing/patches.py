@@ -1,19 +1,19 @@
 """
 Intelligent patch extraction for brushstroke analysis.
 
-Dividing a painting into local patches is the foundational step of
-brushstroke analysis.  The extraction strategy determines which regions
-are examined and thus which aspects of the artist's hand are captured.
+You have to cut the painting into patches before you can analyse the
+brushwork — the question is *which* patches.  A naïve grid wastes time
+on flat sky passages that tell you nothing.  A purely saliency-based
+approach might miss subtle background work where the workshop hand
+is most visible.
 
-Three strategies are supported:
+Three strategies, pick your trade-off:
 
-  * **Grid** — uniform tiling with configurable overlap.  Fast and
-    deterministic; suitable for systematic whole-surface surveys.
-  * **Salient** — focuses on high-detail regions identified by local
-    gradient energy.  Prioritises passages where brushwork is most
-    expressive (and therefore most diagnostic).
-  * **Adaptive** — combines grid tiling with saliency-weighted
-    oversampling of high-detail areas.  The default strategy.
+  * **Grid** — uniform tiles, fast, deterministic, slightly boring.
+  * **Salient** — chases the most textured regions.  Great for
+    expressive passages, blind to quiet ones.
+  * **Adaptive** (default) — grid plus extra sampling of high-detail
+    areas.  Best of both worlds, usually.
 """
 
 from __future__ import annotations

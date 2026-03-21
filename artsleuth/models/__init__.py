@@ -1,1 +1,1 @@
-"""Model architectures and registry for ArtSleuth."""
+"""Model architectures and registry — the neural networks behind the connoisseurship."""

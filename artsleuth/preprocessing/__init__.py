@@ -1,1 +1,1 @@
-"""Art-specific preprocessing and patch extraction."""
+"""Art-specific preprocessing — because paintings are not ImageNet photos."""

@@ -1,1 +1,1 @@
-"""MCP (Model Context Protocol) server for ArtSleuth integration."""
+"""MCP server — teach your AI assistant to talk about art properly."""

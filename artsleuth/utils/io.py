@@ -1,9 +1,9 @@
 """
 Image I/O and format handling.
 
-Provides a unified interface for loading artwork images from various
-sources — local files, URLs, and byte streams — with automatic format
-detection, EXIF orientation correction, and colour-space normalisation.
+Loads artwork images from files, URLs, or byte streams.  Handles the
+annoying stuff automatically — EXIF rotation, alpha stripping, greyscale
+promotion — so you never have to debug a sideways Vermeer again.
 """
 
 from __future__ import annotations

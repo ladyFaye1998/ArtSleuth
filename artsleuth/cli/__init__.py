@@ -1,1 +1,1 @@
-"""Command-line interface for ArtSleuth."""
+"""CLI — point, shoot, attribute."""

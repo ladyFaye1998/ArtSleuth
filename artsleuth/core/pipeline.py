@@ -1,10 +1,10 @@
 """
 Unified analysis pipeline.
 
-Orchestrates the full ArtSleuth analysis sequence — preprocessing,
-brushstroke extraction, style classification, attribution scoring,
-forgery screening, and explainability — into a single callable that
-returns a structured ``AnalysisResult``.
+Wires everything together: preprocessing → brushstrokes → style →
+attribution → forgery → explainability, all in one call.  This is the
+"I just want an answer" entry point.  For the "I want to understand
+every intermediate step" entry point, use the individual modules.
 """
 
 from __future__ import annotations

@@ -1,9 +1,9 @@
 """
 Publication-quality visualization utilities.
 
-Generates figures suitable for academic papers, conservation reports,
-and catalogue entries.  The visual language follows gallery conventions:
-muted backgrounds, warm accent colourways, and typographic restraint.
+Gallery-warm colour palette, muted backgrounds, the kind of figures
+you can drop straight into a catalogue essay or conservation report
+without the reviewer side-eyeing your matplotlib defaults.
 """
 
 from __future__ import annotations

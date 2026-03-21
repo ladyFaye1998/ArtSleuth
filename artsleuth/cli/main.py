@@ -1,17 +1,9 @@
 """
 Command-line interface for ArtSleuth.
 
-Provides quick access to all analysis capabilities from the terminal
-with rich, colour-formatted output.
-
-Usage
------
-::
-
-    artsleuth analyze painting.jpg
-    artsleuth style painting.jpg
-    artsleuth compare painting_a.jpg painting_b.jpg
-    artsleuth server
+For when you just want to point at a painting and get answers without
+opening a notebook.  Rich terminal output because life's too short
+for monochrome stack traces.
 """
 
 from __future__ import annotations

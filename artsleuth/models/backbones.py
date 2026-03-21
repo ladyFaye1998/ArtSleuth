@@ -1,23 +1,18 @@
 """
 Vision-transformer backbone loading and management.
 
-ArtSleuth supports two complementary backbones, each chosen for a
-specific analytical strength:
+Two backbones, two philosophies:
 
-  * **DINOv2** (Oquab et al., 2024) — a self-supervised ViT trained
-    to learn *visual* features without language.  Excels at capturing
-    fine-grained textures, brushstroke directionality, and impasto
-    relief — the low-level physical marks that distinguish one hand
-    from another.
+  * **DINOv2** — pure vision, no language.  Sees texture, brushstroke
+    direction, impasto thickness — all the physical stuff that Morelli
+    cared about.  This is your low-level "hand of the artist" backbone.
 
-  * **CLIP** (Radford et al., 2021) — a contrastive vision-language
-    model whose embedding space encodes *semantic* associations between
-    images and text.  Ideal for style classification, where categories
-    like "Baroque" or "Impressionism" are culturally constructed labels
-    that benefit from linguistic grounding.
+  * **CLIP** — vision *plus* language.  Knows that "Baroque" is a thing
+    before it ever sees a Caravaggio.  Perfect for style classification,
+    where the categories are as much cultural agreement as visual reality.
 
-Both backbones are loaded from HuggingFace Hub or torch.hub and cached
-locally for offline reproducibility.
+Both load from HuggingFace Hub or torch.hub, cached locally so you
+can work on a train without WiFi.  (Ask me how I know this matters.)
 """
 
 from __future__ import annotations

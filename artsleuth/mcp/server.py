@@ -1,28 +1,13 @@
 """
 MCP (Model Context Protocol) server for ArtSleuth.
 
-Exposes ArtSleuth's analytical capabilities as MCP tools, allowing
-AI assistants (Claude, GPT, etc.) to perform art-historical analysis
-within a conversational context.
+Lets AI assistants — Claude, GPT, whatever comes next — run art
+analysis mid-conversation.  "Hey, can you check if this looks like
+a Caravaggio?" becomes a real question with a real answer.
 
-Usage
------
-Launch standalone::
-
-    artsleuth server
-
-Or programmatically::
-
-    from artsleuth.mcp.server import create_server
-    server = create_server()
-    server.run()
-
-The server registers four tools:
-
-  * ``analyze_artwork`` — full analysis pipeline.
-  * ``classify_style`` — period, school, and technique classification.
-  * ``compare_works`` — side-by-side attribution comparison.
-  * ``detect_anomalies`` — forgery anomaly screening.
+Launch with ``artsleuth server`` or wire it into Claude Desktop via
+the MCP config.  Four tools: full analysis, style classification,
+side-by-side comparison, and forgery screening.
 """
 
 from __future__ import annotations
