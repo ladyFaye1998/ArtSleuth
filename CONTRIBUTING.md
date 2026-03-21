@@ -1,6 +1,6 @@
-# Let's Build a Story Together
+# Contributing to ArtSleuth
 
-Thank you for considering a contribution to ArtSleuth. This project lives at the intersection of art history and machine learning — a space where disciplinary humility is as important as technical skill. Every contribution, whether it corrects a Wölfflin citation or optimises a CUDA kernel, strengthens the bridge between these fields.
+Thank you for considering a contribution. This project sits at the intersection of art history and machine learning, and contributions from either side — whether correcting a Wölfflin citation or optimising a CUDA kernel — are equally valued.
 
 ## How to Contribute
 
@@ -32,13 +32,13 @@ Open a [GitHub Issue](https://github.com/ladyFaye1998/ArtSleuth/issues) using th
 
 ### Code Style
 
-- **Tone**: Professional and academic. Comments explain *why*, not *what*. Art-historical references are encouraged where they illuminate a design choice.
+- **Tone**: Straightforward and clear. Comments should explain *why* a choice was made, not narrate what the code does. Art-historical references are welcome where they genuinely help a reader understand a design decision.
 - **Formatting**: Enforced by Ruff. Line length is 100 characters.
 - **Naming**: Classes are `PascalCase`, functions and variables are `snake_case`. Prefer descriptive names over abbreviations — `coherence` over `coh`.
 
 ### Ethical Guidelines
 
-ArtSleuth is a *screening tool*, not an oracle. Attribution and forgery detection are probabilistic assessments that should inform — never replace — expert judgement. When writing documentation or communicating results:
+ArtSleuth is a *screening tool*. Attribution and forgery detection produce probabilistic assessments that should inform — never replace — expert judgement. When writing documentation or communicating results:
 
 - Use hedging language: "consistent with", "suggests", "warrants further examination".
 - Never claim definitive authentication or condemnation of an artwork.
@@ -46,7 +46,7 @@ ArtSleuth is a *screening tool*, not an oracle. Attribution and forgery detectio
 
 ## Code of Conduct
 
-Be excellent to each other. Treat every contributor — art historian, engineer, student — with respect and curiosity. Disagreements about methodology are welcome; personal attacks are not.
+Treat every contributor — art historian, engineer, student — with respect and curiosity. Disagreements about methodology are welcome; personal attacks are not.
 
 ---
 

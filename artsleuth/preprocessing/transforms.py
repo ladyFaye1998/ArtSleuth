@@ -2,14 +2,13 @@
 Art-specific image transforms.
 
 ImageNet preprocessing assumes clean, uniformly-lit photos.  Paintings
-are… not that.  Centuries of varnish have turned half the Old Masters
-amber.  Craquelure crosshatches every surface.  The canvas weave hums
-at its own spatial frequency.  And don't get me started on gallery
-lighting and glass reflections.
+present different challenges: centuries of varnish yellowing, craquelure
+crosshatching every surface, canvas weave humming at its own spatial
+frequency, and variable gallery lighting or glass reflections.
 
-These transforms try to peel back the noise of age and photography
-so the backbone can focus on what the artist actually put there.
-Not perfect — a good conservator still sees more — but it helps.
+These transforms try to peel back the noise of age and photography so
+the backbone can focus on what the artist actually put there.  Not a
+replacement for proper conservation imaging, but a practical first step.
 """
 
 from __future__ import annotations

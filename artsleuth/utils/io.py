@@ -1,9 +1,9 @@
 """
 Image I/O and format handling.
 
-Loads artwork images from files, URLs, or byte streams.  Handles the
-annoying stuff automatically — EXIF rotation, alpha stripping, greyscale
-promotion — so you never have to debug a sideways Vermeer again.
+Loads artwork images from files, URLs, or byte streams.  Handles EXIF
+rotation, alpha stripping, and greyscale promotion automatically so
+downstream modules can assume consistent RGB input.
 """
 
 from __future__ import annotations

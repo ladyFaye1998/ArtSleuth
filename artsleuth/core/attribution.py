@@ -1,19 +1,19 @@
 """
 Artist and workshop attribution scoring.
 
-Attribution is the question that keeps art historians up at night — and
-occasionally tanks auction prices.  "Who painted this?" sounds simple
-until you remember that Renaissance workshops were essentially small
-factories where a master designed the composition, painted the good bits,
-and handed the background to whoever showed up that Tuesday.
+Determining *who* painted a given work is among the most consequential
+— and contentious — judgements in art history, with real implications
+for market value and scholarly understanding.  Renaissance workshops
+complicate things further: a master might design the composition, paint
+the key figures, and delegate the background to an assistant.
 
 Traditional connoisseurship boils down to visual memory: "this hand
 recalls Artemisia's action nodes in the Uffizi *Judith*."  Beautiful
-intuition, terrible reproducibility.  I wanted to keep the intuition
-and add the reproducibility — so this module learns a metric space where
+intuition, terrible reproducibility.  The goal here is to keep the
+intuition and add the reproducibility — a learned metric space where
 paintings by the same hand cluster together and paintings by different
-hands separate.  Confidence intervals included, because honestly,
-sometimes even the embedding is uncertain, and that's okay.
+hands separate.  Confidence intervals included, because sometimes
+even the embedding is uncertain, and that's worth knowing.
 
 References
 ----------

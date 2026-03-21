@@ -1,10 +1,11 @@
 """
 Configuration management for ArtSleuth analysis pipelines.
 
-One config object to rule them all.  Defaults are tuned for Western
-easel painting (oil on canvas, roughly 15th–19th century) because
-that's where my training data lives, but everything is overridable
-if you're working with, say, Japanese ink wash or Mughal miniatures.
+Single validated configuration object governing every stage of the
+analysis.  Defaults are tuned for Western easel painting (oil on canvas,
+roughly 15th–19th century) since that is the best-represented category
+in current training data, but all parameters are overridable for other
+traditions (ink wash, miniature painting, etc.).
 """
 
 from __future__ import annotations

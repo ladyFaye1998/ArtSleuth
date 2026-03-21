@@ -1,11 +1,11 @@
 """
 Intelligent patch extraction for brushstroke analysis.
 
-You have to cut the painting into patches before you can analyse the
-brushwork — the question is *which* patches.  A naïve grid wastes time
-on flat sky passages that tell you nothing.  A purely saliency-based
-approach might miss subtle background work where the workshop hand
-is most visible.
+Dividing a painting into local patches is the foundational step of
+brushstroke analysis — the question is *which* patches matter.  A naïve
+grid wastes time on flat sky passages that carry little information.
+A purely saliency-based approach might miss subtle background work
+where the workshop hand is most visible.
 
 Three strategies, pick your trade-off:
 

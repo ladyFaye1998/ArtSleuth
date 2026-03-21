@@ -1,10 +1,9 @@
 """
 Unified analysis pipeline.
 
-Wires everything together: preprocessing → brushstrokes → style →
-attribution → forgery → explainability, all in one call.  This is the
-"I just want an answer" entry point.  For the "I want to understand
-every intermediate step" entry point, use the individual modules.
+Orchestrates the full analysis sequence: preprocessing → brushstrokes →
+style → attribution → forgery → explainability, all in one call.  For
+finer control over individual stages, use the component modules directly.
 """
 
 from __future__ import annotations

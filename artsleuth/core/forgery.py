@@ -1,17 +1,17 @@
 """
 Anomaly-based forgery detection.
 
-Here's the thing about forgeries: the forger can copy what they *see*,
-but they can't copy what they don't know they're missing.  An artist's
-motor habits, material quirks, the way they instinctively load a brush —
-these produce statistical regularities across thousands of feature
-dimensions that no forger fully reproduces.  Van Meegeren fooled the
-experts but he wouldn't have fooled a good embedding space.  (Probably.)
+A forger can copy what they *see*, but they can't copy what they don't
+know they're missing.  An artist's motor habits, material quirks, the
+way they instinctively load a brush — these produce statistical
+regularities across thousands of feature dimensions that no forger
+fully reproduces.  Van Meegeren fooled the experts, but a good embedding
+space would likely have flagged the inconsistencies.
 
-This module does one-class anomaly detection against a reference corpus.
-Deliberately conservative — a high score means "you should definitely
-get a second opinion from a conservator," not "this is fake."  I've seen
-too many confident attributions go sideways to promise more than that.
+One-class anomaly detection against a reference corpus.  Deliberately
+conservative — a high score means "this warrants closer examination by
+a conservator," not "this is fake."  Attribution history has enough
+confident calls that turned out wrong; cautious language matters.
 
 References
 ----------

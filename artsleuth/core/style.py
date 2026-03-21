@@ -1,15 +1,13 @@
 """
 Style classification — period, school, and technique.
 
-Wölfflin would have loved this module (and also hated it, probably).
-
 Three axes: *period* (Renaissance, Baroque, …), *school* (Venetian,
 Flemish, …), and *technique* (oil on canvas, tempera on panel, …).
-The key insight is that these labels are culturally constructed — "Baroque"
-isn't a pixel value, it's a vibe backed by 400 years of art-historical
-consensus.  Which is exactly why CLIP works better here than a purely
-visual backbone: its vision-language pre-training already encodes this
-kind of socially grounded concept.  Neat trick.
+
+These labels are culturally constructed — "Baroque" isn't a pixel value,
+it's a consensus built over 400 years of art-historical writing.  CLIP
+works well here because its vision-language pre-training already encodes
+this kind of socially grounded concept, unlike purely visual backbones.
 
 References
 ----------

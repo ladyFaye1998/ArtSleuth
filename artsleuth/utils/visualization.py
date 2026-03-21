@@ -1,9 +1,9 @@
 """
 Publication-quality visualization utilities.
 
-Gallery-warm colour palette, muted backgrounds, the kind of figures
-you can drop straight into a catalogue essay or conservation report
-without the reviewer side-eyeing your matplotlib defaults.
+Gallery-warm colour palette with muted backgrounds, designed to produce
+figures suitable for catalogue essays, conservation reports, and academic
+publications without additional styling.
 """
 
 from __future__ import annotations

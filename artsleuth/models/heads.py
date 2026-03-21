@@ -2,10 +2,9 @@
 Task-specific classification and projection heads.
 
 Thin linear layers on top of the backbone — one per task, deliberately
-kept independent so you can fine-tune the style head on a new corpus
-without messing up the brushstroke analysis.  Nothing fancy here,
-and that's the point.  The backbone does the heavy lifting; these
-just translate.
+kept independent so fine-tuning the style head on a new corpus won't
+affect the brushstroke analysis.  The backbone does the heavy lifting;
+these project its embeddings into task-specific label spaces.
 """
 
 from __future__ import annotations

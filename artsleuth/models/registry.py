@@ -1,11 +1,10 @@
 """
 Model and reference-gallery registry.
 
-Handles downloading, caching, and versioning of everything we store
-on HuggingFace Hub — model weights, reference embeddings, the works.
-One place to look, one place to break.  Reproducibility through
-explicit version pinning, because "it worked on my machine" is not
-a valid provenance claim.
+Handles downloading, caching, and versioning of pre-trained model
+weights and reference embedding galleries from HuggingFace Hub.
+Centralised to keep dependency management simple and reproducibility
+reliable through explicit version pinning.
 """
 
 from __future__ import annotations

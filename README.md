@@ -19,11 +19,11 @@
 
 ## 👁️ What Is This?
 
-**ArtSleuth** is a computational art-analysis framework that does what connoisseurs have done for centuries — examines the physical evidence a painter leaves on a canvas — but formalises it as machine learning.
+**ArtSleuth** is a computational art-analysis framework that formalises what connoisseurs have done for centuries — examining the physical evidence a painter leaves on a canvas — using machine learning.
 
-Brushstroke directionality. Impasto relief. Palette temperature. The habitual gestures that reside in the least-scrutinised passages of a painting — drapery folds, background foliage, the rendering of earlobes. *These* are the signals that distinguish one hand from another, and they are precisely what a self-supervised vision transformer learns to encode.
+Brushstroke directionality, impasto relief, palette temperature, the habitual gestures that reside in the least-scrutinised passages of a painting — drapery folds, background foliage, the rendering of earlobes. These are the signals that distinguish one hand from another, and they map naturally onto what self-supervised vision transformers learn to encode.
 
-ArtSleuth bridges **art history** and **deep learning** to provide:
+It bridges **art history** and **deep learning** to provide:
 
 - 🔬 **Brushstroke Analysis** — Structure-tensor decomposition of stroke orientation, coherence, energy, and curvature, with patch-level clustering to detect multiple hands.
 - 🏛️ **Style Classification** — Period, school, and technique prediction via CLIP embeddings projected through learned linear heads.
@@ -197,7 +197,7 @@ ArtSleuth's analytical framework draws on two traditions:
 
 **From computer science** — Self-supervised vision transformers (Caron et al., 2021; Oquab et al., 2024) that learn rich visual features without task-specific labels. Contrastive vision-language models (Radford et al., 2021) that ground visual concepts in linguistic semantics. One-class anomaly detection (Schölkopf et al., 2001) for identifying statistical outliers in high-dimensional feature spaces.
 
-The intersection is deliberate. Neither tradition alone suffices: art history provides the *questions*; machine learning provides a *scale* of analysis that no human eye can match.
+The two complement each other: art history provides the *questions*; machine learning provides a *scale* of analysis that would be impractical by eye alone.
 
 For a detailed technical discussion, see [`docs/methodology.md`](docs/methodology.md).
 
@@ -219,9 +219,9 @@ If ArtSleuth contributes to your research, please cite:
 
 ---
 
-## 🤝 Let's Build a Story Together
+## 🤝 Contributing
 
-ArtSleuth is built at the intersection of disciplines that rarely share a room. If you're an art historian curious about computation, a machine-learning researcher curious about cultural heritage, or a conservator who's ever wished a neural network could tell you what it sees — this project is for you.
+Contributions are welcome from art historians, ML researchers, conservators, and anyone interested in computational approaches to cultural heritage.
 
 **Ways to contribute:**
 

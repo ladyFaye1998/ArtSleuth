@@ -1,12 +1,12 @@
 """
 ArtSleuth — AI Art Forensics & Analysis Framework.
 
-I built this because I got tired of the gap between what connoisseurs
-*feel* when they look at a painting and what we can actually quantify.
-Brushstroke directionality, palette warmth, impasto thickness — these
-are measurable, and yet most attribution debates still come down to
-"trust my eye."  This toolkit is my attempt to put numbers under the
-intuition, without pretending the numbers are the whole story.
+There's a gap between what connoisseurs *feel* when they look at a
+painting and what we can actually quantify.  Brushstroke directionality,
+palette warmth, impasto thickness — these are measurable, and yet most
+attribution debates still come down to "trust my eye."  This toolkit
+tries to put numbers under the intuition, without pretending the
+numbers are the whole story.
 
 Powered by DINOv2 and CLIP.  Grounded in Morelli, Berenson, and a
 healthy scepticism toward both art historians and algorithms.

@@ -1,16 +1,16 @@
 """
 Brushstroke pattern extraction and analysis.
 
-This is where it gets personal — *facture*, the physical handling of
-paint, is the closest thing to an artist's fingerprint.  Morelli figured
-this out in the 1870s: don't look at the Madonna's face (the artist was
-trying there), look at her earlobes (that's pure motor habit).
+*Facture* — the physical handling of paint — is the closest thing to
+an artist's fingerprint.  Morelli argued this in the 1870s: don't look
+at the Madonna's face (the artist was deliberate there), look at the
+earlobes (that's pure motor habit).
 
-We formalise exactly that intuition.  Decompose the painting into local
-patches, push each through DINOv2, and out come dense feature maps
-encoding directional energy, texture granularity, and impasto relief.
-Cluster them, and workshop paintings practically label themselves —
-the master's passages separate from the assistants' like oil from water.
+This module formalises that intuition.  Decompose the painting into
+local patches, push each through DINOv2, and the resulting feature maps
+encode directional energy, texture granularity, and impasto relief.
+Clustering these features can help separate passages by different hands
+within a single work — useful for workshop attribution.
 
 References
 ----------

@@ -1,9 +1,9 @@
 """
 MCP (Model Context Protocol) server for ArtSleuth.
 
-Lets AI assistants — Claude, GPT, whatever comes next — run art
-analysis mid-conversation.  "Hey, can you check if this looks like
-a Caravaggio?" becomes a real question with a real answer.
+Exposes ArtSleuth's analytical capabilities as MCP tools, allowing
+AI assistants (Claude, GPT, and others) to perform art-historical
+analysis within a conversational context.
 
 Launch with ``artsleuth server`` or wire it into Claude Desktop via
 the MCP config.  Four tools: full analysis, style classification,

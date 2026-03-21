@@ -2,8 +2,8 @@
 Command-line interface for ArtSleuth.
 
 For when you just want to point at a painting and get answers without
-opening a notebook.  Rich terminal output because life's too short
-for monochrome stack traces.
+opening a notebook.  Rich terminal output for readable, colour-formatted
+results.
 """
 
 from __future__ import annotations

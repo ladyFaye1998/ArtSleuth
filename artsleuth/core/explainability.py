@@ -1,15 +1,13 @@
 """
 Interpretable visual explanations for ArtSleuth analyses.
 
-If I tell you "this painting is 82% likely Artemisia" and can't show
-you *where* the model is looking, I haven't really told you anything
-useful.  Conservators and art historians need to see the evidence —
-they need the equivalent of a colleague pointing at the canvas and
-saying "look at this passage here."
+Saying "this painting is 82% likely Artemisia" without showing *where*
+the model is looking isn't very useful.  Conservators and art historians
+need to see the evidence — the equivalent of a colleague pointing at
+the canvas and saying "look at this passage here."
 
 Two techniques, both composited at full resolution so the output is
-publication-ready (I've spent enough evenings wrestling matplotlib
-into submission for conference figures, so you don't have to):
+publication-ready without extra matplotlib wrangling:
 
   * **GradCAM** — coarse heatmaps of what the network considers
     "important" (Selvaraju et al., 2017).

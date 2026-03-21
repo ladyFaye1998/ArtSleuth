@@ -11,8 +11,8 @@ Two backbones, two philosophies:
     before it ever sees a Caravaggio.  Perfect for style classification,
     where the categories are as much cultural agreement as visual reality.
 
-Both load from HuggingFace Hub or torch.hub, cached locally so you
-can work on a train without WiFi.  (Ask me how I know this matters.)
+Both load from HuggingFace Hub or torch.hub, cached locally so
+everything works offline once downloaded.
 """
 
 from __future__ import annotations
