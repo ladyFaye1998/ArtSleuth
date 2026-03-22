@@ -1,0 +1,69 @@
+{
+  "results": {
+    "DINOv2 ViT-S/14": {
+      "style": {
+        "accuracy": 0.471,
+        "top5_accuracy": 0.903,
+        "macro_f1": 0.41842198552817095
+      },
+      "artist": {
+        "accuracy": 0.59,
+        "top5_accuracy": 0.8523333333333334,
+        "macro_f1": 0.30575195073565
+      },
+      "genre": {
+        "accuracy": 0.6463333333333333,
+        "top5_accuracy": 0.9726666666666667,
+        "macro_f1": 0.6194148079215865
+      }
+    },
+    "CLIP ViT-B/32": {
+      "style": {
+        "accuracy": 0.542,
+        "top5_accuracy": 0.9216666666666666,
+        "macro_f1": 0.4938427457366159
+      },
+      "artist": {
+        "accuracy": 0.6613333333333333,
+        "top5_accuracy": 0.9043333333333333,
+        "macro_f1": 0.37284078233176343
+      },
+      "genre": {
+        "accuracy": 0.6603333333333333,
+        "top5_accuracy": 0.979,
+        "macro_f1": 0.631915527823372
+      }
+    },
+    "ArtSleuth Fusion": {
+      "style": {
+        "accuracy": 0.5356666666666666,
+        "top5_accuracy": 0.922,
+        "macro_f1": 0.485611644223689
+      },
+      "artist": {
+        "accuracy": 0.6236666666666667,
+        "top5_accuracy": 0.873,
+        "macro_f1": 0.32881353499739957
+      },
+      "genre": {
+        "accuracy": 0.6583333333333333,
+        "top5_accuracy": 0.9786666666666667,
+        "macro_f1": 0.6393183894236396
+      }
+    }
+  },
+  "dataset": {
+    "name": "huggan/wikiart",
+    "sample": 15000,
+    "train": 12000,
+    "test": 3000,
+    "n_styles": 27,
+    "n_artists": 129,
+    "n_genres": 11
+  },
+  "config": {
+    "image_size": 224,
+    "probe": "LogisticRegression(C=1.0)",
+    "device": "cpu"
+  }
+}

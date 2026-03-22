@@ -179,28 +179,28 @@ graph TD
 
 ### ✦ Benchmark
 
-Linear probe evaluation on [WikiArt](https://huggingface.co/datasets/huggan/wikiart) (81k artworks, frozen backbones, logistic regression) across three backbone configurations:
+Linear probe evaluation on [WikiArt](https://huggingface.co/datasets/huggan/wikiart) (15k sample, frozen backbones, logistic regression, 80/20 split, seed 42):
 
 <div align="center">
 
-| Backbone | Style | Artist | Genre | Method |
-|:---|:---:|:---:|:---:|:---|
-| DINOv2 · ViT-S/14 | — | — | — | Texture-structural features |
-| CLIP · ViT-B/32 | — | — | — | Semantic-stylistic features |
-| **Fusion** · Cross-Attention | — | — | — | Style-guided structural features |
+| Backbone | Style Acc | Style F1 | Artist Acc | Artist Top-5 | Genre Acc |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| DINOv2 · ViT-S/14 | 47.1 % | 0.418 | 59.0 % | 85.2 % | 64.6 % |
+| CLIP · ViT-B/32 | 54.2 % | 0.494 | 66.1 % | 90.4 % | 66.0 % |
+| **Fusion** · Cross-Attention | 53.6 % | 0.486 | 62.4 % | 87.3 % | 65.8 % |
 
 </div>
 
+<sub>All metrics macro-averaged. Fusion uses randomly initialised cross-attention weights (no fine-tuning). Reproducible notebook on [Kaggle](https://www.kaggle.com/ladyfaye/artsleuth-benchmark-fast).</sub>
+
 <br>
 
-Run the benchmark yourself to fill in the numbers:
+Reproduce locally:
 
 ```bash
 pip install artsleuth[benchmarks]
 artsleuth benchmark --device cuda
 ```
-
-Results are saved as JSON, Markdown, and LaTeX tables. See [`artsleuth/benchmarks/`](artsleuth/benchmarks/) for details.
 
 <br>
 

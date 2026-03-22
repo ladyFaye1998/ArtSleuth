@@ -108,6 +108,15 @@ The Dirichlet process prior allows the model to *infer* the number of distinct h
 
 Each hand assignment carries a posterior probability, enabling soft boundaries between passages — appropriate given that workshop practices often involved the master retouching an assistant's work.
 
+#### Related work
+
+The PATCH method (Pairwise Assignment Training for Classifying Heterogeneity; arXiv:2502.01912, 2025) addresses the same problem — detecting multiple artistic hands within a single painting — using a supervised-to-unsupervised transfer approach tested on El Greco workshop paintings.  ArtSleuth's DPGMM approach is complementary:
+
+- **PATCH** trains a pairwise similarity model between patches and clusters the resulting similarity matrix.  It excels when microscopic imaging data is available and has been validated on known workshop attributions.
+- **ArtSleuth's DPGMM** operates on frozen backbone embeddings (no training required), infers the number of hands non-parametrically via the Dirichlet process prior, and integrates brushstroke coherence and energy as auxiliary features.  The trade-off is lower spatial resolution but broader applicability — any standard photograph suffices as input.
+
+Both approaches are best understood as screening tools whose outputs should be interpreted alongside traditional connoisseurship.
+
 ### 11. Adversarial Forgery Robustness
 
 A forgery detector evaluated only on random perturbations provides limited guarantees.  ArtSleuth includes a robustness testing framework that simulates four categories of historical forgery technique:
@@ -141,3 +150,4 @@ The `RobustnessEvaluator` sweeps across multiple severity levels (0.3, 0.5, 0.7)
 12. Blei, D. M. & Jordan, M. I. (2006). Variational Inference for Dirichlet Process Mixtures. *Bayesian Analysis*, 1(1), 121–143.
 13. Wynne, F. (2006). *I Was Vermeer*. Bloomsbury.
 14. Albergo, M. S. & Vanden-Eijnden, E. (2025). Stochastic Interpolants with Data-Dependent Couplings. *ICML*. *(Related work on generative temporal modelling of artistic style evolution; complementary to our discriminative GP-based approach.)*
+15. Anonymous (2025). PATCH: A Deep Learning Method to Assess Heterogeneity of Artistic Practice in Historical Paintings. *arXiv:2502.01912*. *(Pairwise assignment approach to workshop hand detection; complementary to ArtSleuth's DPGMM method.)*
