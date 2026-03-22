@@ -1,69 +1,86 @@
 {
-  "results": {
+  "frozen": {
     "DINOv2 ViT-S/14": {
       "style": {
-        "accuracy": 0.471,
-        "top5_accuracy": 0.903,
-        "macro_f1": 0.41842198552817095
+        "accuracy": 0.553932101418135,
+        "top5_accuracy": 0.9327767204862177,
+        "macro_f1": 0.5218077621131033
       },
       "artist": {
-        "accuracy": 0.59,
-        "top5_accuracy": 0.8523333333333334,
-        "macro_f1": 0.30575195073565
+        "accuracy": 0.6495794708085211,
+        "top5_accuracy": 0.9081588802259193,
+        "macro_f1": 0.4465765469481709
       },
       "genre": {
-        "accuracy": 0.6463333333333333,
-        "top5_accuracy": 0.9726666666666667,
-        "macro_f1": 0.6194148079215865
+        "accuracy": 0.6868438823746086,
+        "top5_accuracy": 0.9866781263429308,
+        "macro_f1": 0.667255336741662
       }
     },
     "CLIP ViT-B/32": {
       "style": {
-        "accuracy": 0.542,
-        "top5_accuracy": 0.9216666666666666,
-        "macro_f1": 0.4938427457366159
+        "accuracy": 0.6241021548284118,
+        "top5_accuracy": 0.9570876051322978,
+        "macro_f1": 0.6034420229734981
       },
       "artist": {
-        "accuracy": 0.6613333333333333,
-        "top5_accuracy": 0.9043333333333333,
-        "macro_f1": 0.37284078233176343
+        "accuracy": 0.7031125299281724,
+        "top5_accuracy": 0.9384860949106759,
+        "macro_f1": 0.5303031311782066
       },
       "genre": {
-        "accuracy": 0.6603333333333333,
-        "top5_accuracy": 0.979,
-        "macro_f1": 0.631915527823372
+        "accuracy": 0.7172324881822089,
+        "top5_accuracy": 0.9896249002394254,
+        "macro_f1": 0.6968928785821134
       }
     },
-    "ArtSleuth Fusion": {
+    "Fusion (frozen)": {
       "style": {
-        "accuracy": 0.5356666666666666,
-        "top5_accuracy": 0.922,
-        "macro_f1": 0.485611644223689
+        "accuracy": 0.6216465099146663,
+        "top5_accuracy": 0.9574559518693597,
+        "macro_f1": 0.5892166315444012
       },
       "artist": {
-        "accuracy": 0.6236666666666667,
-        "top5_accuracy": 0.873,
-        "macro_f1": 0.32881353499739957
+        "accuracy": 0.7029897476824851,
+        "top5_accuracy": 0.9395297439990178,
+        "macro_f1": 0.519300217367615
       },
       "genre": {
-        "accuracy": 0.6583333333333333,
-        "top5_accuracy": 0.9786666666666667,
-        "macro_f1": 0.6393183894236396
+        "accuracy": 0.7174780526735834,
+        "top5_accuracy": 0.9906071582049236,
+        "macro_f1": 0.7028417932449542
+      }
+    }
+  },
+  "tuned": {
+    "Fusion (trained)": {
+      "style": {
+        "accuracy": 0.6356436859230156,
+        "top5_accuracy": 0.9635950641537234,
+        "macro_f1": 0.6158077342395472
+      },
+      "artist": {
+        "accuracy": 0.7271164589600344,
+        "top5_accuracy": 0.9467738964945669,
+        "macro_f1": 0.5483677319323699
+      },
+      "genre": {
+        "accuracy": 0.7233102093437289,
+        "top5_accuracy": 0.990361593713549,
+        "macro_f1": 0.7084818120235485
       }
     }
   },
   "dataset": {
-    "name": "huggan/wikiart",
-    "sample": 15000,
-    "train": 12000,
-    "test": 3000,
+    "total": 81444,
+    "train": 65155,
+    "test": 16289,
     "n_styles": 27,
     "n_artists": 129,
     "n_genres": 11
   },
   "config": {
-    "image_size": 224,
-    "probe": "LogisticRegression(C=1.0)",
-    "device": "cpu"
+    "device": "cuda",
+    "epochs": 15
   }
 }

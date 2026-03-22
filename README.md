@@ -179,19 +179,20 @@ graph TD
 
 ### ✦ Benchmark
 
-Linear probe evaluation on [WikiArt](https://huggingface.co/datasets/huggan/wikiart) (15k sample, frozen backbones, logistic regression, 80/20 split, seed 42):
+Linear probe evaluation on the full [WikiArt](https://huggingface.co/datasets/huggan/wikiart) dataset (81 444 images, logistic regression, 80/20 split, seed 42):
 
 <div align="center">
 
 | Backbone | Style Acc | Style F1 | Artist Acc | Artist Top-5 | Genre Acc |
 |:---|:---:|:---:|:---:|:---:|:---:|
-| DINOv2 · ViT-S/14 | 47.1 % | 0.418 | 59.0 % | 85.2 % | 64.6 % |
-| CLIP · ViT-B/32 | 54.2 % | 0.494 | 66.1 % | 90.4 % | 66.0 % |
-| **Fusion** · Cross-Attention | 53.6 % | 0.486 | 62.4 % | 87.3 % | 65.8 % |
+| DINOv2 · ViT-S/14 | 55.4 % | 0.522 | 65.0 % | 90.8 % | 68.7 % |
+| CLIP · ViT-B/32 | 62.4 % | 0.603 | 70.3 % | 93.8 % | 71.7 % |
+| Fusion · frozen | 62.2 % | 0.589 | 70.3 % | 94.0 % | 71.7 % |
+| **Fusion · fine-tuned** | **63.6 %** | **0.616** | **72.7 %** | **94.7 %** | **72.3 %** |
 
 </div>
 
-<sub>All metrics macro-averaged. Fusion uses randomly initialised cross-attention weights (no fine-tuning). Reproducible notebook on [Kaggle](https://www.kaggle.com/ladyfaye/artsleuth-benchmark-fast).</sub>
+<sub>All metrics macro-averaged across 27 styles, 129 artists, and 11 genres. The fine-tuned fusion head (15 epochs, AdamW, cross-entropy) consistently outperforms both individual backbones. Reproducible notebook on [Kaggle](https://www.kaggle.com/ladyfaye/artsleuth-full-pipeline-benchmark-fine-tune).</sub>
 
 <br>
 
