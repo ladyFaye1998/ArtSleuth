@@ -24,6 +24,20 @@ class BackboneType(str, Enum):
     CLIP = "clip"
 
 
+class BackboneSize(str, Enum):
+    """Model-size variant for each backbone family.
+
+    Larger variants produce richer features at the cost of inference
+    speed and memory.  ViT-S and ViT-B/32 are the defaults for rapid
+    prototyping; ViT-B/14 and ViT-L/14 are recommended for
+    publication-grade results.
+    """
+
+    SMALL = "small"
+    BASE = "base"
+    LARGE = "large"
+
+
 class PatchStrategy(str, Enum):
     """Strategy for extracting analysis patches from an artwork image."""
 
@@ -101,6 +115,15 @@ class AnalysisConfig(BaseModel):
 
     # --- Novel module settings -----------------------------------------------
 
+    backbone_size: BackboneSize = Field(
+        default=BackboneSize.SMALL,
+        description=(
+            "Model-size variant.  'small' → DINOv2 ViT-S/14 + CLIP ViT-B/32 "
+            "(fast, 384+512 dim).  'base' → DINOv2 ViT-B/14 + CLIP ViT-L/14 "
+            "(recommended, 768+768 dim).  'large' → DINOv2 ViT-L/14 + CLIP "
+            "ViT-L/14@336px (highest quality, needs ≥24 GB VRAM)."
+        ),
+    )
     use_fusion: bool = Field(
         default=True,
         description="Use cross-attention backbone fusion instead of naive concat.",

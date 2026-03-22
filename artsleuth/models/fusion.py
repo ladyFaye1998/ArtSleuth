@@ -36,10 +36,16 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-# --- Constants --------------------------------------------------------------
+# --- Dimension defaults per backbone size -----------------------------------
 
-_DINO_DIM = 384  # DINOv2 ViT-S/14
-_CLIP_DIM = 512  # CLIP ViT-B/32
+_SIZE_DIMS: dict[str, tuple[int, int]] = {
+    "small": (384, 512),   # DINOv2 ViT-S/14,  CLIP ViT-B/32
+    "base":  (768, 768),   # DINOv2 ViT-B/14,  CLIP ViT-L/14
+    "large": (1024, 768),  # DINOv2 ViT-L/14,  CLIP ViT-L/14@336px
+}
+
+_DINO_DIM = 384
+_CLIP_DIM = 512
 _FUSED_DIM = _CLIP_DIM
 
 
@@ -148,6 +154,8 @@ class DualBackboneFusion(nn.Module):
         PyTorch device string.
     cache_dir : Path | None
         Local directory for downloaded backbone weights.
+    backbone_size : str
+        One of ``"small"``, ``"base"``, or ``"large"``.
     residual : bool
         When ``True``, the original CLIP embedding is concatenated
         with the cross-attention output and projected back to
@@ -159,21 +167,30 @@ class DualBackboneFusion(nn.Module):
         device: str = "cpu",
         cache_dir: Path | None = None,
         *,
+        backbone_size: str = "small",
         residual: bool = True,
     ) -> None:
         super().__init__()
         self._device = device
         self._cache_dir = cache_dir
+        self._backbone_size = backbone_size
         self.residual = residual
+
+        dino_dim, clip_dim = _SIZE_DIMS.get(
+            backbone_size, (_DINO_DIM, _CLIP_DIM),
+        )
+        self._fused_dim = clip_dim
 
         self._dino: nn.Module | None = None
         self._clip: nn.Module | None = None
 
-        self.attention = StyleGuidedAttention()
+        self.attention = StyleGuidedAttention(
+            dino_dim=dino_dim, clip_dim=clip_dim,
+        )
 
         if residual:
             self.residual_proj = nn.Linear(
-                _FUSED_DIM + _CLIP_DIM, _FUSED_DIM,
+                clip_dim + clip_dim, clip_dim,
             )
 
     # --- Lazy backbone loading ----------------------------------------------
@@ -183,16 +200,21 @@ class DualBackboneFusion(nn.Module):
         if self._dino is not None:
             return
 
-        from artsleuth.config import BackboneType
+        from artsleuth.config import BackboneSize, BackboneType
 
-        logger.info("Lazy-loading fusion backbones.")
+        size = BackboneSize(self._backbone_size)
+        logger.info(
+            "Lazy-loading fusion backbones (size=%s).", self._backbone_size,
+        )
         self._dino = load_backbone(
             BackboneType.DINO_V2,
+            size=size,
             device=self._device,
             cache_dir=self._cache_dir,
         )
         self._clip = load_backbone(
             BackboneType.CLIP,
+            size=size,
             device=self._device,
             cache_dir=self._cache_dir,
         )
@@ -232,10 +254,16 @@ class DualBackboneFusion(nn.Module):
 
         return fused
 
+    @property
+    def output_dim(self) -> int:
+        """Dimensionality of the fused output embedding."""
+        return self._fused_dim
+
 
 # --- Utility ----------------------------------------------------------------
 
 
-def fusion_output_dim() -> int:
+def fusion_output_dim(backbone_size: str = "small") -> int:
     """Return the output dimensionality of the fusion module."""
-    return _FUSED_DIM
+    _, clip_dim = _SIZE_DIMS.get(backbone_size, (_DINO_DIM, _CLIP_DIM))
+    return clip_dim
