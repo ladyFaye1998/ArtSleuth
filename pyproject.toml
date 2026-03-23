@@ -87,7 +87,16 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "ANN", "B", "SIM", "RUF"]
-ignore = ["ANN101", "ANN102", "ANN401"]
+ignore = [
+    "ANN401",
+    "RUF001", "RUF002", "RUF003",
+    "N806", "N803", "N812",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ANN001", "ANN202"]
+"web/*" = ["ANN001", "ANN202"]
+"examples/*" = ["E402"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["artsleuth"]

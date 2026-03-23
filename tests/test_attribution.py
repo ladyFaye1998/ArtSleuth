@@ -9,7 +9,6 @@ from artsleuth.core.attribution import (
     AttributionReport,
     CandidateAttribution,
 )
-from artsleuth.config import AnalysisConfig
 
 
 class TestCandidateAttribution:

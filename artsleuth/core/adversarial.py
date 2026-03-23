@@ -29,7 +29,6 @@ import numpy as np
 from PIL import Image
 from scipy.ndimage import gaussian_filter
 
-
 # --- Data Structures --------------------------------------------------------
 
 

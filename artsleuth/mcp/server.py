@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import json
 import logging
-from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -36,12 +35,12 @@ def create_server() -> Any:
     """
     try:
         from mcp.server import Server
-        from mcp.types import Tool, TextContent
-    except ImportError:
+        from mcp.types import TextContent, Tool
+    except ImportError as exc:
         raise ImportError(
             "The MCP server requires the 'mcp' package. "
             "Install it with: pip install artsleuth[mcp]"
-        )
+        ) from exc
 
     server = Server("artsleuth")
 
@@ -182,9 +181,18 @@ def _handle_analyze(args: dict[str, Any], config: Any) -> dict[str, Any]:
     return {
         "summary": result.summary(),
         "style": {
-            "period": {"label": result.style.period.label, "confidence": result.style.period.confidence},
-            "school": {"label": result.style.school.label, "confidence": result.style.school.confidence},
-            "genre": {"label": result.style.technique.label, "confidence": result.style.technique.confidence},
+            "period": {
+                "label": result.style.period.label,
+                "confidence": result.style.period.confidence,
+            },
+            "school": {
+                "label": result.style.school.label,
+                "confidence": result.style.school.confidence,
+            },
+            "genre": {
+                "label": result.style.technique.label,
+                "confidence": result.style.technique.confidence,
+            },
         },
         "attribution": {
             "consensus_artist": result.attribution.consensus_artist,
@@ -205,9 +213,21 @@ def _handle_classify(args: dict[str, Any], config: Any) -> dict[str, Any]:
     report = classifier.classify(image)
 
     return {
-        "period": {"label": report.period.label, "confidence": report.period.confidence, "top_k": report.period.top_k},
-        "school": {"label": report.school.label, "confidence": report.school.confidence, "top_k": report.school.top_k},
-        "genre": {"label": report.technique.label, "confidence": report.technique.confidence, "top_k": report.technique.top_k},
+        "period": {
+            "label": report.period.label,
+            "confidence": report.period.confidence,
+            "top_k": report.period.top_k,
+        },
+        "school": {
+            "label": report.school.label,
+            "confidence": report.school.confidence,
+            "top_k": report.school.top_k,
+        },
+        "genre": {
+            "label": report.technique.label,
+            "confidence": report.technique.confidence,
+            "top_k": report.technique.top_k,
+        },
     }
 
 
@@ -234,16 +254,25 @@ def _handle_compare(args: dict[str, Any], config: Any) -> dict[str, Any]:
     return {
         "similarity": similarity,
         "interpretation": (
-            "High embedding similarity — shared stylistic features, but does not confirm shared authorship"
+            "High embedding similarity — shared stylistic features, "
+            "but does not confirm shared authorship"
             if similarity > 0.85
-            else "Moderate similarity — some shared stylistic traits"
+            else "Moderate similarity — some shared traits"
             if similarity > 0.65
             else "Low similarity — some overlapping features"
             if similarity > 0.45
-            else "Minimal similarity — distinct stylistic profiles"
+            else "Minimal similarity — distinct profiles"
         ),
-        "work_a": {"period": report_a.period.label, "school": report_a.school.label, "genre": report_a.technique.label},
-        "work_b": {"period": report_b.period.label, "school": report_b.school.label, "genre": report_b.technique.label},
+        "work_a": {
+            "period": report_a.period.label,
+            "school": report_a.school.label,
+            "genre": report_a.technique.label,
+        },
+        "work_b": {
+            "period": report_b.period.label,
+            "school": report_b.school.label,
+            "genre": report_b.technique.label,
+        },
     }
 
 

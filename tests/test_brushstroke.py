@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import numpy as np
-import torch
 import pytest
+import torch
 
 from artsleuth.core.brushstroke import BrushstrokeAnalyzer, BrushstrokeReport, StrokeDescriptor
 
@@ -42,7 +42,7 @@ class TestStructureTensor:
         for col in range(64):
             patch[:, :, col] = col / 64.0
 
-        orientation, coherence, energy, curvature = (
+        _orientation, coherence, energy, _curvature = (
             BrushstrokeAnalyzer._structure_tensor_stats(patch)
         )
         assert energy > 0, "Gradient should produce nonzero energy."
@@ -50,7 +50,7 @@ class TestStructureTensor:
 
     def test_uniform_patch(self) -> None:
         patch = torch.full((3, 64, 64), 0.5)
-        _, coherence, energy, _ = BrushstrokeAnalyzer._structure_tensor_stats(patch)
+        _, _coherence, energy, _ = BrushstrokeAnalyzer._structure_tensor_stats(patch)
         assert energy < 0.01, "Uniform patch should have near-zero energy."
 
     def test_diagonal_gradient(self) -> None:
@@ -59,7 +59,7 @@ class TestStructureTensor:
             for j in range(64):
                 patch[:, i, j] = (i + j) / 128.0
 
-        orientation, coherence, energy, _ = (
+        orientation, _coherence, energy, _ = (
             BrushstrokeAnalyzer._structure_tensor_stats(patch)
         )
         assert energy > 0

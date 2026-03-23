@@ -10,7 +10,6 @@ with publication-quality visualizations.
 from __future__ import annotations
 
 import tempfile
-from pathlib import Path
 
 import gradio as gr
 import numpy as np
@@ -37,12 +36,9 @@ def _info_html(message: str) -> str:
 
 def _save_pil_to_temp(image) -> str:
     """Persist a PIL image to a temporary PNG and return the path."""
-    tmp = tempfile.NamedTemporaryFile(
-        suffix=".png", delete=False,
-    )
-    image.save(tmp, format="PNG")
-    tmp.close()
-    return tmp.name
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+        image.save(tmp, format="PNG")
+        return tmp.name
 
 
 # ── UI builder ──────────────────────────────────────────────────────
@@ -56,7 +52,7 @@ def create_app() -> gr.Blocks:
     gr.Blocks
         Fully wired Gradio Blocks application ready to ``.launch()``.
     """
-    from web.theme import artsleuth_theme, CUSTOM_CSS, HEADER_HTML, FOOTER_HTML
+    from web.theme import CUSTOM_CSS, FOOTER_HTML, HEADER_HTML, artsleuth_theme
 
     # ── handler: Analyze ────────────────────────────────────────────
 
@@ -66,9 +62,9 @@ def create_app() -> gr.Blocks:
             from artsleuth.config import AnalysisConfig
             from artsleuth.core.pipeline import run_pipeline
             from web.components import (
-                format_style_report,
                 format_attribution_report,
                 format_forgery_gauge,
+                format_style_report,
             )
 
             if image is None:
@@ -263,7 +259,6 @@ def create_app() -> gr.Blocks:
             report_html = format_workshop_report(workshop_report)
             hand_map_image = None
             if workshop_report.hand_map is not None:
-                from PIL import Image as PILImage
 
                 unique_ids = np.unique(workshop_report.hand_map)
                 valid_ids = unique_ids[unique_ids >= 0]

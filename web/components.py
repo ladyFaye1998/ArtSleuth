@@ -425,9 +425,7 @@ def format_temporal_prediction(
     score = temporal_prediction.temporal_score
     drift = temporal_prediction.drift_rate
 
-    year_display = (
-        str(round(year)) if year == year else str(round(year))
-    )
+    year_display = str(round(year))
     lo_display = str(round(lo))
     hi_display = str(round(hi))
 

@@ -202,8 +202,8 @@ class StyleClassifier:
     def _ensure_backbone(self) -> torch.nn.Module:
         """Lazy-load the CLIP vision encoder."""
         if self._backbone is None:
-            from artsleuth.models.backbones import load_backbone
             from artsleuth.config import BackboneType
+            from artsleuth.models.backbones import load_backbone
 
             self._backbone = load_backbone(
                 BackboneType.CLIP,
@@ -228,8 +228,8 @@ class StyleClassifier:
 
     def _encode(self, image: Image.Image) -> torch.Tensor:
         """Extract a CLIP embedding from the input image."""
-        from artsleuth.preprocessing.transforms import prepare_for_backbone
         from artsleuth.config import BackboneType
+        from artsleuth.preprocessing.transforms import prepare_for_backbone
 
         tensor = prepare_for_backbone(
             image,
@@ -259,7 +259,7 @@ class StyleClassifier:
 
         top_values, top_indices = torch.topk(probs, min(top_k, len(labels)))
         top_k_list = [
-            (labels[idx], float(val)) for val, idx in zip(top_values, top_indices)
+            (labels[idx], float(val)) for val, idx in zip(top_values, top_indices, strict=False)
         ]
 
         best_label, best_conf = top_k_list[0]

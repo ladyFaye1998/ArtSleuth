@@ -94,7 +94,8 @@ def style(image: Path, top_k: int, device: str | None) -> None:
         img = Image.open(str(image)).convert("RGB")
         report = classifier.classify(img, top_k=top_k)
 
-    for axis_name, pred in [("Period", report.period), ("School", report.school), ("Genre", report.technique)]:
+    axes = [("Period", report.period), ("School", report.school), ("Genre", report.technique)]
+    for axis_name, pred in axes:
         table = Table(title=axis_name, title_style="bold", border_style="dim")
         table.add_column("Label", style="bold")
         table.add_column("Confidence", justify="right")
@@ -347,7 +348,7 @@ def server(transport: str) -> None:
 # --- Helpers ----------------------------------------------------------------
 
 
-def _render_result(result: "object") -> None:
+def _render_result(result: object) -> None:
     """Pretty-print an AnalysisResult to the console."""
     from artsleuth.core.pipeline import AnalysisResult
 

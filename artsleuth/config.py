@@ -12,7 +12,6 @@ from __future__ import annotations
 
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -98,7 +97,7 @@ class AnalysisConfig(BaseModel):
         le=1.0,
         description="Minimum confidence for reportable results.",
     )
-    device: Optional[str] = Field(
+    device: str | None = Field(
         default=None,
         description="PyTorch device string; None for auto-detection.",
     )

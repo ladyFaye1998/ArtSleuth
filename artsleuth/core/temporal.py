@@ -20,8 +20,9 @@ Rasmussen, C. E. & Williams, C. K. I. (2006). *Gaussian Processes
 
 from __future__ import annotations
 
+import itertools
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -262,7 +263,7 @@ class TemporalStyleModel:
         total_distance = 0.0
         total_years = 0.0
 
-        for prev, curr in zip(sorted_refs[:-1], sorted_refs[1:]):
+        for prev, curr in itertools.pairwise(sorted_refs):
             gap = float(curr.year - prev.year)
             if gap <= 0:
                 continue

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import numpy as np
+
 from artsleuth.core.style import (
     PERIODS,
     SCHOOLS,
@@ -9,8 +11,6 @@ from artsleuth.core.style import (
     StylePrediction,
     StyleReport,
 )
-
-import numpy as np
 
 
 class TestTaxonomies:

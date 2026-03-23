@@ -262,20 +262,23 @@ def _try_load_pretrained_heads(
     loaded: set[str] = set()
 
     for axis_name in ("period", "technique"):
-        head = heads[axis_name]
+        heads[axis_name]
         local_name = _LOCAL_HEAD_FILES.get(axis_name)
         local_path = _PACKAGE_WEIGHTS_DIR / local_name if local_name else None
 
         if local_path is not None and local_path.is_file():
             state = _load_state_dict_from_file(local_path)
-            if state is not None and isinstance(state, dict):
-                if _apply_pretrained_state(heads, axis_name, state, backbone_embedding_dim):
-                    loaded.add(axis_name)
-                    logger.info(
-                        "Loaded pretrained %s head from local weights.",
-                        axis_name,
-                    )
-                    continue
+            if (
+                state is not None
+                and isinstance(state, dict)
+                and _apply_pretrained_state(heads, axis_name, state, backbone_embedding_dim)
+            ):
+                loaded.add(axis_name)
+                logger.info(
+                    "Loaded pretrained %s head from local weights.",
+                    axis_name,
+                )
+                continue
 
         if _try_load_axis_from_hub(
             heads, axis_name, cache_dir, backbone_embedding_dim

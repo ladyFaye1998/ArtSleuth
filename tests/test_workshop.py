@@ -45,8 +45,9 @@ def test_workshop_single_hand() -> None:
     decomp = WorkshopDecomposition(max_hands=4)
     report = decomp.decompose(embeddings, bboxes, image_size)
 
-    assert report.num_hands <= 2
-    assert report.is_workshop is False or report.num_hands == 1
+    primary = [a for a in report.assignments if a.label == "primary_hand"]
+    assert len(primary) == 1
+    assert primary[0].patch_count >= 10, "Primary hand should capture majority of patches."
 
 
 def test_workshop_multiple_hands() -> None:

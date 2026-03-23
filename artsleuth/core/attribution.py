@@ -119,7 +119,7 @@ class AttributionAnalyzer:
 
     def attribute(
         self,
-        image: "Image.Image",
+        image: Image.Image,
         brushstroke_report: BrushstrokeReport | None = None,
         style_report: StyleReport | None = None,
         top_k: int = 5,
@@ -201,7 +201,7 @@ class AttributionAnalyzer:
 
     def _build_query_embedding(
         self,
-        image: "Image.Image",
+        image: Image.Image,
         brushstroke_report: BrushstrokeReport | None,
         style_report: StyleReport | None,
     ) -> np.ndarray:
@@ -216,8 +216,8 @@ class AttributionAnalyzer:
             components.append(stroke_embs.mean(axis=0))
 
         if not components:
-            from artsleuth.preprocessing.transforms import prepare_for_backbone
             from artsleuth.models.backbones import load_backbone
+            from artsleuth.preprocessing.transforms import prepare_for_backbone
 
             tensor = prepare_for_backbone(
                 image,

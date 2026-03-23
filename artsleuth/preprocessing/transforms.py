@@ -33,8 +33,8 @@ _IMAGENET_STD = (0.229, 0.224, 0.225)
 
 
 def prepare_for_backbone(
-    image: "Image.Image",
-    backbone_type: "BackboneType",
+    image: Image.Image,
+    backbone_type: BackboneType,
     max_resolution: int = 2048,
     enable_art_preprocessing: bool = False,
 ) -> torch.Tensor:
@@ -72,10 +72,7 @@ def prepare_for_backbone(
         image = suppress_craquelure(image)
         image = normalise_canvas_texture(image)
 
-    if backbone_type == BackboneType.DINO_V2:
-        target_size = 518  # DINOv2 native resolution
-    else:
-        target_size = 224  # CLIP standard
+    target_size = 518 if backbone_type == BackboneType.DINO_V2 else 224
 
     transform = transforms.Compose(
         [
@@ -93,9 +90,9 @@ def prepare_for_backbone(
 
 
 def correct_varnish(
-    image: "Image.Image",
+    image: Image.Image,
     strength: float = 0.3,
-) -> "Image.Image":
+) -> Image.Image:
     """Attenuate warm-shifted varnish yellowing.
 
     Applies a channel-wise correction that reduces the red-yellow bias
@@ -128,9 +125,9 @@ def correct_varnish(
 
 
 def suppress_craquelure(
-    image: "Image.Image",
+    image: Image.Image,
     kernel_size: int = 3,
-) -> "Image.Image":
+) -> Image.Image:
     """Reduce craquelure (crack) noise via selective median filtering.
 
     A median filter suppresses the thin, high-contrast crack lines
@@ -149,15 +146,15 @@ def suppress_craquelure(
     Image.Image
         Filtered image with reduced crack visibility.
     """
-    from PIL import ImageFilter, Image as PILImage
+    from PIL import ImageFilter
 
     return image.filter(ImageFilter.MedianFilter(size=kernel_size))
 
 
 def normalise_canvas_texture(
-    image: "Image.Image",
+    image: Image.Image,
     frequency_cutoff: float = 0.1,
-) -> "Image.Image":
+) -> Image.Image:
     """Attenuate periodic canvas-weave texture via frequency-domain filtering.
 
     The canvas weave produces a regular grid pattern at a frequency
@@ -206,7 +203,7 @@ def normalise_canvas_texture(
 # --- Helpers ----------------------------------------------------------------
 
 
-def _clamp_resolution(image: "Image.Image", max_side: int) -> "Image.Image":
+def _clamp_resolution(image: Image.Image, max_side: int) -> Image.Image:
     """Downscale an image if either side exceeds the maximum."""
     w, h = image.size
     if max(w, h) <= max_side:

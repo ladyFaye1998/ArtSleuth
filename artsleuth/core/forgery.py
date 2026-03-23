@@ -116,7 +116,7 @@ class ForgeryDetector:
 
     def detect(
         self,
-        image: "Image.Image",
+        image: Image.Image,
         reference_artist: str,
         brushstroke_report: BrushstrokeReport | None = None,
         style_report: StyleReport | None = None,
@@ -227,7 +227,7 @@ class ForgeryDetector:
 
         return np.concatenate(parts).astype(np.float64)
 
-    def _ensure_reference_stats(self, artist: str) -> "_ReferenceStats | None":
+    def _ensure_reference_stats(self, artist: str) -> _ReferenceStats | None:
         """Look up pre-fitted reference statistics."""
         if self._reference_stats is None:
             self._reference_stats = {}
@@ -236,7 +236,7 @@ class ForgeryDetector:
     @staticmethod
     def _compute_anomaly(
         features: np.ndarray,
-        stats: "_ReferenceStats",
+        stats: _ReferenceStats,
     ) -> tuple[float, list[AnomalyIndicator]]:
         """Compute anomaly score via Mahalanobis distance."""
         dim = min(features.shape[0], stats.mean.shape[0])

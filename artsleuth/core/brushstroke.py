@@ -193,7 +193,7 @@ class BrushstrokeAnalyzer:
         with torch.no_grad():
             features = backbone(batch)
 
-        for i, (feat, bbox) in enumerate(zip(features, bboxes)):
+        for i, (feat, bbox) in enumerate(zip(features, bboxes, strict=False)):
             feat_np = feat.cpu().numpy()
             orientation, coherence, energy, curvature = self._structure_tensor_stats(
                 patches[i]
