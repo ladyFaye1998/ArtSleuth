@@ -543,7 +543,10 @@ def _build_benchmark_table() -> str:
         'Top four rows: logistic-regression linear probes. Bottom row: '
         'end-to-end classification heads. Fine-tuning uses SupCon + CE loss, '
         'partial backbone unfreezing (3 blocks), cosine annealing, 5 epochs.'
-        '</p></div>'
+        '</p>'
+        '<p style="color:#988b7e;font-size:0.72rem;margin-top:0.3rem;font-style:italic">'
+        'These numbers are pre-computed from the published benchmark run. '
+        'They do not update dynamically.</p></div>'
     )
 
 

@@ -20,6 +20,12 @@ Blei, D. M. & Jordan, M. I. (2006). Variational Inference for
     Dirichlet Process Mixtures. *Bayesian Analysis*, 1(1), 121–143.
 Ainsworth, M. W. (2005). From Connoisseurship to Technical Art History.
     *Getty Research Journal*, 159–176.
+
+Note
+----
+This module has **not been quantitatively validated** against expert
+hand-annotations.  The cluster assignments are plausible but
+unconfirmed.  Treat outputs as a screening hypothesis, not as evidence.
 """
 
 from __future__ import annotations

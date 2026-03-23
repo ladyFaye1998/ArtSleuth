@@ -168,7 +168,7 @@ graph TD
 
 </div>
 
-<sub>Default backbone sizes: DINOv2 ViT-S/14 + CLIP ViT-B/32. Benchmarks in the table below used larger variants (DINOv2 ViT-B/14 + CLIP ViT-L/14). Pass `--backbone-size base` or `--backbone-size large` for parity with benchmark results.</sub>
+<sub>Default backbone sizes: DINOv2 ViT-B/14 + CLIP ViT-L/14. Pretrained classification heads (style and genre) are included. Pass `--backbone-size small` for faster inference on constrained hardware, or `--backbone-size large` for the highest-quality embeddings.</sub>
 
 <br>
 

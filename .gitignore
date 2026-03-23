@@ -41,8 +41,12 @@ desktop.ini
 *.pth
 *.onnx
 *.safetensors
-weights/
 checkpoints/
+
+# Allow small pretrained head weights shipped with the package
+!artsleuth/models/weights/style_head.pt
+!artsleuth/models/weights/genre_head.pt
+!artsleuth/models/weights/taxonomy.json
 
 # --- Data ---
 data/

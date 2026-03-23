@@ -98,7 +98,7 @@ def load_backbone(
     from artsleuth.config import BackboneSize, BackboneType
 
     if size is None:
-        size = BackboneSize.SMALL
+        size = BackboneSize.BASE
     size_key = size.value
 
     cache_key = f"{backbone_type.value}_{size_key}_{device}"
@@ -124,7 +124,7 @@ def embedding_dim(
     from artsleuth.config import BackboneSize, BackboneType
 
     if size is None:
-        size = BackboneSize.SMALL
+        size = BackboneSize.BASE
     key = size.value
 
     if backbone_type == BackboneType.DINO_V2:

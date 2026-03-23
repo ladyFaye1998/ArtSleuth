@@ -33,27 +33,38 @@ if TYPE_CHECKING:
 
 # --- Taxonomies -------------------------------------------------------------
 
+# WikiArt style taxonomy (27 classes) — aligned with pretrained weights
 PERIODS: list[str] = [
-    "Medieval",
-    "Early Renaissance",
-    "High Renaissance",
-    "Mannerism",
-    "Baroque",
-    "Rococo",
-    "Neoclassicism",
-    "Romanticism",
-    "Realism",
-    "Impressionism",
-    "Post-Impressionism",
-    "Art Nouveau",
-    "Expressionism",
-    "Cubism",
-    "Surrealism",
     "Abstract Expressionism",
+    "Action Painting",
+    "Analytical Cubism",
+    "Art Nouveau",
+    "Baroque",
+    "Color Field Painting",
+    "Contemporary Realism",
+    "Cubism",
+    "Early Renaissance",
+    "Expressionism",
+    "Fauvism",
+    "High Renaissance",
+    "Impressionism",
+    "Mannerism Late Renaissance",
+    "Minimalism",
+    "Naive Art Primitivism",
+    "New Realism",
+    "Northern Renaissance",
+    "Pointillism",
     "Pop Art",
-    "Contemporary",
+    "Post Impressionism",
+    "Realism",
+    "Rococo",
+    "Romanticism",
+    "Symbolism",
+    "Synthetic Cubism",
+    "Ukiyo e",
 ]
 
+# No pretrained weights — these predictions use randomly initialised heads until fine-tuned
 SCHOOLS: list[str] = [
     "Florentine",
     "Venetian",
@@ -70,17 +81,19 @@ SCHOOLS: list[str] = [
     "Vienna Secession",
 ]
 
+# WikiArt genre taxonomy (11 classes) — aligned with pretrained weights
 TECHNIQUES: list[str] = [
-    "Oil on canvas",
-    "Oil on panel",
-    "Tempera on panel",
-    "Watercolour",
-    "Gouache",
-    "Fresco",
-    "Pastel",
-    "Encaustic",
-    "Acrylic",
-    "Mixed media",
+    "Abstract Painting",
+    "Cityscape",
+    "Genre Painting",
+    "Illustration",
+    "Landscape",
+    "Nude Painting",
+    "Portrait",
+    "Religious Painting",
+    "Sketch And Study",
+    "Still Life",
+    "Unknown Genre",
 ]
 
 
@@ -218,7 +231,12 @@ class StyleClassifier:
         from artsleuth.preprocessing.transforms import prepare_for_backbone
         from artsleuth.config import BackboneType
 
-        tensor = prepare_for_backbone(image, BackboneType.CLIP, self._config.max_resolution)
+        tensor = prepare_for_backbone(
+            image,
+            BackboneType.CLIP,
+            self._config.max_resolution,
+            enable_art_preprocessing=self._config.enable_art_preprocessing,
+        )
         tensor = tensor.unsqueeze(0).to(self._device)
 
         backbone = self._ensure_backbone()

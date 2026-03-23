@@ -36,11 +36,14 @@ def prepare_for_backbone(
     image: "Image.Image",
     backbone_type: "BackboneType",
     max_resolution: int = 2048,
+    enable_art_preprocessing: bool = False,
 ) -> torch.Tensor:
     """Prepare an artwork image for backbone feature extraction.
 
-    Applies resolution clamping, optional varnish correction, and
-    backbone-appropriate normalisation.
+    Applies resolution clamping, optional art-specific preprocessing
+    (varnish correction, craquelure suppression, canvas texture
+    filtering when ``enable_art_preprocessing`` is True), then resize,
+    crop, and backbone-appropriate normalisation.
 
     Parameters
     ----------
@@ -50,6 +53,10 @@ def prepare_for_backbone(
         Target backbone (affects input resolution and normalisation).
     max_resolution:
         Maximum side length before downscaling.
+    enable_art_preprocessing:
+        When True, run ``correct_varnish``, ``suppress_craquelure``, and
+        ``normalise_canvas_texture`` after clamping resolution and before
+        the standard resize/crop/normalize pipeline.
 
     Returns
     -------
@@ -59,6 +66,11 @@ def prepare_for_backbone(
     from artsleuth.config import BackboneType
 
     image = _clamp_resolution(image, max_resolution)
+
+    if enable_art_preprocessing:
+        image = correct_varnish(image)
+        image = suppress_craquelure(image)
+        image = normalise_canvas_texture(image)
 
     if backbone_type == BackboneType.DINO_V2:
         target_size = 518  # DINOv2 native resolution

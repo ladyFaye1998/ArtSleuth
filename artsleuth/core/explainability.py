@@ -121,7 +121,10 @@ class ExplainabilityEngine:
         from artsleuth.preprocessing.transforms import prepare_for_backbone
 
         tensor = prepare_for_backbone(
-            image, self._config.backbone, self._config.max_resolution
+            image,
+            self._config.backbone,
+            self._config.max_resolution,
+            enable_art_preprocessing=self._config.enable_art_preprocessing,
         )
         tensor = tensor.unsqueeze(0).to(self._device).requires_grad_(True)
 
@@ -161,25 +164,19 @@ class ExplainabilityEngine:
     ) -> ExplanationMap:
         """Produce an attention-rollout map.
 
-        Aggregates self-attention across all transformer layers to
-        reveal which patches the model attends to globally.
+        Not yet implemented — requires hook access to intermediate
+        attention weights, which varies by backbone architecture.
+        Contributions welcome.
 
-        Parameters
-        ----------
-        image:
-            RGB artwork image.
-        target_label:
-            Analysis target metadata.
-
-        Returns
-        -------
-        ExplanationMap
-            Attention rollout heatmap and composite overlay.
+        Raises
+        ------
+        NotImplementedError
+            Always, until proper attention rollout is implemented.
         """
-        # Attention rollout requires hook access to intermediate attention
-        # weights.  When a backbone does not expose them, we fall back to
-        # a gradient-based approximation.
-        return self.gradcam(image, target_label=target_label)
+        raise NotImplementedError(
+            "Attention rollout is not yet implemented. "
+            "Use gradcam() for gradient-based saliency maps."
+        )
 
     # --- Internal Methods ---------------------------------------------------
 

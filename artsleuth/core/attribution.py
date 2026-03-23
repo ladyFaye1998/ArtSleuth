@@ -222,7 +222,10 @@ class AttributionAnalyzer:
             from artsleuth.models.backbones import load_backbone
 
             tensor = prepare_for_backbone(
-                image, self._config.backbone, self._config.max_resolution
+                image,
+                self._config.backbone,
+                self._config.max_resolution,
+                enable_art_preprocessing=self._config.enable_art_preprocessing,
             )
             tensor = tensor.unsqueeze(0).to(self._device)
             backbone = load_backbone(

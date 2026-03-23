@@ -14,16 +14,16 @@ import numpy as np
 
 
 class TestTaxonomies:
-    """Verify style taxonomy completeness."""
+    """Verify style taxonomy completeness and alignment with weights."""
 
-    def test_periods_nonempty(self) -> None:
-        assert len(PERIODS) >= 10
+    def test_periods_match_wikiart_styles(self) -> None:
+        assert len(PERIODS) == 27
+
+    def test_techniques_match_wikiart_genres(self) -> None:
+        assert len(TECHNIQUES) == 11
 
     def test_schools_nonempty(self) -> None:
         assert len(SCHOOLS) >= 5
-
-    def test_techniques_nonempty(self) -> None:
-        assert len(TECHNIQUES) >= 5
 
     def test_no_duplicates(self) -> None:
         for taxonomy in [PERIODS, SCHOOLS, TECHNIQUES]:
@@ -37,7 +37,7 @@ class TestStylePrediction:
         pred = StylePrediction(
             label="Baroque",
             confidence=0.85,
-            top_k=[("Baroque", 0.85), ("Mannerism", 0.10)],
+            top_k=[("Baroque", 0.85), ("Mannerism Late Renaissance", 0.10)],
         )
         assert pred.label == "Baroque"
         assert pred.confidence == 0.85
@@ -51,8 +51,8 @@ class TestStyleReport:
         report = StyleReport(
             period=StylePrediction(label="Baroque", confidence=0.9, top_k=[]),
             school=StylePrediction(label="Venetian", confidence=0.7, top_k=[]),
-            technique=StylePrediction(label="Oil on canvas", confidence=0.95, top_k=[]),
-            embedding=np.zeros(512),
+            technique=StylePrediction(label="Landscape", confidence=0.95, top_k=[]),
+            embedding=np.zeros(768),
         )
         assert report.period.label == "Baroque"
-        assert report.embedding.shape == (512,)
+        assert report.embedding.shape == (768,)

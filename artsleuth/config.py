@@ -107,6 +107,14 @@ class AnalysisConfig(BaseModel):
         le=8192,
         description="Maximum side length before downscaling input image.",
     )
+    enable_art_preprocessing: bool = Field(
+        default=False,
+        description=(
+            "Apply art-specific preprocessing (varnish correction, "
+            "craquelure suppression, canvas texture filtering) before "
+            "backbone encoding. Experimental — not used in published benchmarks."
+        ),
+    )
     num_workers: int = Field(
         default=4,
         ge=0,
@@ -116,17 +124,22 @@ class AnalysisConfig(BaseModel):
     # --- Novel module settings -----------------------------------------------
 
     backbone_size: BackboneSize = Field(
-        default=BackboneSize.SMALL,
+        default=BackboneSize.BASE,
         description=(
             "Model-size variant.  'small' → DINOv2 ViT-S/14 + CLIP ViT-B/32 "
             "(fast, 384+512 dim).  'base' → DINOv2 ViT-B/14 + CLIP ViT-L/14 "
-            "(recommended, 768+768 dim).  'large' → DINOv2 ViT-L/14 + CLIP "
-            "ViT-L/14@336px (highest quality, needs ≥24 GB VRAM)."
+            "(recommended, 768+768 dim, matches pretrained weights).  'large' → "
+            "DINOv2 ViT-L/14 + CLIP ViT-L/14@336px (highest quality, needs "
+            "≥24 GB VRAM)."
         ),
     )
     use_fusion: bool = Field(
-        default=True,
-        description="Use cross-attention backbone fusion instead of naive concat.",
+        default=False,
+        description=(
+            "Use cross-attention backbone fusion instead of concatenation. "
+            "Only effective during training; the default inference pipeline "
+            "uses feature concatenation regardless of this setting."
+        ),
     )
     enable_temporal: bool = Field(
         default=True,
