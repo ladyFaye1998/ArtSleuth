@@ -180,7 +180,7 @@ class StyleClassifier:
         Returns
         -------
         StyleReport
-            Period, school, and technique predictions with confidence
+            Period, school, and genre predictions with confidence
             scores, plus the raw CLIP embedding.
         """
         embedding = self._encode(image)

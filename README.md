@@ -38,7 +38,7 @@ Brushstroke directionality, impasto relief, palette temperature, the habitual ge
 | | Capability | Method |
 |:---:|:---|:---|
 | ![Brushstroke](https://img.shields.io/badge/-Brushstroke_Analysis-1A2E48?style=flat-square) | Stroke orientation, coherence, energy, curvature with patch-level clustering | Structure tensor on image gradients + DINOv2 patch embeddings |
-| ![Style](https://img.shields.io/badge/-Style_Classification-1A2E48?style=flat-square) | Period, school, and technique prediction | CLIP embeddings through learned linear heads |
+| ![Style](https://img.shields.io/badge/-Style_Classification-1A2E48?style=flat-square) | Period, school, and genre prediction | CLIP embeddings through learned linear heads (period and genre pretrained; school randomly initialised) |
 | ![Attribution](https://img.shields.io/badge/-Artist_Attribution-1A2E48?style=flat-square) | Embedding-space comparison with temporal plausibility scoring | Cosine similarity with GP-based date estimation |
 | ![Workshop](https://img.shields.io/badge/-Workshop_Decomposition-1A2E48?style=flat-square) | Bayesian inference of distinct hands in collaborative paintings | Dirichlet process Gaussian mixture model |
 | ![Forgery](https://img.shields.io/badge/-Anomaly_Screening-1A2E48?style=flat-square) | One-class anomaly scoring with adversarial robustness testing | Mahalanobis distance plus historical forgery simulation |
@@ -138,7 +138,7 @@ graph TD
     Attribution -.->|optional| Temporal["Temporal Drift Model"]
 
     Concat --> Forgery["Forgery Detection"]
-    Concat --> Adversarial["Adversarial Robustness"]
+    Concat -.->|optional| Adversarial["Adversarial Robustness"]
 
     DINO --> Explain["Saliency Maps"]
 
@@ -274,7 +274,7 @@ Automated art classification has a rich history, and ArtSleuth builds on the sho
 
 **Prior art in style classification.** &ensp;Saleh & Elgammal (2016) were among the first to apply metric learning to large-scale art datasets. Tan et al. (2016) trained a ResNet-50 on WikiArt and reported ~54 % style accuracy; their subsequent ArtGAN work (Tan et al., 2018) improved this to ~58 % by leveraging generative training. Chu & Wu (2018) showed that Gram-matrix representations of neural style features could reach ~63 %. More recently, multi-phase patch-based strategies (Bani & Abu-Naser, 2023) have reported high accuracy, though typically on reduced class sets or with micro-averaged metrics that weight common styles more heavily.
 
-**Backbone representations.** &ensp;Our fusion approach is motivated by the observation — articulated clearly in recent work on style disentanglement (Pang et al., 2025) — that self-supervised models like DINOv2 (Oquab et al., 2024) and vision-language models like CLIP (Radford et al., 2021) encode fundamentally different aspects of visual style. DINOv2 captures texture and structure; CLIP captures semantic-categorical associations. Cross-attention lets each backbone inform the other, but we should note that this idea is closely related to multi-modal fusion strategies explored in VQA and image-text retrieval.
+**Backbone representations.** &ensp;Our fusion approach is motivated by the observation — articulated clearly in recent work on style disentanglement (Jia et al., 2026) — that self-supervised models like DINOv2 (Oquab et al., 2024) and vision-language models like CLIP (Radford et al., 2021) encode fundamentally different aspects of visual style. DINOv2 captures texture and structure; CLIP captures semantic-categorical associations. Cross-attention lets each backbone inform the other, but we should note that this idea is closely related to multi-modal fusion strategies explored in VQA and image-text retrieval.
 
 **Workshop attribution.** &ensp;Computational connoisseurship traces back to Lyu et al. (2004), who applied wavelet statistics to distinguish Bruegel from his imitators, and to Johnson et al. (2008), who used canvas-thread analysis for Vermeer attribution. Our Dirichlet-process approach to workshop decomposition is more flexible than these hand-crafted pipelines but has not yet been validated on the expert-curated datasets those studies used.
 
@@ -309,7 +309,9 @@ Automated art classification has a rich history, and ArtSleuth builds on the sho
 
 - **Workshop decomposition is unsupervised.** &ensp;The Dirichlet-process model infers "hands" from embedding clusters, but there is no ground-truth labelled dataset of workshop paintings with per-region hand annotations to validate against. Art-historical validation by domain experts is still needed.
 
-- **Temporal drift requires dated references.** &ensp;The Gaussian-process date estimator only works for artists whose dated reference embeddings are in the registry. For lesser-documented artists, the model has nothing to condition on.
+- **School predictions are randomly initialised.** &ensp;Pretrained weights ship for period (27 WikiArt styles) and genre (11 WikiArt genres), but the school axis has no labelled training data yet.  School predictions are therefore based on randomly initialised weights and should not be trusted until fine-tuned on an appropriate corpus.
+
+- **Temporal drift requires dated references.** &ensp;The Gaussian-process date estimator only works for artists whose dated reference embeddings are in the registry. No bundled references are shipped; temporal estimation is disabled by default and has no effect until the user populates a `TemporalRegistry`.
 
 We consider these open problems, not failures. Contributions that address any of them — especially expert-curated evaluation datasets — would strengthen the project considerably.
 
@@ -329,7 +331,7 @@ We consider these open problems, not failures. Contributions that address any of
 - Lyu, S., Rockmore, D. & Farid, H. (2004). A digital technique for art authentication. *PNAS*, 101(49), 17006–17010.
 - Manzoor, T. et al. (2024). Deep ensemble art style recognition. *arXiv:2405.11675*.
 - Oquab, M. et al. (2024). DINOv2: Learning robust visual features without supervision. *TMLR*.
-- Pang, K. et al. (2025). StyleDecoupler: generalizable artistic style disentanglement. *arXiv:2601.17697*.
+- Jia, Z., Zhang, J. & Zhou, J. (2026). StyleDecoupler: generalizable artistic style disentanglement. *arXiv:2601.17697*.
 - Radford, A. et al. (2021). Learning transferable visual models from natural language supervision. *ICML*.
 - Rasmussen, C. E. & Williams, C. K. I. (2006). *Gaussian Processes for Machine Learning*. MIT Press.
 - Saleh, B. & Elgammal, A. (2016). Large-scale classification of fine-art paintings. *JOCCH*, 8(4), 1–24.
@@ -377,7 +379,7 @@ artsleuth server
 | Tool | Description |
 |:---|:---|
 | `analyze_artwork` | Full analysis pipeline |
-| `classify_style` | Period, school, technique classification |
+| `classify_style` | Period, school, genre classification |
 | `compare_works` | Side-by-side stylistic comparison |
 | `detect_anomalies` | Forgery screening against a reference corpus |
 

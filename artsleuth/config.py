@@ -52,25 +52,30 @@ class AnalysisConfig(BaseModel):
     Attributes
     ----------
     backbone:
-        Vision-transformer backbone used for feature extraction.
-        DINOv2 excels at fine-grained texture; CLIP provides richer
-        semantic-stylistic embeddings.
+        Vision-transformer backbone for feature extraction.
+    backbone_size:
+        Model-size variant (small / base / large).  ``base`` matches
+        shipped pretrained weights.
     patch_size:
-        Side length (in pixels) of square patches extracted for
-        brushstroke analysis.  Smaller patches capture finer strokes
-        but increase computation.
+        Side length (pixels) of analysis patches.
     patch_strategy:
-        Patch selection strategy.  ``"grid"`` tiles uniformly;
-        ``"salient"`` focuses on high-detail regions; ``"adaptive"``
-        combines both heuristics.
+        Patch selection strategy (grid / salient / adaptive).
     confidence_threshold:
-        Minimum confidence score (0–1) for a classification or
-        attribution result to be considered reportable.
+        Minimum confidence (0–1) for reportable results.
     device:
-        PyTorch device string.  ``None`` triggers automatic selection
-        (CUDA → MPS → CPU).
+        PyTorch device string.  ``None`` → auto-detect.
     cache_dir:
         Local directory for downloaded model weights.
+    max_resolution:
+        Maximum image side length before downscaling.
+    enable_art_preprocessing:
+        Apply optional art-specific transforms (experimental).
+    enable_temporal:
+        Attempt temporal style drift estimation (requires user data).
+    enable_workshop:
+        Use Bayesian workshop decomposition.
+    workshop_max_hands:
+        Upper bound on inferred workshop hands.
     """
 
     backbone: BackboneType = Field(

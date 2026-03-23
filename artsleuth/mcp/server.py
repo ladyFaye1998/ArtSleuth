@@ -96,8 +96,9 @@ def create_server() -> Any:
             Tool(
                 name="compare_works",
                 description=(
-                    "Compare two artworks for stylistic and technical similarity, "
-                    "useful for attribution and workshop identification."
+                    "Compare two artworks for stylistic similarity based on "
+                    "embedding-space proximity. Useful as a screening tool, "
+                    "but does not confirm shared authorship on its own."
                 ),
                 inputSchema={
                     "type": "object",
@@ -241,8 +242,8 @@ def _handle_compare(args: dict[str, Any], config: Any) -> dict[str, Any]:
             if similarity > 0.45
             else "Minimal similarity — distinct stylistic profiles"
         ),
-        "work_a": {"period": report_a.period.label, "school": report_a.school.label},
-        "work_b": {"period": report_b.period.label, "school": report_b.school.label},
+        "work_a": {"period": report_a.period.label, "school": report_a.school.label, "genre": report_a.technique.label},
+        "work_b": {"period": report_b.period.label, "school": report_b.school.label, "genre": report_b.technique.label},
     }
 
 

@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "artsleuth"
 version = "0.2.0"
-description = "AI Art Forensics & Analysis Framework — Brushstroke analysis, style attribution, forgery detection, and interpretable visual explanations powered by vision transformers."
+description = "Computational Art Analysis Framework — Brushstroke analysis, style attribution, anomaly screening, and interpretable visual explanations powered by vision transformers."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"

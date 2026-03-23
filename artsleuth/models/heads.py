@@ -53,7 +53,8 @@ def build_style_heads(
     school_classes:
         Number of school categories.
     technique_classes:
-        Number of technique categories.
+        Number of genre categories (called ``technique`` internally for
+        backward compatibility with saved checkpoint keys).
     device:
         PyTorch device string.
     cache_dir:
