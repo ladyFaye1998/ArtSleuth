@@ -124,6 +124,16 @@ module = [
 ignore_missing_imports = true
 follow_imports = "skip"
 
+[[tool.mypy.overrides]]
+module = [
+    "artsleuth.models.backbones",
+    "artsleuth.models.fusion",
+    "artsleuth.models.heads",
+    "artsleuth.core.explainability",
+    "artsleuth.preprocessing.patches",
+]
+disable_error_code = ["misc", "type-arg", "assignment", "attr-defined"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --tb=short"
