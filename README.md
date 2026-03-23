@@ -211,56 +211,52 @@ artsleuth benchmark --device cuda --backbone-size base
 
 <br>
 
-For each of 38 well-represented artists (≥ 80 works), we fit a Mahalanobis-distance reference model from 80 % of their authenticated WikiArt works, then test whether held-out genuine paintings score lower (closer to the reference distribution) than impostor paintings by other artists. ROC-AUC = 1.0 means perfect separation; 0.5 means chance.
+For each of 125 named artists (≥ 80 works, excluding the catch-all "Unknown Artist" category), we fit a Mahalanobis-distance reference model from 80 % of their authenticated WikiArt works, then test whether held-out genuine paintings score lower (closer to the reference distribution) than impostor paintings by other artists. ROC-AUC = 1.0 means perfect separation; 0.5 means chance.
+
+<div align="center">
+
+| | DINOv2 ViT-B/14 | CLIP ViT-L/14 | Fused (concat) |
+|:---|:---:|:---:|:---:|
+| **Mean AUC** | 0.867 | 0.958 | 0.891 |
+| **Median AUC** | 0.869 | 0.966 | 0.902 |
+| AUC ≥ 0.95 | 25 / 125 artists | 98 / 125 artists | 40 / 125 artists |
+| AUC ≥ 0.90 | 56 / 125 artists | 119 / 125 artists | 66 / 125 artists |
+
+</div>
+
+<br>
+
+Top 15 and bottom 5 by fused AUC:
 
 <div align="center">
 
 | Artist | Works | DINOv2 | CLIP | Fused |
 |:---|:---:|:---:|:---:|:---:|
 | Sam Francis | 317 | 1.000 | 1.000 | 1.000 |
+| Gene Davis | 155 | 0.998 | 1.000 | 1.000 |
+| Michelangelo | 129 | 0.996 | 1.000 | 1.000 |
+| Antoine Blanchard | 170 | 1.000 | 1.000 | 1.000 |
+| El Greco | 159 | 0.994 | 0.998 | 0.999 |
+| Édouard Cortès | 214 | 0.998 | 1.000 | 0.999 |
+| Utagawa Kuniyoshi | 199 | 0.981 | 1.000 | 0.994 |
+| Fra Angelico | 167 | 0.988 | 0.999 | 0.992 |
+| Anthony van Dyck | 163 | 0.979 | 1.000 | 0.989 |
+| Juan Gris | 196 | 0.983 | 0.999 | 0.988 |
 | Ivan Aivazovsky | 577 | 0.980 | 0.998 | 0.986 |
-| Amedeo Modigliani | 344 | 0.965 | 0.995 | 0.973 |
-| Eugène Boudin | 555 | 0.962 | 0.981 | 0.968 |
-| Alfred Sisley | 464 | 0.958 | 0.975 | 0.964 |
-| Gustave Doré | 753 | 0.928 | 0.985 | 0.962 |
-| Ivan Shishkin | 520 | 0.944 | 0.975 | 0.952 |
-| Claude Monet | 1 334 | 0.912 | 0.971 | 0.948 |
-| Raphael Kirchner | 516 | 0.904 | 0.991 | 0.945 |
-| Camille Pissarro | 887 | 0.897 | 0.950 | 0.943 |
-| Henri de Toulouse-Lautrec | 324 | 0.902 | 0.946 | 0.934 |
-| Rembrandt | 776 | 0.901 | 0.980 | 0.935 |
-| Albrecht Dürer | 695 | 0.892 | 0.976 | 0.931 |
-| Camille Corot | 456 | 0.912 | 0.962 | 0.930 |
-| Maurice Prendergast | 362 | 0.911 | 0.991 | 0.930 |
-| Marc Chagall | 765 | 0.874 | 0.959 | 0.922 |
-| Nicholas Roerich | 1 819 | 0.858 | 0.959 | 0.917 |
-| Ernst Ludwig Kirchner | 340 | 0.893 | 0.956 | 0.913 |
-| Pierre-Auguste Renoir | 1 400 | 0.862 | 0.948 | 0.913 |
-| Paul Cézanne | 579 | 0.868 | 0.963 | 0.909 |
-| Isaac Levitan | 424 | 0.889 | 0.947 | 0.902 |
-| Edgar Degas | 611 | 0.866 | 0.949 | 0.896 |
-| Vincent van Gogh | 1 889 | 0.751 | 0.938 | 0.887 |
-| Henri Matisse | 415 | 0.839 | 0.969 | 0.881 |
-| Konstantin Makovsky | 324 | 0.855 | 0.953 | 0.875 |
-| Pablo Picasso | 762 | 0.830 | 0.919 | 0.874 |
-| William Merritt Chase | 354 | 0.830 | 0.918 | 0.863 |
-| Martiros Saryan | 575 | 0.824 | 0.899 | 0.857 |
-| James Tissot | 341 | 0.822 | 0.963 | 0.851 |
-| Childe Hassam | 550 | 0.811 | 0.925 | 0.847 |
-| Paul Gauguin | 359 | 0.813 | 0.915 | 0.845 |
-| Ilya Repin | 539 | 0.784 | 0.922 | 0.817 |
-| Joaquín Sorolla | 335 | 0.759 | 0.921 | 0.800 |
-| John Singer Sargent | 784 | 0.734 | 0.919 | 0.796 |
-| Pyotr Konchalovsky | 919 | 0.672 | 0.894 | 0.790 |
-| Zinaida Serebriakova | 329 | 0.754 | 0.916 | 0.784 |
+| Georges Braque | 208 | 0.975 | 0.989 | 0.985 |
+| Gustave Loiseau | 256 | 0.979 | 0.996 | 0.984 |
+| Frans Hals | 176 | 0.974 | 0.997 | 0.982 |
+| Pietro Perugino | 173 | 0.968 | 0.994 | 0.978 |
+| … | | | | |
 | Boris Kustodiev | 633 | 0.700 | 0.827 | 0.729 |
-| Salvador Dalí | 479 | 0.675 | 0.877 | 0.725 |
-| | | | | |
-| **Mean (38 artists)** | | **0.862** | **0.949** | **0.895** |
+| Salvador Dalí | 479 | 0.675 | 0.876 | 0.725 |
+| Vasily Vereshchagin | 166 | 0.666 | 0.940 | 0.709 |
+| Viktor Vasnetsov | 132 | 0.682 | 0.816 | 0.704 |
+| M. C. Escher | 126 | 0.558 | 0.916 | 0.602 |
 
 </div>
 
-<sub>Mahalanobis-distance one-class classification on WikiArt (80/20 split, equal genuine/impostor test sets, seed 42). DINOv2 = ViT-B/14 embeddings only; CLIP = ViT-L/14 embeddings only; Fused = concatenation of both (the feature vector ArtSleuth's forgery detector uses). Reproducible notebook on [Kaggle](https://www.kaggle.com/code/ladyfaye/artsleuth-forgery-validation).</sub>
+<sub>Mahalanobis-distance one-class classification on WikiArt (125 named artists, 80/20 split, equal genuine/impostor test sets, seed 42). Artists with distinctive visual signatures (Michelangelo, El Greco, ukiyo-e prints) approach perfect separation; stylistically versatile artists (Dalí, Escher) are harder to model as a single distribution. Full per-artist table on [Kaggle](https://www.kaggle.com/code/ladyfaye/artsleuth-forgery-validation).</sub>
 
 </details>
 
@@ -309,7 +305,7 @@ Automated art classification has a rich history, and ArtSleuth builds on the sho
 
 - **No standardised benchmark protocol.** &ensp;WikiArt classification has no single accepted evaluation protocol. Class counts, splits, and averaging methods vary between papers, which makes apples-to-apples comparison frustratingly difficult. Our numbers use macro-averaging, which is the most conservative choice (each of the 27 styles counts equally, regardless of how many images it contains). Papers that report micro-averaged or weighted scores will appear higher on the same data.
 
-- **Forgery detection validated on embeddings, not on physical forgeries.** &ensp;We validated the one-class anomaly detector (Mahalanobis distance) on WikiArt: for each of 38 well-represented artists, we fit a reference corpus from 80 % of their authenticated works and measured how well it separates held-out genuine works from impostor paintings by other artists. Mean ROC-AUC across artists: **0.949** (CLIP), **0.895** (fused DINOv2 + CLIP), **0.862** (DINOv2 alone). Several artists exceed 0.99 AUC. Full per-artist results on [Kaggle](https://www.kaggle.com/code/ladyfaye/artsleuth-forgery-validation). However, this evaluates embedding-space separation between *different* artists — it does not test against actual physical forgeries authenticated by conservators, which is a harder and more practically relevant problem.
+- **Forgery detection validated on embeddings, not on physical forgeries.** &ensp;We validated the one-class anomaly detector (Mahalanobis distance) on WikiArt across all 125 named artists with ≥ 80 works. Mean ROC-AUC: **0.958** (CLIP), **0.891** (fused DINOv2 + CLIP), **0.867** (DINOv2 alone). Median fused AUC is 0.902; four artists reach perfect 1.000. Full per-artist results on [Kaggle](https://www.kaggle.com/code/ladyfaye/artsleuth-forgery-validation). However, this evaluates embedding-space separation between *different* artists — it does not test against actual physical forgeries authenticated by conservators, which is a harder and more practically relevant problem.
 
 - **Workshop decomposition is unsupervised.** &ensp;The Dirichlet-process model infers "hands" from embedding clusters, but there is no ground-truth labelled dataset of workshop paintings with per-region hand annotations to validate against. Art-historical validation by domain experts is still needed.
 
