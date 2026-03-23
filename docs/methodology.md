@@ -140,18 +140,18 @@ The `RobustnessEvaluator` sweeps across multiple severity levels (0.3, 0.5, 0.7)
 
 ## References
 
-1. Morelli, G. (1890). *Italian Painters: Critical Studies of Their Works*.
-2. Berenson, B. (1902). *The Study and Criticism of Italian Art*.
+1. Morelli, G. (1890). *Italian Painters: Critical Studies of Their Works*. John Murray.
+2. Berenson, B. (1902). *The Study and Criticism of Italian Art*. George Bell & Sons.
 3. Ainsworth, M. W. (2005). From Connoisseurship to Technical Art History. *Getty Research Journal*, 159–176.
 4. Wölfflin, H. (1915). *Principles of Art History*.
-5. Schölkopf, B. et al. (2001). Estimating the Support of a High-Dimensional Distribution. *Neural Computation*, 13(7), 1443–1471.
-6. Caron, M. et al. (2021). Emerging Properties in Self-Supervised Vision Transformers. *ICCV*.
-7. Radford, A. et al. (2021). Learning Transferable Visual Models from Natural Language Supervision. *ICML*.
-8. Selvaraju, R. R. et al. (2017). Grad-CAM: Visual Explanations from Deep Networks. *ICCV*.
-9. Oquab, M. et al. (2024). DINOv2: Learning Robust Visual Features without Supervision. *TMLR*.
-10. Vaswani, A. et al. (2017). Attention Is All You Need. *NeurIPS*.
-11. Jose, J. et al. (2025). DINOv2 Meets Text. *CVPR*.
-12. Blei, D. M. & Jordan, M. I. (2006). Variational Inference for Dirichlet Process Mixtures. *Bayesian Analysis*, 1(1), 121–143.
+5. Schölkopf, B. et al. (2001). Estimating the Support of a High-Dimensional Distribution. *Neural Computation*, 13(7), 1443–1471. [doi:10.1162/089976601750264965](https://doi.org/10.1162/089976601750264965)
+6. Caron, M. et al. (2021). Emerging Properties in Self-Supervised Vision Transformers. *ICCV*. [arXiv:2104.14294](https://arxiv.org/abs/2104.14294)
+7. Radford, A. et al. (2021). Learning Transferable Visual Models from Natural Language Supervision. *ICML*. [arXiv:2103.00020](https://arxiv.org/abs/2103.00020)
+8. Selvaraju, R. R. et al. (2017). Grad-CAM: Visual Explanations from Deep Networks via Gradient-Based Localization. *ICCV*. [doi:10.1109/ICCV.2017.74](https://doi.org/10.1109/ICCV.2017.74)
+9. Oquab, M. et al. (2024). DINOv2: Learning Robust Visual Features without Supervision. *TMLR*. [arXiv:2304.07193](https://arxiv.org/abs/2304.07193)
+10. Vaswani, A. et al. (2017). Attention Is All You Need. *NeurIPS*. [arXiv:1706.03762](https://arxiv.org/abs/1706.03762)
+11. Jose, J. et al. (2025). DINOv2 Meets Text: A Unified Framework for Image- and Pixel-Level Vision-Language Alignment. *CVPR*. [arXiv:2501.00564](https://arxiv.org/abs/2501.00564)
+12. Blei, D. M. & Jordan, M. I. (2006). Variational Inference for Dirichlet Process Mixtures. *Bayesian Analysis*, 1(1), 121–143. [doi:10.1214/06-BA104](https://doi.org/10.1214/06-BA104)
 13. Wynne, F. (2006). *I Was Vermeer*. Bloomsbury.
-14. Albergo, M. S. & Vanden-Eijnden, E. (2025). Stochastic Interpolants with Data-Dependent Couplings. *ICML*. *(Related work on generative temporal modelling of artistic style evolution; complementary to our discriminative GP-based approach.)*
-15. Anonymous (2025). PATCH: A Deep Learning Method to Assess Heterogeneity of Artistic Practice in Historical Paintings. *arXiv:2502.01912*. *(Pairwise assignment approach to workshop hand detection; complementary to ArtSleuth's DPGMM method.)*
+14. Albergo, M. S. & Vanden-Eijnden, E. (2025). Stochastic Interpolants with Data-Dependent Couplings. *ICML*.
+15. Anonymous (2025). PATCH: A Deep Learning Method to Assess Heterogeneity of Artistic Practice in Historical Paintings. [arXiv:2502.01912](https://arxiv.org/abs/2502.01912)

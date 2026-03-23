@@ -8,8 +8,8 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10+-9DC0D8?style=for-the-badge&labelColor=1A2E48&logo=python&logoColor=9DC0D8)](https://www.python.org/)&nbsp;
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-9DC0D8?style=for-the-badge&labelColor=1A2E48&logo=pytorch&logoColor=9DC0D8)](https://pytorch.org/)&nbsp;
-[![HuggingFace](https://img.shields.io/badge/HuggingFace-Models-9DC0D8?style=for-the-badge&labelColor=1A2E48&logo=huggingface&logoColor=9DC0D8)](https://huggingface.co/)&nbsp;
-[![Demo](https://img.shields.io/badge/Demo-Live-d4af37?style=for-the-badge&labelColor=1A2E48)](https://ladyfaye1998.github.io/ArtSleuth/)&nbsp;
+[![HuggingFace](https://img.shields.io/badge/HuggingFace-Weights-9DC0D8?style=for-the-badge&labelColor=1A2E48&logo=huggingface&logoColor=9DC0D8)](https://huggingface.co/ladyFaye1998/artsleuth-weights)&nbsp;
+[![Demo](https://img.shields.io/badge/Demo-Live_on_Spaces-d4af37?style=for-the-badge&labelColor=1A2E48&logo=huggingface&logoColor=d4af37)](https://huggingface.co/spaces/ladyFaye1998/ArtSleuth)&nbsp;
 [![MCP](https://img.shields.io/badge/MCP-Server-9DC0D8?style=for-the-badge&labelColor=1A2E48)](https://modelcontextprotocol.io/)&nbsp;
 [![License](https://img.shields.io/badge/License-MIT-9DC0D8?style=for-the-badge&labelColor=1A2E48)](LICENSE)
 
@@ -73,6 +73,8 @@ ArtSleuth combines several techniques that are typically studied in isolation:
 <br>
 
 ### ✦ Quick Start
+
+> **No installation required?** &ensp;[Try ArtSleuth live on HuggingFace Spaces.](https://huggingface.co/spaces/ladyFaye1998/ArtSleuth) &ensp; Pretrained weights are on the [HuggingFace Hub](https://huggingface.co/ladyFaye1998/artsleuth-weights).
 
 ```bash
 pip install artsleuth
@@ -322,22 +324,26 @@ We consider these open problems, not failures. Contributions that address any of
 
 <br>
 
-- Bani, M. & Abu-Naser, S. S. (2023). Artistic style recognition: combining deep and shallow neural networks for painting classification. *Mathematics*, 11(22), 4564.
-- Blei, D. M. & Jordan, M. I. (2006). Variational inference for Dirichlet process mixtures. *Bayesian Analysis*, 1(1), 121–143.
-- Caron, M. et al. (2021). Emerging properties in self-supervised vision transformers. *ICCV*.
-- Chu, W.-T. & Wu, Y.-L. (2018). Image style classification based on learnt deep correlation features. *IEEE Trans. Multimedia*, 20(9), 2491–2502.
-- Johnson, C. R. et al. (2008). Image processing for artist identification. *IEEE Signal Processing Magazine*, 25(4), 37–48.
-- Kose, U. & Guner, B. (2025). Enhancing artistic style classification through a novel ArtFusionNet framework. *Scientific Reports*, 15, 20087. *(Note: evaluated on 3 style classes.)*
-- Lyu, S., Rockmore, D. & Farid, H. (2004). A digital technique for art authentication. *PNAS*, 101(49), 17006–17010.
-- Manzoor, T. et al. (2024). Deep ensemble art style recognition. *arXiv:2405.11675*.
-- Oquab, M. et al. (2024). DINOv2: Learning robust visual features without supervision. *TMLR*.
-- Jia, Z., Zhang, J. & Zhou, J. (2026). StyleDecoupler: generalizable artistic style disentanglement. *arXiv:2601.17697*.
-- Radford, A. et al. (2021). Learning transferable visual models from natural language supervision. *ICML*.
+- Bani, M. & Abu-Naser, S. S. (2023). Artistic style recognition: combining deep and shallow neural networks for painting classification. *Mathematics*, 11(22), 4564. [doi:10.3390/math11224564](https://doi.org/10.3390/math11224564)
+- Berenson, B. (1902). *The Study and Criticism of Italian Art*. George Bell & Sons.
+- Blei, D. M. & Jordan, M. I. (2006). Variational inference for Dirichlet process mixtures. *Bayesian Analysis*, 1(1), 121–143. [doi:10.1214/06-BA104](https://doi.org/10.1214/06-BA104)
+- Caron, M. et al. (2021). Emerging properties in self-supervised vision transformers. *ICCV*. [arXiv:2104.14294](https://arxiv.org/abs/2104.14294)
+- Chu, W.-T. & Wu, Y.-L. (2018). Image style classification based on learnt deep correlation features. *IEEE Trans. Multimedia*, 20(9), 2491–2502. [doi:10.1109/TMM.2018.2801718](https://doi.org/10.1109/TMM.2018.2801718)
+- Jia, Z., Zhang, J. & Zhou, J. (2026). StyleDecoupler: generalizable artistic style disentanglement. [arXiv:2601.17697](https://arxiv.org/abs/2601.17697)
+- Johnson, C. R. et al. (2008). Image processing for artist identification. *IEEE Signal Processing Magazine*, 25(4), 37–48. [doi:10.1109/MSP.2008.923513](https://doi.org/10.1109/MSP.2008.923513)
+- Jose, J. et al. (2025). DINOv2 meets text: a unified framework for image- and pixel-level vision-language alignment. *CVPR*. [arXiv:2501.00564](https://arxiv.org/abs/2501.00564)
+- Kose, U. & Guner, B. (2025). Enhancing artistic style classification through a novel ArtFusionNet framework. *Scientific Reports*, 15, 20087. [doi:10.1038/s41598-025-04825-y](https://doi.org/10.1038/s41598-025-04825-y) *(Note: evaluated on 3 style classes.)*
+- Lyu, S., Rockmore, D. & Farid, H. (2004). A digital technique for art authentication. *PNAS*, 101(49), 17006–17010. [doi:10.1073/pnas.0406398101](https://doi.org/10.1073/pnas.0406398101)
+- Manzoor, T. et al. (2024). Deep ensemble art style recognition. [arXiv:2405.11675](https://arxiv.org/abs/2405.11675)
+- Morelli, G. (1890). *Italian Painters: Critical Studies of Their Works*. John Murray.
+- Oquab, M. et al. (2024). DINOv2: Learning robust visual features without supervision. *TMLR*. [arXiv:2304.07193](https://arxiv.org/abs/2304.07193)
+- Radford, A. et al. (2021). Learning transferable visual models from natural language supervision. *ICML*. [arXiv:2103.00020](https://arxiv.org/abs/2103.00020)
 - Rasmussen, C. E. & Williams, C. K. I. (2006). *Gaussian Processes for Machine Learning*. MIT Press.
-- Saleh, B. & Elgammal, A. (2016). Large-scale classification of fine-art paintings. *JOCCH*, 8(4), 1–24.
-- Tan, W. R. et al. (2016). Ceci n'est pas une pipe: a deep convolutional network for fine-art paintings classification. *ICIP*.
-- Tan, W. R. et al. (2018). ArtGAN: artwork synthesis with conditional categorical GANs. *ICIP*.
-- Vaswani, A. et al. (2017). Attention is all you need. *NeurIPS*.
+- Saleh, B. & Elgammal, A. (2016). Large-scale classification of fine-art paintings. *JOCCH*, 8(4), 1–24. [doi:10.1145/2801634](https://doi.org/10.1145/2801634)
+- Selvaraju, R. R. et al. (2017). Grad-CAM: visual explanations from deep networks via gradient-based localization. *ICCV*. [doi:10.1109/ICCV.2017.74](https://doi.org/10.1109/ICCV.2017.74)
+- Tan, W. R. et al. (2016). Ceci n'est pas une pipe: a deep convolutional network for fine-art paintings classification. *ICIP*. [doi:10.1109/ICIP.2016.7533051](https://doi.org/10.1109/ICIP.2016.7533051)
+- Tan, W. R. et al. (2018). ArtGAN: artwork synthesis with conditional categorical GANs. *IEEE Trans. Image Processing*, 27(10), 4846–4860. [doi:10.1109/TIP.2018.2845388](https://doi.org/10.1109/TIP.2018.2845388)
+- Vaswani, A. et al. (2017). Attention is all you need. *NeurIPS*. [arXiv:1706.03762](https://arxiv.org/abs/1706.03762)
 
 </details>
 
@@ -356,7 +362,7 @@ pip install artsleuth[web]
 artsleuth demo
 ```
 
-Or try the hosted version at [ladyfaye1998.github.io/ArtSleuth](https://ladyfaye1998.github.io/ArtSleuth/).
+Or try the [live demo on HuggingFace Spaces](https://huggingface.co/spaces/ladyFaye1998/ArtSleuth) — no installation required. The [GitHub Pages landing page](https://ladyfaye1998.github.io/ArtSleuth/) provides an overview with a simulated walkthrough.
 
 <br>
 

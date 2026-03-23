@@ -1,0 +1,9 @@
+Add HuggingFace links, DOIs, and complete bibliography
+
+- Model weights hosted at huggingface.co/ladyFaye1998/artsleuth-weights
+- Live Gradio demo at huggingface.co/spaces/ladyFaye1998/ArtSleuth
+- README badges now link to HF weights and Spaces demo
+- index.html hero CTA points to live Spaces demo
+- Full DOIs/arXiv links for all references in README and docs/methodology.md
+- Added missing refs: Morelli, Berenson, Jose et al., Selvaraju et al.
+- CITATION.cff: added preferred-citation block
