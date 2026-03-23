@@ -1,73 +1,87 @@
 {
   "frozen": {
-    "DINOv2 ViT-S/14": {
+    "DINOv2 ViT-B/14": {
       "style": {
-        "accuracy": 0.553932101418135,
-        "top5_accuracy": 0.9327767204862177,
-        "macro_f1": 0.5218077621131033
+        "accuracy": 0.5748050831849715,
+        "macro_f1": 0.5533819158528254,
+        "top5_accuracy": 0.9403892197188286
       },
       "artist": {
-        "accuracy": 0.6495794708085211,
-        "top5_accuracy": 0.9081588802259193,
-        "macro_f1": 0.4465765469481709
+        "accuracy": 0.6467554791577138,
+        "macro_f1": 0.4695108031842232,
+        "top5_accuracy": 0.9093867026827921
       },
       "genre": {
-        "accuracy": 0.6868438823746086,
-        "top5_accuracy": 0.9866781263429308,
-        "macro_f1": 0.667255336741662
+        "accuracy": 0.7102339001780342,
+        "macro_f1": 0.6909969336181245,
+        "top5_accuracy": 0.9868009085886181
       }
     },
-    "CLIP ViT-B/32": {
+    "CLIP ViT-L/14": {
       "style": {
-        "accuracy": 0.6241021548284118,
-        "top5_accuracy": 0.9570876051322978,
-        "macro_f1": 0.6034420229734981
+        "accuracy": 0.6711891460494812,
+        "macro_f1": 0.6563769789216267,
+        "top5_accuracy": 0.9707778255264289
       },
       "artist": {
-        "accuracy": 0.7031125299281724,
-        "top5_accuracy": 0.9384860949106759,
-        "macro_f1": 0.5303031311782066
+        "accuracy": 0.7459635336730309,
+        "macro_f1": 0.5974592091359314,
+        "top5_accuracy": 0.9594204678003561
       },
       "genre": {
-        "accuracy": 0.7172324881822089,
-        "top5_accuracy": 0.9896249002394254,
-        "macro_f1": 0.6968928785821134
+        "accuracy": 0.7503223033949291,
+        "macro_f1": 0.7397472009212994,
+        "top5_accuracy": 0.9923261096445454
       }
     },
     "Fusion (frozen)": {
       "style": {
-        "accuracy": 0.6216465099146663,
-        "top5_accuracy": 0.9574559518693597,
-        "macro_f1": 0.5892166315444012
+        "accuracy": 0.649947817545583,
+        "macro_f1": 0.6333018218338824,
+        "top5_accuracy": 0.9664190558045307
       },
       "artist": {
-        "accuracy": 0.7029897476824851,
-        "top5_accuracy": 0.9395297439990178,
-        "macro_f1": 0.519300217367615
+        "accuracy": 0.7102339001780342,
+        "macro_f1": 0.5427156131915017,
+        "top5_accuracy": 0.9421081711584505
       },
       "genre": {
-        "accuracy": 0.7174780526735834,
-        "top5_accuracy": 0.9906071582049236,
-        "macro_f1": 0.7028417932449542
+        "accuracy": 0.7422800663024127,
+        "macro_f1": 0.7308973248917044,
+        "top5_accuracy": 0.9907913315734544
       }
     }
   },
   "tuned": {
-    "Fusion (trained)": {
+    "Fusion (fine-tuned)": {
       "style": {
-        "accuracy": 0.6356436859230156,
-        "top5_accuracy": 0.9635950641537234,
-        "macro_f1": 0.6158077342395472
+        "accuracy": 0.715513536742587,
+        "macro_f1": 0.7032232900559235,
+        "top5_accuracy": 0.9669715759101234
       },
       "artist": {
-        "accuracy": 0.7271164589600344,
-        "top5_accuracy": 0.9467738964945669,
-        "macro_f1": 0.5483677319323699
+        "accuracy": 0.7784394376573147,
+        "macro_f1": 0.6207431550469462,
+        "top5_accuracy": 0.962121677205476
       },
       "genre": {
-        "accuracy": 0.7233102093437289,
-        "top5_accuracy": 0.990361593713549,
-        "macro_f1": 0.7084818120235485
+        "accuracy": 0.7513045613604273,
+        "macro_f1": 0.7456517648133428,
+        "top5_accuracy": 0.99054576708208
+      }
+    }
+  },
+  "e2e": {
+    "Fusion (e2e heads)": {
+      "style": {
+        "accuracy": 0.7268095033458162
+      },
+      "artist": {
+        "accuracy": 0.7904107066118239,
+        "top5_accuracy": 0.9688747007182761
+      },
+      "genre": {
+        "accuracy": 0.7656700841058383
       }
     }
   },
@@ -80,7 +94,14 @@
     "n_genres": 11
   },
   "config": {
-    "device": "cuda",
-    "epochs": 15
+    "dino": "dinov2_vitb14",
+    "clip": "ViT-L/14",
+    "epochs": 5,
+    "bs": 16,
+    "accum": 4,
+    "backbone_lr": 1e-05,
+    "head_lr": 0.0005,
+    "unfrozen_blocks": 3,
+    "supcon_weight": 0.2
   }
 }

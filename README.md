@@ -128,8 +128,8 @@ graph TD
     prep --> Patches["Patch Extraction"]
     prep --> FullImage["Full-Image Encoding"]
 
-    Patches --> DINO["DINOv2 ViT-S/14"]
-    FullImage --> CLIPEnc["CLIP ViT-B/32"]
+    Patches --> DINO["DINOv2 ViT-B/14"]
+    FullImage --> CLIPEnc["CLIP ViT-L/14"]
 
     DINO --> CrossAttn["Style-Guided Cross-Attention"]
     CLIPEnc --> CrossAttn
@@ -165,8 +165,8 @@ graph TD
 
 | Backbone | Strength | Used For |
 |:---|:---|:---|
-| **DINOv2** · ViT-S/14 | Fine-grained texture and structure | Brushstroke analysis · cross-attention K/V |
-| **CLIP** · ViT-B/32 | Semantic-stylistic understanding | Style classification · cross-attention Q |
+| **DINOv2** · ViT-B/14 | Fine-grained texture and structure (768-d) | Brushstroke analysis · cross-attention K/V |
+| **CLIP** · ViT-L/14 | Semantic-stylistic understanding (768-d) | Style classification · cross-attention Q |
 | **Fusion** · Cross-Attention | Style-aware structural features | Attribution · forgery · workshop decomposition |
 
 </div>
@@ -179,20 +179,44 @@ graph TD
 
 ### ✦ Benchmark
 
-Linear probe evaluation on the full [WikiArt](https://huggingface.co/datasets/huggan/wikiart) dataset (81 444 images, logistic regression, 80/20 split, seed 42):
+Linear probe and end-to-end evaluation on the full [WikiArt](https://huggingface.co/datasets/huggan/wikiart) dataset (81 444 images, 80/20 split, seed 42):
 
 <div align="center">
 
 | Backbone | Style Acc | Style F1 | Artist Acc | Artist Top-5 | Genre Acc |
 |:---|:---:|:---:|:---:|:---:|:---:|
-| DINOv2 · ViT-S/14 | 55.4 % | 0.522 | 65.0 % | 90.8 % | 68.7 % |
-| CLIP · ViT-B/32 | 62.4 % | 0.603 | 70.3 % | 93.8 % | 71.7 % |
-| Fusion · frozen | 62.2 % | 0.589 | 70.3 % | 94.0 % | 71.7 % |
-| **Fusion · fine-tuned** | **63.6 %** | **0.616** | **72.7 %** | **94.7 %** | **72.3 %** |
+| DINOv2 · ViT-B/14 | 57.5 % | 0.553 | 64.7 % | 90.9 % | 71.0 % |
+| CLIP · ViT-L/14 | 67.1 % | 0.656 | 74.6 % | 95.9 % | 75.0 % |
+| Fusion · frozen | 65.0 % | 0.633 | 71.0 % | 94.2 % | 74.2 % |
+| Fusion · fine-tuned | 71.6 % | 0.703 | 77.8 % | 96.2 % | 75.1 % |
+| **Fusion · e2e** | **72.7 %** | — | **79.0 %** | **96.9 %** | **76.6 %** |
 
 </div>
 
-<sub>All metrics macro-averaged across 27 styles, 129 artists, and 11 genres. The fine-tuned fusion head (15 epochs, AdamW, cross-entropy) consistently outperforms both individual backbones. Reproducible notebook on [Kaggle](https://www.kaggle.com/ladyfaye/artsleuth-full-pipeline-benchmark-fine-tune).</sub>
+<sub>Top four rows: logistic-regression linear probes (macro-averaged across 27 styles, 129 artists, 11 genres). Bottom row: end-to-end classification heads trained jointly with the fusion backbone. Fine-tuning partially unfreezes the last 3 transformer blocks of each backbone, uses multi-task CE + supervised contrastive loss, AdamW with cosine annealing, and mixed-precision training (5 epochs, effective batch 64). Reproducible notebook on [Kaggle](https://www.kaggle.com/ladyfaye/artsleuth-sota-benchmark).</sub>
+
+<br>
+
+<details>
+<summary>&nbsp;Comparison with published baselines</summary>
+
+<br>
+
+<div align="center">
+
+| Method | Style Acc | Artist Acc | Notes |
+|:---|:---:|:---:|:---|
+| ResNet-50 (Tan et al., 2016) | 54.5 % | 56.5 % | Supervised training on WikiArt |
+| ArtGAN (Tan et al., 2018) | 58.0 % | — | Style transfer + classification |
+| Gram matrices (Chu & Wu, 2018) | 63.0 % | — | Neural style features |
+| CLIP ViT-L/14 zero-shot | ~55 % | ~40 % | Prompt-based, no training |
+| **ArtSleuth Fusion · e2e** | **72.7 %** | **79.0 %** | Dual-backbone cross-attention + SupCon |
+
+</div>
+
+<sub>Published numbers from respective papers; not all evaluate on the same WikiArt split, so comparisons are approximate. ArtSleuth numbers use the standard 80/20 random split.</sub>
+
+</details>
 
 <br>
 
@@ -200,7 +224,7 @@ Reproduce locally:
 
 ```bash
 pip install artsleuth[benchmarks]
-artsleuth benchmark --device cuda
+artsleuth benchmark --device cuda --backbone-size base
 ```
 
 <br>

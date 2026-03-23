@@ -491,12 +491,40 @@ def _hand_map_palette(n: int) -> list[list[int]]:
 
 
 def _build_benchmark_table() -> str:
-    """Return an HTML table with full WikiArt benchmark numbers."""
+    """Return an HTML table with full WikiArt SOTA benchmark numbers."""
+    row = (
+        '<tr style="border-bottom:{border}">'
+        '<td style="padding:0.5rem 1rem;text-align:left;{extra}">{name}</td>'
+        '<td style="padding:0.5rem 0.7rem;{extra}">{style}</td>'
+        '<td style="padding:0.5rem 0.7rem;{extra}">{f1}</td>'
+        '<td style="padding:0.5rem 0.7rem;{extra}">{artist}</td>'
+        '<td style="padding:0.5rem 0.7rem;{extra}">{top5}</td>'
+        '<td style="padding:0.5rem 0.7rem;{extra}">{genre}</td></tr>'
+    )
+    thin = "1px solid #d4c5b9"
+    thick = "2px solid #1A2E48"
+    rows = [
+        row.format(border=thin, extra="", name="DINOv2 · ViT-B/14",
+                   style="57.5%", f1="0.553", artist="64.7%",
+                   top5="90.9%", genre="71.0%"),
+        row.format(border=thin, extra="", name="CLIP · ViT-L/14",
+                   style="67.1%", f1="0.656", artist="74.6%",
+                   top5="95.9%", genre="75.0%"),
+        row.format(border=thin, extra="", name="Fusion · frozen",
+                   style="65.0%", f1="0.633", artist="71.0%",
+                   top5="94.2%", genre="74.2%"),
+        row.format(border=thin, extra="", name="Fusion · fine-tuned",
+                   style="71.6%", f1="0.703", artist="77.8%",
+                   top5="96.2%", genre="75.1%"),
+        row.format(border=thick, extra="font-weight:600",
+                   name="Fusion · e2e", style="72.7%", f1="—",
+                   artist="79.0%", top5="96.9%", genre="76.6%"),
+    ]
     return (
         '<div style="text-align:center;padding:2rem 1rem;'
         'background:#F5F0EB;border-radius:8px;margin:1rem 0">'
         '<h3 style="color:#1A2E48;margin:0 0 0.5rem">'
-        'Linear Probe Evaluation · WikiArt (81 444 images)</h3>'
+        'WikiArt Benchmark (81 444 images)</h3>'
         '<table style="margin:1rem auto;border-collapse:collapse;'
         'font-size:0.9rem;color:#1A2E48">'
         '<tr style="border-bottom:2px solid #1A2E48">'
@@ -506,42 +534,12 @@ def _build_benchmark_table() -> str:
         '<th style="padding:0.5rem 0.7rem">Artist</th>'
         '<th style="padding:0.5rem 0.7rem">Artist Top-5</th>'
         '<th style="padding:0.5rem 0.7rem">Genre</th></tr>'
-        '<tr style="border-bottom:1px solid #d4c5b9">'
-        '<td style="padding:0.5rem 1rem;text-align:left">'
-        'DINOv2 · ViT-S/14</td>'
-        '<td style="padding:0.5rem 0.7rem">55.4%</td>'
-        '<td style="padding:0.5rem 0.7rem">0.522</td>'
-        '<td style="padding:0.5rem 0.7rem">65.0%</td>'
-        '<td style="padding:0.5rem 0.7rem">90.8%</td>'
-        '<td style="padding:0.5rem 0.7rem">68.7%</td></tr>'
-        '<tr style="border-bottom:1px solid #d4c5b9">'
-        '<td style="padding:0.5rem 1rem;text-align:left">'
-        'CLIP · ViT-B/32</td>'
-        '<td style="padding:0.5rem 0.7rem">62.4%</td>'
-        '<td style="padding:0.5rem 0.7rem">0.603</td>'
-        '<td style="padding:0.5rem 0.7rem">70.3%</td>'
-        '<td style="padding:0.5rem 0.7rem">93.8%</td>'
-        '<td style="padding:0.5rem 0.7rem">71.7%</td></tr>'
-        '<tr style="border-bottom:1px solid #d4c5b9">'
-        '<td style="padding:0.5rem 1rem;text-align:left">'
-        'Fusion · frozen</td>'
-        '<td style="padding:0.5rem 0.7rem">62.2%</td>'
-        '<td style="padding:0.5rem 0.7rem">0.589</td>'
-        '<td style="padding:0.5rem 0.7rem">70.3%</td>'
-        '<td style="padding:0.5rem 0.7rem">94.0%</td>'
-        '<td style="padding:0.5rem 0.7rem">71.7%</td></tr>'
-        '<tr style="border-bottom:2px solid #1A2E48;font-weight:600">'
-        '<td style="padding:0.5rem 1rem;text-align:left">'
-        'Fusion · fine-tuned</td>'
-        '<td style="padding:0.5rem 0.7rem">63.6%</td>'
-        '<td style="padding:0.5rem 0.7rem">0.616</td>'
-        '<td style="padding:0.5rem 0.7rem">72.7%</td>'
-        '<td style="padding:0.5rem 0.7rem">94.7%</td>'
-        '<td style="padding:0.5rem 0.7rem">72.3%</td></tr>'
-        '</table>'
+        + "".join(rows)
+        + '</table>'
         '<p style="color:#988b7e;font-size:0.78rem;margin-top:0.5rem">'
-        'Logistic regression, macro-averaged across 27 styles, 129 artists, '
-        '11 genres. Fine-tuned fusion head trained for 15 epochs with AdamW.'
+        'Top four rows: logistic-regression linear probes. Bottom row: '
+        'end-to-end classification heads. Fine-tuning uses SupCon + CE loss, '
+        'partial backbone unfreezing (3 blocks), cosine annealing, 5 epochs.'
         '</p></div>'
     )
 
@@ -554,11 +552,17 @@ def _benchmark_methodology() -> str:
         "(81 444 images, 80/20 split, 27 styles, 129 artists, 11 genres). "
         "Style and genre accuracy use single-label top-1 matching; "
         "artist accuracy reports both top-1 and top-5.\n\n"
-        "**ArtSleuth Fusion** combines DINOv2 texture features with "
-        "CLIP semantic embeddings via a learnable cross-attention "
-        "fusion head. The fine-tuned variant is trained for 15 epochs "
-        "with AdamW on style labels, and transfers well to artist "
-        "and genre tasks.\n\n"
+        "**ArtSleuth Fusion** combines DINOv2 ViT-B/14 texture features "
+        "with CLIP ViT-L/14 semantic embeddings via a learnable "
+        "cross-attention fusion head.\n\n"
+        "The **fine-tuned** variant partially unfreezes the last 3 "
+        "transformer blocks of each backbone and trains with a multi-task "
+        "objective (cross-entropy + supervised contrastive loss, "
+        "weight 0.2). The **e2e** row reports the jointly trained "
+        "classification heads directly, without a separate linear probe.\n\n"
+        "Training uses AdamW with cosine annealing (backbone lr=1e-5, "
+        "head lr=5e-4), mixed precision, gradient accumulation (effective "
+        "batch 64), for 5 epochs on a Tesla P100.\n\n"
         "*All numbers are macro-averaged across classes to avoid "
         "inflating scores on over-represented styles.*"
     )
