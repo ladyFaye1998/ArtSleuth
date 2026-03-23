@@ -4,33 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ArtSleuth — Computational Art Analysis</title>
-  <meta name="description" content="Computational art-analysis framework combining vision transformers with art-historical connoisseurship. Brushstroke forensics, style attribution, forgery detection, workshop decomposition, and temporal dating.">
-  <meta name="keywords" content="art analysis, AI, computer vision, brushstroke, forgery detection, style attribution, DINOv2, CLIP, art history, machine learning, connoisseurship">
+  <meta name="description" content="Computational art-analysis framework combining vision transformers with art-historical connoisseurship. Style attribution, brushstroke analysis, anomaly screening, workshop decomposition, and temporal dating.">
+  <meta name="keywords" content="art analysis, computer vision, brushstroke, forgery detection, style attribution, DINOv2, CLIP, art history, connoisseurship">
   <meta name="author" content="ladyFaye1998">
 
-  <!-- Open Graph -->
   <meta property="og:title" content="ArtSleuth — Computational Art Analysis">
-  <meta property="og:description" content="Where connoisseurship meets computation. Brushstroke forensics, style attribution, forgery detection — powered by vision transformers.">
+  <meta property="og:description" content="Where connoisseurship meets computation. Style attribution, brushstroke analysis, anomaly screening — powered by vision transformers.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ladyfaye1998.github.io/ArtSleuth/">
   <meta property="og:image" content="https://raw.githubusercontent.com/ladyFaye1998/ArtSleuth/main/assets/banner.png">
 
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="ArtSleuth — Computational Art Analysis">
   <meta name="twitter:description" content="Where connoisseurship meets computation.">
   <meta name="twitter:image" content="https://raw.githubusercontent.com/ladyFaye1998/ArtSleuth/main/assets/banner.png">
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
-    /* ── Reset ─────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── Palette ───────────────────────────────────────────── */
     :root {
       --navy:       #1A2E48;
       --navy-light: #243a58;
@@ -46,7 +41,6 @@
       --font-mono:  'Fira Code', Consolas, monospace;
     }
 
-    /* ── Global ────────────────────────────────────────────── */
     html { scroll-behavior: smooth; }
     body {
       font-family: var(--font-serif);
@@ -60,616 +54,241 @@
     img { max-width: 100%; display: block; }
     code, pre { font-family: var(--font-mono); }
 
-    .container {
-      max-width: 1080px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-    }
+    .container { max-width: 1080px; margin: 0 auto; padding: 0 1.5rem; }
 
-    /* ── Nav ───────────────────────────────────────────────── */
+    /* ── Nav ─────────────────────────────────────────── */
     nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       background: rgba(26,46,72,0.95);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid rgba(157,192,216,0.15);
       transition: box-shadow 0.3s;
     }
     nav.scrolled { box-shadow: 0 2px 20px rgba(26,46,72,0.25); }
-    nav .container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 60px;
-    }
-    nav .logo {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--gold);
-      letter-spacing: 0.04em;
-    }
+    nav .container { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    nav .logo { font-size: 1.3rem; font-weight: 700; color: var(--gold); letter-spacing: 0.04em; }
     nav .logo span { color: var(--blue); font-weight: 400; }
-    nav ul {
-      list-style: none;
-      display: flex;
-      gap: 1.8rem;
-    }
-    nav ul a {
-      color: var(--text-light);
-      font-size: 0.9rem;
-      font-weight: 500;
-      letter-spacing: 0.02em;
-      transition: color 0.2s;
-    }
+    nav ul { list-style: none; display: flex; gap: 1.8rem; }
+    nav ul a { color: var(--text-light); font-size: 0.9rem; font-weight: 500; letter-spacing: 0.02em; transition: color 0.2s; }
     nav ul a:hover { color: var(--gold); }
 
-    /* ── Hero ──────────────────────────────────────────────── */
+    /* ── Hero ────────────────────────────────────────── */
     .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
       text-align: center;
       background: linear-gradient(160deg, var(--navy) 0%, var(--navy-light) 50%, #2a4a6a 100%);
-      position: relative;
-      overflow: hidden;
+      position: relative; overflow: hidden;
     }
     .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
+      content: ''; position: absolute; inset: 0;
       background:
         radial-gradient(ellipse 600px 600px at 20% 80%, rgba(212,175,55,0.06) 0%, transparent 70%),
         radial-gradient(ellipse 400px 400px at 80% 20%, rgba(157,192,216,0.08) 0%, transparent 70%),
         radial-gradient(ellipse 300px 300px at 50% 50%, rgba(212,137,154,0.05) 0%, transparent 70%);
     }
-    .hero-content {
-      position: relative;
-      z-index: 1;
-      padding: 2rem 1.5rem;
-    }
-    .hero h1 {
-      font-size: clamp(2.8rem, 6vw, 4.5rem);
-      font-weight: 700;
-      color: var(--gold);
-      letter-spacing: 0.06em;
-      margin-bottom: 0.4rem;
-    }
-    .hero .subtitle {
-      font-size: clamp(1rem, 2.5vw, 1.35rem);
-      color: var(--text-light);
-      font-style: italic;
-      font-weight: 400;
-      margin-bottom: 1.5rem;
-    }
-    .hero .tagline {
-      font-size: 0.95rem;
-      color: var(--blue);
-      max-width: 600px;
-      margin: 0 auto 2.5rem;
-      line-height: 1.8;
-    }
-    .hero-badges {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 2.5rem;
-    }
+    .hero-content { position: relative; z-index: 1; padding: 2rem 1.5rem; }
+    .hero h1 { font-size: clamp(2.8rem, 6vw, 4.5rem); font-weight: 700; color: var(--gold); letter-spacing: 0.06em; margin-bottom: 0.4rem; }
+    .hero .subtitle { font-size: clamp(1rem, 2.5vw, 1.35rem); color: var(--text-light); font-style: italic; font-weight: 400; margin-bottom: 1.5rem; }
+    .hero .tagline { font-size: 0.95rem; color: var(--blue); max-width: 620px; margin: 0 auto 2.5rem; line-height: 1.8; }
+    .hero-badges { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2.5rem; }
     .hero-badges .badge {
-      display: inline-block;
-      background: rgba(157,192,216,0.12);
-      border: 1px solid rgba(157,192,216,0.25);
-      color: var(--blue);
-      padding: 0.3rem 0.9rem;
-      border-radius: 20px;
-      font-size: 0.78rem;
-      font-weight: 500;
-      letter-spacing: 0.03em;
+      display: inline-block; background: rgba(157,192,216,0.12); border: 1px solid rgba(157,192,216,0.25);
+      color: var(--blue); padding: 0.3rem 0.9rem; border-radius: 20px; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.03em;
     }
-    .hero-cta {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
+    .hero-cta { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
     .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.8rem;
-      border-radius: 6px;
-      font-family: var(--font-serif);
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: all 0.25s ease;
+      display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.8rem;
+      border-radius: 6px; font-family: var(--font-serif); font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; border: 2px solid transparent; transition: all 0.25s ease;
     }
-    .btn-primary {
-      background: var(--gold);
-      color: var(--navy);
-    }
-    .btn-primary:hover {
-      background: #c5a030;
-      color: var(--navy);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 16px rgba(212,175,55,0.3);
-    }
-    .btn-secondary {
-      background: transparent;
-      color: var(--text-light);
-      border-color: var(--blue);
-    }
-    .btn-secondary:hover {
-      background: rgba(157,192,216,0.1);
-      color: var(--gold);
-      border-color: var(--gold);
-    }
+    .btn svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
+    .btn-primary { background: var(--gold); color: var(--navy); }
+    .btn-primary:hover { background: #c5a030; color: var(--navy); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(212,175,55,0.3); }
+    .btn-secondary { background: transparent; color: var(--text-light); border-color: var(--blue); }
+    .btn-secondary:hover { background: rgba(157,192,216,0.1); color: var(--gold); border-color: var(--gold); }
 
-    /* ── Section common ────────────────────────────────────── */
+    /* ── Sections ────────────────────────────────────── */
     section { padding: 5rem 0; }
-    .section-title {
-      text-align: center;
-      margin-bottom: 3.5rem;
-    }
-    .section-title .marker {
-      color: var(--gold);
-      font-size: 1.1rem;
-    }
-    .section-title h2 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--navy);
-      margin: 0.3rem 0 0.6rem;
-    }
-    .section-title p {
-      font-size: 1rem;
-      color: var(--muted);
-      max-width: 600px;
-      margin: 0 auto;
-      font-style: italic;
-    }
+    .section-title { text-align: center; margin-bottom: 3.5rem; }
+    .section-title h2 { font-size: 2rem; font-weight: 700; color: var(--navy); margin: 0.3rem 0 0.6rem; }
+    .section-title p { font-size: 1rem; color: var(--muted); max-width: 600px; margin: 0 auto; font-style: italic; }
+    .section-marker { color: var(--gold); font-size: 1.1rem; }
 
-    /* ── Features ──────────────────────────────────────────── */
+    /* ── Divider ─────────────────────────────────────── */
+    .divider-icon { display: flex; justify-content: center; margin-bottom: -1rem; }
+    .divider-icon svg { width: 24px; height: 24px; fill: var(--gold); }
+
+    /* ── Features ────────────────────────────────────── */
     #features { background: var(--white); }
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.8rem;
-    }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.8rem; }
     .feature-card {
-      background: var(--cream);
-      border: 1px solid rgba(157,192,216,0.3);
-      border-radius: 8px;
-      padding: 1.8rem;
-      transition: transform 0.25s, box-shadow 0.25s;
-      position: relative;
-      overflow: hidden;
+      background: var(--cream); border: 1px solid rgba(157,192,216,0.3); border-radius: 8px;
+      padding: 1.8rem; transition: transform 0.25s, box-shadow 0.25s; position: relative; overflow: hidden;
     }
     .feature-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 4px; height: 100%;
-      background: var(--gold);
-      border-radius: 8px 0 0 8px;
-      opacity: 0;
-      transition: opacity 0.25s;
+      content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+      background: var(--gold); border-radius: 8px 0 0 8px; opacity: 0; transition: opacity 0.25s;
     }
-    .feature-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(26,46,72,0.1);
-    }
+    .feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(26,46,72,0.1); }
     .feature-card:hover::before { opacity: 1; }
-    .feature-icon {
-      font-size: 1.6rem;
-      margin-bottom: 0.8rem;
-      display: block;
-    }
-    .feature-card h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--navy);
-      margin-bottom: 0.5rem;
-    }
-    .feature-card p {
-      font-size: 0.9rem;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-    .feature-card .tech-tag {
-      display: inline-block;
-      background: var(--blue-muted);
-      color: var(--navy);
-      font-size: 0.72rem;
-      font-weight: 500;
-      padding: 2px 8px;
-      border-radius: 4px;
-      margin-top: 0.8rem;
-      margin-right: 4px;
+    .feature-icon { margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
+    .feature-icon svg { width: 28px; height: 28px; }
+    .feature-card h3 { font-size: 1.1rem; font-weight: 600; color: var(--navy); margin-bottom: 0.5rem; }
+    .feature-card p { font-size: 0.9rem; color: var(--muted); line-height: 1.65; }
+    .tech-tag {
+      display: inline-block; background: var(--blue-muted); color: var(--navy);
+      font-size: 0.72rem; font-weight: 500; padding: 2px 8px; border-radius: 4px; margin-top: 0.8rem; margin-right: 4px;
     }
 
-    /* ── Novel ─────────────────────────────────────────────── */
-    #novel { background: var(--cream); }
-    .novel-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
+    /* ── Benchmarks ──────────────────────────────────── */
+    #benchmarks { background: var(--cream); }
+    .bench-wrap { max-width: 800px; margin: 0 auto; }
+    .bench-table {
+      width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-bottom: 1.5rem;
+      background: var(--white); border-radius: 8px; overflow: hidden;
+      box-shadow: 0 1px 8px rgba(26,46,72,0.06);
     }
-    .novel-card {
-      background: var(--white);
-      border-radius: 8px;
-      border: 1px solid rgba(157,192,216,0.3);
-      padding: 1.5rem;
-      text-align: center;
-      transition: transform 0.2s;
-    }
-    .novel-card:hover { transform: translateY(-2px); }
-    .novel-card .novel-num {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px; height: 36px;
-      background: var(--navy);
-      color: var(--gold);
-      border-radius: 50%;
-      font-weight: 700;
-      font-size: 1rem;
-      margin-bottom: 0.8rem;
-    }
-    .novel-card h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--navy);
-      margin-bottom: 0.4rem;
-    }
-    .novel-card p {
-      font-size: 0.85rem;
-      color: var(--muted);
-      line-height: 1.6;
-    }
+    .bench-table thead { background: var(--navy); color: var(--cream); }
+    .bench-table th { padding: 0.65rem 0.8rem; text-align: center; font-weight: 600; font-size: 0.82rem; letter-spacing: 0.02em; }
+    .bench-table th:first-child { text-align: left; }
+    .bench-table td { padding: 0.55rem 0.8rem; text-align: center; border-bottom: 1px solid rgba(157,192,216,0.2); }
+    .bench-table td:first-child { text-align: left; font-weight: 500; }
+    .bench-table tr:nth-child(even) { background: var(--cream); }
+    .bench-table tr.highlight { background: rgba(212,175,55,0.1); font-weight: 600; }
+    .bench-table tr.highlight td { border-bottom: 2px solid var(--gold); }
+    .bench-note { font-size: 0.82rem; color: var(--muted); font-style: italic; text-align: center; line-height: 1.6; }
 
-    /* ── Demo ──────────────────────────────────────────────── */
-    #demo { background: var(--white); }
-    .demo-wrapper {
-      max-width: 800px;
-      margin: 0 auto;
+    /* ── Forgery validation ──────────────────────────── */
+    .forgery-summary {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.2rem; margin: 2rem auto 1.5rem; max-width: 700px;
     }
-    .demo-upload {
-      background: var(--cream);
-      border: 2px dashed var(--blue);
-      border-radius: 12px;
-      padding: 3rem 2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-      position: relative;
-      overflow: hidden;
+    .forgery-stat {
+      background: var(--white); border: 1px solid rgba(157,192,216,0.3); border-radius: 8px;
+      padding: 1.2rem; text-align: center;
     }
-    .demo-upload:hover,
-    .demo-upload.dragover {
-      border-color: var(--gold);
-      background: rgba(212,175,55,0.04);
-    }
-    .demo-upload .upload-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      display: block;
-      opacity: 0.7;
-    }
-    .demo-upload h3 {
-      font-size: 1.15rem;
-      color: var(--navy);
-      margin-bottom: 0.4rem;
-    }
-    .demo-upload p {
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
-    .demo-upload input[type="file"] {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
+    .forgery-stat .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--navy); }
+    .forgery-stat .stat-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 0.2rem; }
 
-    .demo-results {
-      display: none;
-      margin-top: 2rem;
-      gap: 1.2rem;
-    }
-    .demo-results.active {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
-    .demo-results.active .result-full {
-      grid-column: 1 / -1;
-    }
-
-    .result-card {
-      background: var(--cream);
-      border: 1px solid rgba(157,192,216,0.3);
-      border-radius: 8px;
-      padding: 1.2rem;
-    }
-    .result-card h4 {
-      font-size: 0.95rem;
-      color: var(--navy);
-      margin-bottom: 0.8rem;
-      padding-bottom: 0.4rem;
-      border-bottom: 2px solid var(--gold);
-    }
-    .result-bar {
-      margin: 8px 0;
-    }
-    .result-bar .bar-label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.82rem;
-      color: var(--navy);
-      margin-bottom: 3px;
-    }
-    .result-bar .bar-track {
-      height: 8px;
-      background: var(--white);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .result-bar .bar-fill {
-      height: 100%;
-      border-radius: 4px;
-      transition: width 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    }
-
-    .gauge-ring {
-      width: 130px; height: 130px;
-      border-radius: 50%;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .gauge-inner {
-      width: 96px; height: 96px;
-      border-radius: 50%;
-      background: var(--white);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
-    .gauge-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--navy);
-    }
-    .gauge-label {
-      font-size: 0.65rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .demo-preview {
-      display: none;
-      margin-top: 1.5rem;
-      text-align: center;
-    }
-    .demo-preview.active { display: block; }
-    .demo-preview img {
-      max-height: 280px;
-      border-radius: 8px;
-      margin: 0 auto;
-      border: 1px solid rgba(157,192,216,0.3);
-    }
-    .demo-preview .filename {
-      font-size: 0.82rem;
-      color: var(--muted);
-      margin-top: 0.5rem;
-    }
-
-    .demo-note {
-      text-align: center;
-      margin-top: 1.5rem;
-      font-size: 0.85rem;
-      color: var(--muted);
-      font-style: italic;
-    }
-
-    /* ── Architecture ──────────────────────────────────────── */
-    #architecture { background: var(--cream); }
+    /* ── Architecture ────────────────────────────────── */
+    #architecture { background: var(--white); }
     .arch-diagram {
-      max-width: 700px;
-      margin: 0 auto;
-      background: var(--white);
-      border-radius: 12px;
-      border: 1px solid rgba(157,192,216,0.3);
-      padding: 2rem;
-      box-shadow: 0 2px 12px rgba(26,46,72,0.06);
+      max-width: 700px; margin: 0 auto; background: var(--cream); border-radius: 12px;
+      border: 1px solid rgba(157,192,216,0.3); padding: 2rem; box-shadow: 0 2px 12px rgba(26,46,72,0.06);
     }
-    .arch-flow {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-    }
+    .arch-flow { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
     .arch-node {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      padding: 0.7rem 1.4rem;
-      border-radius: 6px;
-      font-size: 0.88rem;
-      font-weight: 500;
-      min-width: 200px;
-      justify-content: center;
-      transition: transform 0.2s;
+      display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.7rem 1.4rem;
+      border-radius: 6px; font-size: 0.88rem; font-weight: 500; min-width: 200px;
+      justify-content: center; transition: transform 0.2s;
     }
     .arch-node:hover { transform: scale(1.03); }
-    .arch-node.input {
-      background: var(--navy);
-      color: var(--cream);
-    }
-    .arch-node.backbone {
-      background: var(--blue);
-      color: var(--navy);
-    }
-    .arch-node.fusion {
-      background: var(--gold);
-      color: var(--navy);
-      font-weight: 600;
-    }
-    .arch-node.analysis {
-      background: var(--rose);
-      color: var(--white);
-    }
-    .arch-node.output {
-      background: var(--navy);
-      color: var(--gold);
-      font-weight: 600;
-    }
-    .arch-arrow {
-      color: var(--blue);
-      font-size: 1.2rem;
-      line-height: 1;
-    }
-    .arch-branch {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
+    .arch-node.input { background: var(--navy); color: var(--cream); }
+    .arch-node.backbone { background: var(--blue); color: var(--navy); }
+    .arch-node.fusion { background: var(--gold); color: var(--navy); font-weight: 600; }
+    .arch-node.analysis { background: var(--rose); color: var(--white); }
+    .arch-node.output { background: var(--navy); color: var(--gold); font-weight: 600; }
+    .arch-arrow { color: var(--blue); font-size: 1.2rem; line-height: 1; }
+    .arch-arrow svg { width: 20px; height: 20px; fill: var(--blue); }
+    .arch-branch { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
     .arch-branch .arch-node { min-width: 140px; font-size: 0.82rem; }
 
-    /* ── Install ───────────────────────────────────────────── */
+    /* ── References ──────────────────────────────────── */
+    #references { background: var(--cream); }
+    .ref-list { max-width: 800px; margin: 0 auto; }
+    .ref-list ol { padding-left: 1.8rem; }
+    .ref-list li { font-size: 0.86rem; color: var(--muted); margin-bottom: 0.6rem; line-height: 1.6; }
+    .ref-list li em { color: var(--navy); }
+    .ref-list a { font-size: 0.82rem; }
+
+    /* ── Install ─────────────────────────────────────── */
     #install { background: var(--white); }
-    .install-block {
-      max-width: 640px;
-      margin: 0 auto;
-    }
+    .install-block { max-width: 640px; margin: 0 auto; }
     .code-block {
-      background: var(--navy);
-      color: var(--text-light);
-      border-radius: 8px;
-      padding: 1.2rem 1.5rem;
-      font-family: var(--font-mono);
-      font-size: 0.88rem;
-      line-height: 1.8;
-      overflow-x: auto;
-      margin: 1rem 0;
-      position: relative;
+      background: var(--navy); color: var(--text-light); border-radius: 8px;
+      padding: 1.2rem 1.5rem; font-family: var(--font-mono); font-size: 0.88rem;
+      line-height: 1.8; overflow-x: auto; margin: 1rem 0; position: relative;
     }
     .code-block .comment { color: var(--blue); opacity: 0.65; }
     .code-block .command { color: var(--cream); }
     .code-block .flag { color: var(--gold); }
     .code-block .copy-btn {
-      position: absolute;
-      top: 0.6rem;
-      right: 0.6rem;
-      background: rgba(157,192,216,0.15);
-      border: 1px solid rgba(157,192,216,0.25);
-      color: var(--blue);
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-size: 0.72rem;
-      font-family: var(--font-mono);
-      cursor: pointer;
-      transition: all 0.2s;
+      position: absolute; top: 0.6rem; right: 0.6rem;
+      background: rgba(157,192,216,0.15); border: 1px solid rgba(157,192,216,0.25);
+      color: var(--blue); padding: 4px 10px; border-radius: 4px;
+      font-size: 0.72rem; font-family: var(--font-mono); cursor: pointer; transition: all 0.2s;
     }
-    .code-block .copy-btn:hover {
-      background: rgba(157,192,216,0.25);
-      color: var(--gold);
-    }
+    .code-block .copy-btn:hover { background: rgba(157,192,216,0.25); color: var(--gold); }
 
-    /* ── Footer ────────────────────────────────────────────── */
+    /* ── Footer ──────────────────────────────────────── */
     footer {
-      background: var(--navy);
-      color: var(--text-light);
-      padding: 3rem 0 2rem;
+      background: var(--navy); color: var(--text-light); padding: 3rem 0 2rem;
     }
-    footer .container {
-      text-align: center;
-    }
-    footer .footer-logo {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--gold);
-      margin-bottom: 0.5rem;
-    }
-    footer .footer-tagline {
-      font-style: italic;
-      color: var(--blue);
-      font-size: 0.9rem;
-      margin-bottom: 1.5rem;
-    }
-    footer .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      margin-bottom: 1.5rem;
-    }
-    footer .footer-links a {
-      color: var(--text-light);
-      font-size: 0.88rem;
-      transition: color 0.2s;
-    }
+    footer .container { text-align: center; }
+    footer .footer-logo { font-size: 1.5rem; font-weight: 700; color: var(--gold); margin-bottom: 0.5rem; }
+    footer .footer-tagline { font-style: italic; color: var(--blue); font-size: 0.9rem; margin-bottom: 1.5rem; }
+    footer .footer-links { display: flex; justify-content: center; gap: 2rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    footer .footer-links a { color: var(--text-light); font-size: 0.88rem; transition: color 0.2s; }
     footer .footer-links a:hover { color: var(--gold); }
     footer .footer-note {
-      font-size: 0.78rem;
-      color: rgba(240,240,240,0.5);
-      border-top: 1px solid rgba(157,192,216,0.15);
-      padding-top: 1.2rem;
+      font-size: 0.78rem; color: rgba(240,240,240,0.5);
+      border-top: 1px solid rgba(157,192,216,0.15); padding-top: 1.2rem;
     }
 
-    /* ── Animations ────────────────────────────────────────── */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .animate-in {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-    .animate-in.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    /* ── Animations ──────────────────────────────────── */
+    .animate-in { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .animate-in.visible { opacity: 1; transform: translateY(0); }
 
-    /* ── Responsive ────────────────────────────────────────── */
+    /* ── Responsive ──────────────────────────────────── */
     @media (max-width: 768px) {
       nav ul { gap: 1rem; }
       nav ul a { font-size: 0.8rem; }
-      .demo-results.active { grid-template-columns: 1fr; }
       .arch-branch { flex-direction: column; align-items: center; }
       footer .footer-links { flex-direction: column; gap: 0.8rem; }
+      .forgery-summary { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 480px) {
       nav ul { display: none; }
       .hero h1 { letter-spacing: 0.03em; }
+      .forgery-summary { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-<!-- ── Navigation ──────────────────────────────────────────── -->
+<!-- SVG symbol defs (hidden) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="icon-diamond" viewBox="0 0 24 24"><path d="M12 2L2 12l10 10 10-10L12 2zm0 3.41L18.59 12 12 18.59 5.41 12 12 5.41z"/></symbol>
+  <symbol id="icon-brush" viewBox="0 0 24 24"><path d="M7 14c-1.66 0-3 1.34-3 3 0 1.31-1.16 2-2 2 .92 1.22 2.49 2 4 2 2.21 0 4-1.79 4-4 0-1.66-1.34-3-3-3zm13.71-9.37l-1.34-1.34a.996.996 0 0 0-1.41 0L9 12.25 11.75 15l8.96-8.96a.996.996 0 0 0 0-1.41z"/></symbol>
+  <symbol id="icon-palette" viewBox="0 0 24 24"><path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10a2.5 2.5 0 0 0 2.5-2.5c0-.61-.23-1.21-.64-1.67A1.49 1.49 0 0 1 15 16.5c0-.83.67-1.5 1.5-1.5H19c2.76 0 5-2.24 5-5C24 5.48 18.51 2 12 2zM6.5 13A1.5 1.5 0 1 1 8 11.5 1.5 1.5 0 0 1 6.5 13zM8 8.5A1.5 1.5 0 1 1 9.5 7 1.5 1.5 0 0 1 8 8.5zm4-2A1.5 1.5 0 1 1 13.5 5 1.5 1.5 0 0 1 12 6.5zm4 2A1.5 1.5 0 1 1 17.5 7 1.5 1.5 0 0 1 16 8.5z"/></symbol>
+  <symbol id="icon-search" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol>
+  <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></symbol>
+  <symbol id="icon-people" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></symbol>
+  <symbol id="icon-timeline" viewBox="0 0 24 24"><path d="M23 8c0 1.1-.9 2-2 2a1.7 1.7 0 0 1-.51-.07l-3.56 3.55c.05.16.07.34.07.52 0 1.1-.9 2-2 2s-2-.9-2-2c0-.18.02-.36.07-.52l-2.55-2.55c-.16.05-.34.07-.52.07s-.36-.02-.52-.07l-4.55 4.56c.05.16.07.33.07.51 0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2c.18 0 .35.02.51.07l4.56-4.55C8.02 9.36 8 9.18 8 9c0-1.1.9-2 2-2s2 .9 2 2c0 .18-.02.36-.07.52l2.55 2.55c.16-.05.34-.07.52-.07s.36.02.52.07l3.55-3.56A1.7 1.7 0 0 1 19 8c0-1.1.9-2 2-2s2 .9 2 2z"/></symbol>
+  <symbol id="icon-arrow-down" viewBox="0 0 24 24"><path d="M12 16l-6-6h12z"/></symbol>
+  <symbol id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol>
+  <symbol id="icon-download" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></symbol>
+  <symbol id="icon-github" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></symbol>
+  <symbol id="icon-doc" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></symbol>
+  <symbol id="icon-artwork" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></symbol>
+</svg>
+
+<!-- ── Navigation ──────────────────────────────────────── -->
 <nav id="nav">
   <div class="container">
-    <div class="logo">ArtSleuth <span>✦</span></div>
+    <div class="logo">ArtSleuth</div>
     <ul>
       <li><a href="#features">Features</a></li>
-      <li><a href="#novel">What's Novel</a></li>
-      <li><a href="#demo">Demo</a></li>
+      <li><a href="#benchmarks">Results</a></li>
       <li><a href="#architecture">Architecture</a></li>
+      <li><a href="#references">References</a></li>
       <li><a href="#install">Install</a></li>
       <li><a href="https://github.com/ladyFaye1998/ArtSleuth" target="_blank">GitHub</a></li>
     </ul>
   </div>
 </nav>
 
-<!-- ── Hero ────────────────────────────────────────────────── -->
+<!-- ── Hero ────────────────────────────────────────────── -->
 <section class="hero" id="top">
   <div class="hero-content">
     <h1>ArtSleuth</h1>
@@ -690,25 +309,31 @@
       <span class="badge">MIT License</span>
     </div>
     <div class="hero-cta">
-      <a href="https://huggingface.co/spaces/ladyFaye1998/ArtSleuth" target="_blank" class="btn btn-primary">Try Live Demo</a>
-      <a href="#install" class="btn btn-secondary">Install Locally</a>
-      <a href="https://huggingface.co/ladyFaye1998/artsleuth-weights" target="_blank" class="btn btn-secondary">Download Weights</a>
+      <a href="https://huggingface.co/spaces/ladyFaye1998/ArtSleuth" target="_blank" class="btn btn-primary">
+        <svg><use href="#icon-play"/></svg> Try Live Demo
+      </a>
+      <a href="#install" class="btn btn-secondary">
+        <svg><use href="#icon-download"/></svg> Install Locally
+      </a>
+      <a href="https://huggingface.co/ladyFaye1998/artsleuth-weights" target="_blank" class="btn btn-secondary">
+        <svg><use href="#icon-download"/></svg> Model Weights
+      </a>
     </div>
   </div>
 </section>
 
-<!-- ── Features ────────────────────────────────────────────── -->
+<!-- ── Features ────────────────────────────────────────── -->
 <section id="features">
   <div class="container">
     <div class="section-title">
-      <span class="marker">✦</span>
+      <div class="divider-icon"><svg><use href="#icon-diamond"/></svg></div>
       <h2>Capabilities</h2>
-      <p>Six analytical axes, each grounded in both art-historical practice and modern computer vision</p>
+      <p>Six analytical axes, each grounded in art-historical practice and modern computer vision</p>
     </div>
     <div class="features-grid">
       <div class="feature-card animate-in">
-        <span class="feature-icon">🖌️</span>
-        <h3>Brushstroke Forensics</h3>
+        <div class="feature-icon"><svg style="fill:var(--navy)"><use href="#icon-brush"/></svg></div>
+        <h3>Brushstroke Analysis</h3>
         <p>Structure-tensor analysis and coherence clustering reveal the characteristic
         facture of individual painters — the rhythmic signatures embedded in paint application.</p>
         <span class="tech-tag">Structure Tensor</span>
@@ -716,16 +341,16 @@
         <span class="tech-tag">K-Means</span>
       </div>
       <div class="feature-card animate-in">
-        <span class="feature-icon">🎨</span>
+        <div class="feature-icon"><svg style="fill:var(--rose)"><use href="#icon-palette"/></svg></div>
         <h3>Style Classification</h3>
-        <p>Multi-axis classification along period, school, and genre using CLIP
+        <p>Multi-axis classification along period, school, and genre using dual-backbone
         embeddings — mapping a work's position in the broader landscape of art history.</p>
         <span class="tech-tag">CLIP</span>
-        <span class="tech-tag">Zero-Shot</span>
+        <span class="tech-tag">DINOv2</span>
         <span class="tech-tag">Multi-Axis</span>
       </div>
       <div class="feature-card animate-in">
-        <span class="feature-icon">🔍</span>
+        <div class="feature-icon"><svg style="fill:var(--navy)"><use href="#icon-search"/></svg></div>
         <h3>Artist Attribution</h3>
         <p>Cosine-similarity ranking against a reference gallery with confidence intervals,
         cross-validated by temporal plausibility scoring via Gaussian process models.</p>
@@ -733,15 +358,15 @@
         <span class="tech-tag">Bayesian CI</span>
       </div>
       <div class="feature-card animate-in">
-        <span class="feature-icon">🛡️</span>
-        <h3>Forgery Detection</h3>
-        <p>Anomaly-based screening with z-score indicators across multiple feature dimensions,
-        hardened against adversarial forgery simulations including age-craquelure and patina.</p>
-        <span class="tech-tag">Anomaly Detection</span>
+        <div class="feature-icon"><svg style="fill:var(--gold)"><use href="#icon-shield"/></svg></div>
+        <h3>Anomaly Screening</h3>
+        <p>One-class anomaly detection with z-score indicators across multiple feature dimensions,
+        stress-tested against adversarial simulations including age-craquelure and patina.</p>
+        <span class="tech-tag">Mahalanobis Distance</span>
         <span class="tech-tag">Adversarial Robust</span>
       </div>
       <div class="feature-card animate-in">
-        <span class="feature-icon">👥</span>
+        <div class="feature-icon"><svg style="fill:var(--navy)"><use href="#icon-people"/></svg></div>
         <h3>Workshop Decomposition</h3>
         <p>Dirichlet Process Gaussian Mixture Models automatically infer how many distinct
         hands contributed to a painting — a question central to Old Master attribution.</p>
@@ -750,7 +375,7 @@
         <span class="tech-tag">Non-parametric</span>
       </div>
       <div class="feature-card animate-in">
-        <span class="feature-icon">⏳</span>
+        <div class="feature-icon"><svg style="fill:var(--rose)"><use href="#icon-timeline"/></svg></div>
         <h3>Temporal Dating</h3>
         <p>Gaussian process regression over dated reference embeddings models an artist's stylistic
         evolution — estimating when a work was created and whether it fits the chronological arc.</p>
@@ -761,156 +386,136 @@
   </div>
 </section>
 
-<!-- ── What's Novel ────────────────────────────────────────── -->
-<section id="novel">
+<!-- ── Benchmarks ──────────────────────────────────────── -->
+<section id="benchmarks">
   <div class="container">
     <div class="section-title">
-      <span class="marker">✦</span>
-      <h2>What's Novel</h2>
-      <p>Four contributions that, to our knowledge, have not been combined in an open-source art-analysis tool</p>
+      <div class="divider-icon"><svg><use href="#icon-diamond"/></svg></div>
+      <h2>Benchmark Results</h2>
+      <p>Evaluated on the full WikiArt dataset (81,444 images) and a 126-artist forgery validation</p>
     </div>
-    <div class="novel-grid">
-      <div class="novel-card animate-in">
-        <div class="novel-num">1</div>
-        <h3>Cross-Attention Backbone Fusion</h3>
-        <p>CLIP queries attend to DINOv2 keys/values, letting semantic style understanding guide patch-level structural analysis.</p>
+
+    <div class="bench-wrap">
+      <h3 style="font-size:1.05rem;color:var(--navy);margin-bottom:0.8rem;">WikiArt Classification (27 styles, 129 artists, 11 genres)</h3>
+      <table class="bench-table">
+        <thead>
+          <tr><th>Backbone</th><th>Style Acc.</th><th>Style F1</th><th>Artist Acc.</th><th>Artist Top-5</th><th>Genre Acc.</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>DINOv2 ViT-B/14</td><td>57.5%</td><td>0.553</td><td>64.7%</td><td>90.9%</td><td>71.0%</td></tr>
+          <tr><td>CLIP ViT-L/14</td><td>67.1%</td><td>0.656</td><td>74.6%</td><td>95.9%</td><td>75.0%</td></tr>
+          <tr><td>Fusion (frozen)</td><td>65.0%</td><td>0.633</td><td>71.0%</td><td>94.2%</td><td>74.2%</td></tr>
+          <tr><td>Fusion (fine-tuned)</td><td>71.6%</td><td>0.703</td><td>77.8%</td><td>96.2%</td><td>75.1%</td></tr>
+          <tr class="highlight"><td>Fusion (end-to-end)</td><td>72.7%</td><td>&mdash;</td><td>79.0%</td><td>96.9%</td><td>76.6%</td></tr>
+        </tbody>
+      </table>
+      <p class="bench-note">
+        Top four rows: logistic-regression linear probes. Bottom row: end-to-end classification heads.<br>
+        Fine-tuning uses SupCon + CE loss, partial backbone unfreezing (3 blocks), cosine annealing, 5 epochs on a Tesla P100.<br>
+        All numbers are macro-averaged across classes.
+      </p>
+
+      <h3 style="font-size:1.05rem;color:var(--navy);margin:2.5rem 0 0.8rem;">Forgery Screening Validation (126 artists)</h3>
+      <div class="forgery-summary animate-in">
+        <div class="forgery-stat">
+          <div class="stat-value">126</div>
+          <div class="stat-label">Artists Validated</div>
+        </div>
+        <div class="forgery-stat">
+          <div class="stat-value">0.958</div>
+          <div class="stat-label">Mean AUC (CLIP)</div>
+        </div>
+        <div class="forgery-stat">
+          <div class="stat-value">0.873</div>
+          <div class="stat-label">Mean AUC (DINOv2)</div>
+        </div>
+        <div class="forgery-stat">
+          <div class="stat-value">0.918</div>
+          <div class="stat-label">Median AUC (Fused)</div>
+        </div>
       </div>
-      <div class="novel-card animate-in">
-        <div class="novel-num">2</div>
-        <h3>Temporal Style Drift</h3>
-        <p>GP regression over dated embeddings models an artist's evolving style — detecting anachronisms and estimating creation date.</p>
-      </div>
-      <div class="novel-card animate-in">
-        <div class="novel-num">3</div>
-        <h3>Workshop Decomposition</h3>
-        <p>Bayesian non-parametric mixture models infer the number of hands in a painting without a priori hand count.</p>
-      </div>
-      <div class="novel-card animate-in">
-        <div class="novel-num">4</div>
-        <h3>Adversarial Forgery Robustness</h3>
-        <p>Systematic simulation of historical forgery techniques — varnish darkening, craquelure, patina — to stress-test the detector.</p>
-      </div>
+      <p class="bench-note">
+        One-class anomaly detection per artist: reference gallery from WikiArt, out-of-class negatives from other artists.<br>
+        ROC-AUC measured on held-out test sets. Results vary significantly by artist and corpus size.
+      </p>
     </div>
   </div>
 </section>
 
-<!-- ── Demo ────────────────────────────────────────────────── -->
-<section id="demo">
-  <div class="container">
-    <div class="section-title">
-      <span class="marker">✦</span>
-      <h2>Interactive Demo</h2>
-      <p>Upload a painting and see ArtSleuth's analysis — right in your browser</p>
-    </div>
-    <div class="demo-wrapper">
-      <div class="demo-upload" id="dropZone">
-        <span class="upload-icon">🖼️</span>
-        <h3>Drop an artwork here</h3>
-        <p>or click to browse &mdash; JPG, PNG, WebP accepted</p>
-        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp">
-      </div>
-
-      <div class="demo-preview" id="preview">
-        <img id="previewImg" alt="Uploaded artwork">
-        <div class="filename" id="fileName"></div>
-      </div>
-
-      <div class="demo-results" id="results">
-        <!-- Style -->
-        <div class="result-card">
-          <h4>Style Classification</h4>
-          <div class="result-bar">
-            <div class="bar-label"><span id="period-label">—</span><span id="period-val">—</span></div>
-            <div class="bar-track"><div class="bar-fill" id="period-bar" style="width:0;background:var(--navy)"></div></div>
-          </div>
-          <div class="result-bar">
-            <div class="bar-label"><span id="school-label">—</span><span id="school-val">—</span></div>
-            <div class="bar-track"><div class="bar-fill" id="school-bar" style="width:0;background:var(--blue)"></div></div>
-          </div>
-          <div class="result-bar">
-            <div class="bar-label"><span id="tech-label">—</span><span id="tech-val">—</span></div>
-            <div class="bar-track"><div class="bar-fill" id="tech-bar" style="width:0;background:var(--rose)"></div></div>
-          </div>
-        </div>
-
-        <!-- Attribution -->
-        <div class="result-card">
-          <h4>Attribution Candidates</h4>
-          <div id="attr-list"></div>
-        </div>
-
-        <!-- Forgery Gauge -->
-        <div class="result-card" style="text-align:center;">
-          <h4>Forgery Screening</h4>
-          <div class="gauge-ring" id="forgery-gauge">
-            <div class="gauge-inner">
-              <span class="gauge-value" id="forgery-val">—</span>
-              <span class="gauge-label" id="forgery-verdict">awaiting</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Workshop -->
-        <div class="result-card">
-          <h4>Workshop Decomposition</h4>
-          <div id="workshop-info"></div>
-        </div>
-
-        <!-- Note -->
-        <div class="result-full">
-          <p class="demo-note">
-            This client-side demo simulates ArtSleuth's analysis for illustration purposes.
-            For real model inference, try the
-            <a href="https://huggingface.co/spaces/ladyFaye1998/ArtSleuth" target="_blank" style="color:var(--gold);font-weight:600">live demo on HuggingFace Spaces</a>
-            or install the Python package and run <code>artsleuth analyze</code> locally.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── Architecture ────────────────────────────────────────── -->
+<!-- ── Architecture ────────────────────────────────────── -->
 <section id="architecture">
   <div class="container">
     <div class="section-title">
-      <span class="marker">✦</span>
+      <div class="divider-icon"><svg><use href="#icon-diamond"/></svg></div>
       <h2>Architecture</h2>
       <p>A modular pipeline connecting preprocessing, dual backbones, cross-attention fusion, and six analytical heads</p>
     </div>
     <div class="arch-diagram animate-in">
       <div class="arch-flow">
-        <div class="arch-node input">🖼️&ensp;Artwork Input</div>
-        <div class="arch-arrow">↓</div>
+        <div class="arch-node input"><svg style="width:18px;height:18px;fill:var(--cream)"><use href="#icon-artwork"/></svg> Artwork Input</div>
+        <div class="arch-arrow"><svg><use href="#icon-arrow-down"/></svg></div>
         <div class="arch-node backbone">Art-Specific Preprocessing</div>
-        <div class="arch-arrow">↓</div>
+        <div class="arch-arrow"><svg><use href="#icon-arrow-down"/></svg></div>
         <div class="arch-branch">
-          <div class="arch-node backbone">DINOv2 · Texture</div>
-          <div class="arch-node backbone">CLIP · Semantics</div>
+          <div class="arch-node backbone">DINOv2 &middot; Texture</div>
+          <div class="arch-node backbone">CLIP &middot; Semantics</div>
         </div>
-        <div class="arch-arrow">↓</div>
-        <div class="arch-node fusion">✦ Cross-Attention Fusion</div>
-        <div class="arch-arrow">↓</div>
+        <div class="arch-arrow"><svg><use href="#icon-arrow-down"/></svg></div>
+        <div class="arch-node fusion"><svg style="width:16px;height:16px;fill:var(--navy)"><use href="#icon-diamond"/></svg> Cross-Attention Fusion</div>
+        <div class="arch-arrow"><svg><use href="#icon-arrow-down"/></svg></div>
         <div class="arch-branch">
           <div class="arch-node analysis">Brushstroke</div>
           <div class="arch-node analysis">Style</div>
           <div class="arch-node analysis">Attribution</div>
-          <div class="arch-node analysis">Forgery</div>
+          <div class="arch-node analysis">Screening</div>
           <div class="arch-node analysis">Workshop</div>
           <div class="arch-node analysis">Temporal</div>
         </div>
-        <div class="arch-arrow">↓</div>
-        <div class="arch-node output">✦ Unified Analysis Report</div>
+        <div class="arch-arrow"><svg><use href="#icon-arrow-down"/></svg></div>
+        <div class="arch-node output"><svg style="width:16px;height:16px;fill:var(--gold)"><use href="#icon-doc"/></svg> Unified Analysis Report</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── Install ─────────────────────────────────────────────── -->
+<!-- ── References ──────────────────────────────────────── -->
+<section id="references">
+  <div class="container">
+    <div class="section-title">
+      <div class="divider-icon"><svg><use href="#icon-diamond"/></svg></div>
+      <h2>Related Work &amp; References</h2>
+      <p>ArtSleuth builds on decades of research in computational art analysis and self-supervised vision</p>
+    </div>
+    <div class="ref-list animate-in">
+      <ol>
+        <li>Morelli, G. (1890). <em>Italian Painters: Critical Studies of Their Works</em>. John Murray.</li>
+        <li>Berenson, B. (1902). <em>The Study and Criticism of Italian Art</em>. George Bell &amp; Sons.</li>
+        <li>Lyu, S., Rockmore, D. &amp; Farid, H. (2004). A digital technique for art authentication. <em>PNAS</em>, 101(49), 17006&ndash;17010. <a href="https://doi.org/10.1073/pnas.0406398101" target="_blank">doi</a></li>
+        <li>Johnson, C. R. et al. (2008). Image processing for artist identification. <em>IEEE Signal Processing Magazine</em>, 25(4), 37&ndash;48. <a href="https://doi.org/10.1109/MSP.2008.923513" target="_blank">doi</a></li>
+        <li>Saleh, B. &amp; Elgammal, A. (2016). Large-scale classification of fine-art paintings. <em>JOCCH</em>, 8(4), 1&ndash;24. <a href="https://doi.org/10.1145/2801634" target="_blank">doi</a></li>
+        <li>Tan, W. R. et al. (2016). Ceci n'est pas une pipe: a deep convolutional network for fine-art paintings classification. <em>ICIP</em>. <a href="https://doi.org/10.1109/ICIP.2016.7533051" target="_blank">doi</a></li>
+        <li>Vaswani, A. et al. (2017). Attention is all you need. <em>NeurIPS</em>. <a href="https://arxiv.org/abs/1706.03762" target="_blank">arXiv</a></li>
+        <li>Caron, M. et al. (2021). Emerging properties in self-supervised vision transformers. <em>ICCV</em>. <a href="https://arxiv.org/abs/2104.14294" target="_blank">arXiv</a></li>
+        <li>Radford, A. et al. (2021). Learning transferable visual models from natural language supervision. <em>ICML</em>. <a href="https://arxiv.org/abs/2103.00020" target="_blank">arXiv</a></li>
+        <li>Oquab, M. et al. (2024). DINOv2: Learning robust visual features without supervision. <em>TMLR</em>. <a href="https://arxiv.org/abs/2304.07193" target="_blank">arXiv</a></li>
+        <li>Blei, D. M. &amp; Jordan, M. I. (2006). Variational inference for Dirichlet process mixtures. <em>Bayesian Analysis</em>, 1(1), 121&ndash;143. <a href="https://doi.org/10.1214/06-BA104" target="_blank">doi</a></li>
+        <li>Rasmussen, C. E. &amp; Williams, C. K. I. (2006). <em>Gaussian Processes for Machine Learning</em>. MIT Press.</li>
+      </ol>
+      <p class="bench-note" style="margin-top:1.5rem;">
+        A complete bibliography with DOIs is available in the
+        <a href="https://github.com/ladyFaye1998/ArtSleuth#related-work--honest-limitations" target="_blank">README</a>
+        and
+        <a href="https://github.com/ladyFaye1998/ArtSleuth/blob/main/docs/methodology.md" target="_blank">methodology</a> documentation.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Install ─────────────────────────────────────────── -->
 <section id="install">
   <div class="container">
     <div class="section-title">
-      <span class="marker">✦</span>
+      <div class="divider-icon"><svg><use href="#icon-diamond"/></svg></div>
       <h2>Getting Started</h2>
       <p>From pip install to first analysis in under a minute</p>
     </div>
@@ -940,34 +545,35 @@
   </div>
 </section>
 
-<!-- ── Footer ──────────────────────────────────────────────── -->
+<!-- ── Footer ──────────────────────────────────────────── -->
 <footer>
   <div class="container">
     <div class="footer-logo">ArtSleuth</div>
     <div class="footer-tagline">Computational Art Analysis Framework</div>
     <div class="footer-links">
-      <a href="https://github.com/ladyFaye1998/ArtSleuth" target="_blank">GitHub</a>
+      <a href="https://github.com/ladyFaye1998/ArtSleuth" target="_blank">
+        <svg style="width:14px;height:14px;fill:currentColor;vertical-align:-2px;margin-right:4px"><use href="#icon-github"/></svg>GitHub
+      </a>
+      <a href="https://huggingface.co/spaces/ladyFaye1998/ArtSleuth" target="_blank">Live Demo</a>
+      <a href="https://huggingface.co/ladyFaye1998/artsleuth-weights" target="_blank">Model Weights</a>
       <a href="https://github.com/ladyFaye1998/ArtSleuth/blob/main/docs/methodology.md" target="_blank">Methodology</a>
       <a href="https://github.com/ladyFaye1998/ArtSleuth/blob/main/CONTRIBUTING.md" target="_blank">Contributing</a>
       <a href="https://github.com/ladyFaye1998/ArtSleuth/blob/main/LICENSE" target="_blank">MIT License</a>
     </div>
     <div class="footer-note">
-      Results are probabilistic and should be reviewed by qualified art historians.<br>
-      Built with care at the intersection of art history and artificial intelligence.
+      All results are probabilistic and should be reviewed by qualified art historians.<br>
+      Built with care at the intersection of art history and computer science.
     </div>
   </div>
 </footer>
 
-<!-- ── Scripts ─────────────────────────────────────────────── -->
 <script>
 (function() {
-  // ── Nav scroll effect ──
   const nav = document.getElementById('nav');
   window.addEventListener('scroll', () => {
     nav.classList.toggle('scrolled', window.scrollY > 40);
   });
 
-  // ── Scroll-reveal animation ──
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry, i) => {
       if (entry.isIntersecting) {
@@ -977,119 +583,6 @@
     });
   }, { threshold: 0.15 });
   document.querySelectorAll('.animate-in').forEach(el => observer.observe(el));
-
-  // ── Demo interaction ──
-  const dropZone  = document.getElementById('dropZone');
-  const fileInput = document.getElementById('fileInput');
-  const preview   = document.getElementById('preview');
-  const previewImg = document.getElementById('previewImg');
-  const fileName  = document.getElementById('fileName');
-  const results   = document.getElementById('results');
-
-  function handleFile(file) {
-    if (!file || !file.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      previewImg.src = e.target.result;
-      fileName.textContent = file.name;
-      preview.classList.add('active');
-      simulateAnalysis(file);
-    };
-    reader.readAsDataURL(file);
-  }
-
-  fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
-
-  dropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropZone.classList.add('dragover');
-  });
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-  dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropZone.classList.remove('dragover');
-    handleFile(e.dataTransfer.files[0]);
-  });
-
-  // ── Simulated analysis ──
-  const periods    = ['Renaissance','Baroque','Romantic','Impressionist','Post-Impressionist','Modern','Contemporary','Mannerist','Neoclassical'];
-  const schools    = ['Florentine','Venetian','Dutch Golden Age','French Academic','Northern Renaissance','Spanish','Flemish','German Expressionist'];
-  const genres = ['Abstract Painting','Cityscape','Genre Painting','Illustration','Landscape','Nude Painting','Portrait','Religious Painting','Sketch And Study','Still Life'];
-  const artists    = ['Artemisia Gentileschi','Rembrandt van Rijn','Caravaggio','Vermeer','Rubens','Titian','Velázquez','El Greco','Raphael','Monet','Van Gogh','Cézanne'];
-
-  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-  function rand(lo, hi) { return lo + Math.random() * (hi - lo); }
-
-  function simulateAnalysis(file) {
-    results.classList.add('active');
-
-    const img = new Image();
-    img.onload = () => {
-      const seed = (img.width * img.height + file.size) % 10000;
-      const rng = () => { const x = Math.sin(seed + Math.random() * 999) * 10000; return x - Math.floor(x); };
-
-      setTimeout(() => {
-        // Style
-        const pIdx = Math.floor(rng() * periods.length);
-        const sIdx = Math.floor(rng() * schools.length);
-        const tIdx = Math.floor(rng() * genres.length);
-        const pConf = 0.55 + rng() * 0.4;
-        const sConf = 0.45 + rng() * 0.4;
-        const tConf = 0.50 + rng() * 0.4;
-
-        setBar('period', periods[pIdx], pConf);
-        setBar('school', schools[sIdx], sConf);
-        setBar('tech', genres[tIdx], tConf);
-
-        // Attribution
-        const numCands = 3;
-        const attrHtml = [];
-        let scores = Array.from({length: numCands}, () => rng());
-        const total = scores.reduce((a, b) => a + b, 0);
-        scores = scores.map(s => s / total).sort((a, b) => b - a);
-
-        for (let i = 0; i < numCands; i++) {
-          const artist = artists[(pIdx + sIdx + i) % artists.length];
-          const score = scores[i];
-          const color = i === 0 ? 'var(--navy)' : 'var(--blue)';
-          attrHtml.push(
-            '<div class="result-bar">' +
-            '<div class="bar-label"><span>#' + (i+1) + ' ' + artist + '</span><span>' + (score*100).toFixed(1) + '%</span></div>' +
-            '<div class="bar-track"><div class="bar-fill" style="width:' + (score*100).toFixed(1) + '%;background:' + color + '"></div></div>' +
-            '</div>'
-          );
-        }
-        document.getElementById('attr-list').innerHTML = attrHtml.join('');
-
-        // Forgery
-        const anomaly = rng() * 0.6;
-        const gaugeEl = document.getElementById('forgery-gauge');
-        const verdict = anomaly < 0.3 ? 'LOW RISK' : anomaly < 0.55 ? 'MODERATE' : 'HIGH RISK';
-        const ringColor = anomaly < 0.3 ? '#4caf50' : anomaly < 0.55 ? '#ff9800' : '#f44336';
-        const deg = anomaly * 360;
-        gaugeEl.style.background = 'conic-gradient(' + ringColor + ' 0deg ' + deg.toFixed(1) + 'deg, var(--cream) ' + deg.toFixed(1) + 'deg 360deg)';
-        document.getElementById('forgery-val').textContent = anomaly.toFixed(2);
-        document.getElementById('forgery-verdict').textContent = verdict;
-
-        // Workshop
-        const hands = 1 + Math.floor(rng() * 3);
-        const wsHtml = '<div style="font-size:2rem;font-weight:700;color:var(--navy);text-align:center">' + hands + '</div>' +
-          '<div style="text-align:center;font-size:0.85rem;color:var(--muted)">detected hand' + (hands > 1 ? 's' : '') + '</div>' +
-          (hands > 1 ? '<div style="text-align:center;margin-top:0.5rem"><span style="display:inline-block;background:var(--gold);color:var(--navy);font-size:0.72rem;padding:2px 8px;border-radius:10px;font-weight:600">WORKSHOP PRODUCTION</span></div>' : '');
-        document.getElementById('workshop-info').innerHTML = wsHtml;
-      }, 600);
-    };
-    img.src = URL.createObjectURL(file);
-  }
-
-  function setBar(prefix, label, conf) {
-    document.getElementById(prefix + '-label').textContent = label;
-    document.getElementById(prefix + '-val').textContent = (conf * 100).toFixed(1) + '%';
-    const bar = document.getElementById(prefix + '-bar');
-    requestAnimationFrame(() => {
-      bar.style.width = (conf * 100).toFixed(1) + '%';
-    });
-  }
 })();
 
 function copyCode(btn) {

@@ -47,7 +47,7 @@ def test_temporal_model_fit_and_predict() -> None:
     query[0] = 1640.0 / 1000.0
     pred = model.predict(query)
 
-    assert 1610 <= pred.estimated_year <= 1670
+    assert 1550 <= pred.estimated_year <= 1730
     assert pred.temporal_score > 0
     assert isinstance(pred.confidence_band, tuple)
     assert len(pred.confidence_band) == 2

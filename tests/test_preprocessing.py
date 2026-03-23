@@ -30,7 +30,9 @@ class TestPrepareForBackbone:
         assert tensor.shape == (3, 224, 224)
 
     def test_normalisation_range(self) -> None:
-        img = Image.fromarray(np.full((100, 100, 3), 128, dtype=np.uint8))
+        arr = np.zeros((100, 100, 3), dtype=np.uint8)
+        arr[:50, :, :] = 255
+        img = Image.fromarray(arr)
         tensor = prepare_for_backbone(img, BackboneType.CLIP, max_resolution=1024)
         assert tensor.min() < 0, "ImageNet normalisation should produce negative values."
         assert tensor.max() < 5, "Values should not be extreme."
