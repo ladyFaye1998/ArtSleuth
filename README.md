@@ -197,35 +197,91 @@ Linear probe and end-to-end evaluation on the full [WikiArt](https://huggingface
 
 <br>
 
-<details>
-<summary>&nbsp;Comparison with published baselines</summary>
-
-<br>
-
-<div align="center">
-
-| Method | Style Acc | Artist Acc | Notes |
-|:---|:---:|:---:|:---|
-| ResNet-50 (Tan et al., 2016) | 54.5 % | 56.5 % | Supervised training on WikiArt |
-| ArtGAN (Tan et al., 2018) | 58.0 % | — | Style transfer + classification |
-| Gram matrices (Chu & Wu, 2018) | 63.0 % | — | Neural style features |
-| CLIP ViT-L/14 zero-shot | ~55 % | ~40 % | Prompt-based, no training |
-| **ArtSleuth Fusion · e2e** | **72.7 %** | **79.0 %** | Dual-backbone cross-attention + SupCon |
-
-</div>
-
-<sub>Published numbers from respective papers; not all evaluate on the same WikiArt split, so comparisons are approximate. ArtSleuth numbers use the standard 80/20 random split.</sub>
-
-</details>
-
-<br>
-
 Reproduce locally:
 
 ```bash
 pip install artsleuth[benchmarks]
 artsleuth benchmark --device cuda --backbone-size base
 ```
+
+<br>
+
+---
+
+<br>
+
+### ✦ Related Work & Honest Limitations
+
+Automated art classification has a rich history, and ArtSleuth builds on the shoulders of work we want to acknowledge properly.
+
+<br>
+
+**Prior art in style classification.** &ensp;Saleh & Elgammal (2016) were among the first to apply metric learning to large-scale art datasets. Tan et al. (2016) trained a ResNet-50 on WikiArt and reported ~54 % style accuracy; their subsequent ArtGAN work (Tan et al., 2018) improved this to ~58 % by leveraging generative training. Chu & Wu (2018) showed that Gram-matrix representations of neural style features could reach ~63 %. More recently, multi-phase patch-based strategies (Bani & Abu-Naser, 2023) have reported high accuracy, though typically on reduced class sets or with micro-averaged metrics that weight common styles more heavily.
+
+**Backbone representations.** &ensp;Our fusion approach is motivated by the observation — articulated clearly in recent work on style disentanglement (Pang et al., 2025) — that self-supervised models like DINOv2 (Oquab et al., 2024) and vision-language models like CLIP (Radford et al., 2021) encode fundamentally different aspects of visual style. DINOv2 captures texture and structure; CLIP captures semantic-categorical associations. Cross-attention lets each backbone inform the other, but we should note that this idea is closely related to multi-modal fusion strategies explored in VQA and image-text retrieval.
+
+**Workshop attribution.** &ensp;Computational connoisseurship traces back to Lyu et al. (2004), who applied wavelet statistics to distinguish Bruegel from his imitators, and to Johnson et al. (2008), who used canvas-thread analysis for Vermeer attribution. Our Dirichlet-process approach to workshop decomposition is more flexible than these hand-crafted pipelines but has not yet been validated on the expert-curated datasets those studies used.
+
+<br>
+
+<div align="center">
+
+| Method | Style Acc | Artist Acc | Classes | Protocol |
+|:---|:---:|:---:|:---:|:---|
+| ResNet-50 (Tan et al., 2016) | 54.5 % | 56.5 % | 27 / 23 | WikiArt subset, weighted avg |
+| ArtGAN (Tan et al., 2018) | 58.0 % | — | 27 | WikiArt, GAN-augmented |
+| Gram matrices (Chu & Wu, 2018) | 63.0 % | — | 27 | WikiArt, micro avg |
+| Deep ensemble (Manzoor et al., 2024) | 68.6 % | — | 27 | WikiArt, stacking ensemble |
+| ArtFusionNet (Kose & Guner, 2025) | 99.0 % | — | 3 | WikiArt subset, 3 styles only |
+| ArtSleuth Fusion · e2e | 72.7 % | 79.0 % | 27 / 129 | WikiArt full, 81k, macro avg |
+
+</div>
+
+<sub>Numbers are taken from the respective publications. Direct comparison is difficult: studies differ in the number of classes, dataset splits, averaging methods (micro vs. macro), and whether test sets overlap with training data. We list the protocol details we could verify so readers can judge for themselves.</sub>
+
+<br>
+
+**Where we fall short — and we know it.**
+
+- **Compute-constrained training.** &ensp;Fine-tuning ran for 5 epochs on a single Tesla P100 within a 12-hour Kaggle session. More epochs, larger effective batches, or higher-VRAM GPUs (A100, H100) would very likely improve the numbers. We chose to report what we could reproduce on freely available hardware rather than extrapolate.
+
+- **Frozen-fusion underperformance.** &ensp;Our frozen cross-attention fusion (65.0 % style) actually trails bare CLIP (67.1 %). The fusion head needs gradient signal from task labels to learn a useful alignment — it does not help out of the box. We report this rather than hide it.
+
+- **No standardised benchmark protocol.** &ensp;WikiArt classification has no single accepted evaluation protocol. Class counts, splits, and averaging methods vary between papers, which makes apples-to-apples comparison frustratingly difficult. Our numbers use macro-averaging, which is the most conservative choice (each of the 27 styles counts equally, regardless of how many images it contains). Papers that report micro-averaged or weighted scores will appear higher on the same data.
+
+- **Limited real-world forgery validation.** &ensp;The adversarial-robustness module simulates historical forgery techniques computationally. It has not been tested against actual forged paintings authenticated by conservators. This is a significant gap between benchmark performance and practical deployment.
+
+- **Workshop decomposition is unsupervised.** &ensp;The Dirichlet-process model infers "hands" from embedding clusters, but there is no ground-truth labelled dataset of workshop paintings with per-region hand annotations to validate against. Art-historical validation by domain experts is still needed.
+
+- **Temporal drift requires dated references.** &ensp;The Gaussian-process date estimator only works for artists whose dated reference embeddings are in the registry. For lesser-documented artists, the model has nothing to condition on.
+
+We consider these open problems, not failures. Contributions that address any of them — especially expert-curated evaluation datasets — would strengthen the project considerably.
+
+<br>
+
+<details>
+<summary>&nbsp;Full reference list</summary>
+
+<br>
+
+- Bani, M. & Abu-Naser, S. S. (2023). Artistic style recognition: combining deep and shallow neural networks for painting classification. *Mathematics*, 11(22), 4564.
+- Blei, D. M. & Jordan, M. I. (2006). Variational inference for Dirichlet process mixtures. *Bayesian Analysis*, 1(1), 121–143.
+- Caron, M. et al. (2021). Emerging properties in self-supervised vision transformers. *ICCV*.
+- Chu, W.-T. & Wu, Y.-L. (2018). Image style classification based on learnt deep correlation features. *IEEE Trans. Multimedia*, 20(9), 2491–2502.
+- Johnson, C. R. et al. (2008). Image processing for artist identification. *IEEE Signal Processing Magazine*, 25(4), 37–48.
+- Kose, U. & Guner, B. (2025). Enhancing artistic style classification through a novel ArtFusionNet framework. *Scientific Reports*, 15, 20087. *(Note: evaluated on 3 style classes.)*
+- Lyu, S., Rockmore, D. & Farid, H. (2004). A digital technique for art authentication. *PNAS*, 101(49), 17006–17010.
+- Manzoor, T. et al. (2024). Deep ensemble art style recognition. *arXiv:2405.11675*.
+- Oquab, M. et al. (2024). DINOv2: Learning robust visual features without supervision. *TMLR*.
+- Pang, K. et al. (2025). StyleDecoupler: generalizable artistic style disentanglement. *arXiv:2601.17697*.
+- Radford, A. et al. (2021). Learning transferable visual models from natural language supervision. *ICML*.
+- Rasmussen, C. E. & Williams, C. K. I. (2006). *Gaussian Processes for Machine Learning*. MIT Press.
+- Saleh, B. & Elgammal, A. (2016). Large-scale classification of fine-art paintings. *JOCCH*, 8(4), 1–24.
+- Tan, W. R. et al. (2016). Ceci n'est pas une pipe: a deep convolutional network for fine-art paintings classification. *ICIP*.
+- Tan, W. R. et al. (2018). ArtGAN: artwork synthesis with conditional categorical GANs. *ICIP*.
+- Vaswani, A. et al. (2017). Attention is all you need. *NeurIPS*.
+
+</details>
 
 <br>
 
