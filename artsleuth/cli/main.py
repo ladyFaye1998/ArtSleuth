@@ -25,7 +25,7 @@ console = Console()
 @click.group()
 @click.version_option(package_name="artsleuth")
 def cli() -> None:
-    """ArtSleuth — AI Art Forensics & Analysis Framework."""
+    """ArtSleuth — Computational Art Analysis Framework."""
 
 
 # --- Analyze ----------------------------------------------------------------
@@ -82,7 +82,7 @@ def analyze(
 @click.option("--top-k", "-k", default=5, help="Number of predictions per axis.")
 @click.option("--device", "-d", default=None, help="PyTorch device.")
 def style(image: Path, top_k: int, device: str | None) -> None:
-    """Classify artwork by period, school, and technique."""
+    """Classify artwork by period, school, and genre."""
     from PIL import Image
 
     from artsleuth.config import AnalysisConfig

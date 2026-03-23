@@ -126,13 +126,13 @@ def artsleuth_theme() -> gr.themes.Base:
 HEADER_HTML = (
     '<div class="artsleuth-header">'
     "  <h1>ArtSleuth</h1>"
-    "  <p>AI Art Forensics &amp; Analysis Framework</p>"
+    "  <p>Computational Art Analysis Framework</p>"
     "</div>"
 )
 
 FOOTER_HTML = (
     '<div class="artsleuth-footer">'
-    "  ArtSleuth &mdash; AI Art Forensics &amp; Analysis"
+    "  ArtSleuth &mdash; Computational Art Analysis"
     "  Framework &bull; Research use only<br>"
     '  <span style="font-size:0.78rem;color:#988b7e;">'
     "    Results are probabilistic and should be reviewed"

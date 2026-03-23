@@ -1,13 +1,13 @@
 cff-version: 1.2.0
 message: "If ArtSleuth contributes to your research, please cite it as below."
 type: software
-title: "ArtSleuth: AI Art Forensics & Analysis Framework"
+title: "ArtSleuth: Computational Art Analysis Framework"
 authors:
   - family-names: "Lesin"
     given-names: "Danielle"
     orcid: ""
     affiliation: "Georgia Institute of Technology"
-version: 0.1.0
+version: 0.2.0
 date-released: 2026-03-21
 url: "https://github.com/ladyFaye1998/ArtSleuth"
 repository-code: "https://github.com/ladyFaye1998/ArtSleuth"

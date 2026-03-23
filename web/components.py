@@ -105,7 +105,7 @@ def build_header() -> str:
     return (
         '<div class="artsleuth-header">'
         "  <h1>ArtSleuth</h1>"
-        "  <p>AI Art Forensics &amp; Analysis Framework</p>"
+        "  <p>Computational Art Analysis Framework</p>"
         "</div>"
     )
 
@@ -114,7 +114,7 @@ def build_footer() -> str:
     """Return HTML for the ArtSleuth footer."""
     return (
         '<div class="artsleuth-footer">'
-        "  ArtSleuth &mdash; AI Art Forensics &amp; Analysis"
+        "  ArtSleuth &mdash; Computational Art Analysis"
         "  Framework &bull; Research use only<br>"
         '  <span style="font-size:0.78rem;color:#988b7e;">'
         "    Results are probabilistic and should be reviewed"

@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ArtSleuth — AI Art Forensics &amp; Analysis</title>
+  <title>ArtSleuth — Computational Art Analysis</title>
   <meta name="description" content="Computational art-analysis framework combining vision transformers with art-historical connoisseurship. Brushstroke forensics, style attribution, forgery detection, workshop decomposition, and temporal dating.">
   <meta name="keywords" content="art analysis, AI, computer vision, brushstroke, forgery detection, style attribution, DINOv2, CLIP, art history, machine learning, connoisseurship">
   <meta name="author" content="ladyFaye1998">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="ArtSleuth — AI Art Forensics">
+  <meta property="og:title" content="ArtSleuth — Computational Art Analysis">
   <meta property="og:description" content="Where connoisseurship meets computation. Brushstroke forensics, style attribution, forgery detection — powered by vision transformers.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://ladyfaye1998.github.io/ArtSleuth/">
@@ -17,7 +17,7 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="ArtSleuth — AI Art Forensics">
+  <meta name="twitter:title" content="ArtSleuth — Computational Art Analysis">
   <meta name="twitter:description" content="Where connoisseurship meets computation.">
   <meta name="twitter:image" content="https://raw.githubusercontent.com/ladyFaye1998/ArtSleuth/main/assets/banner.png">
 
@@ -717,7 +717,7 @@
       <div class="feature-card animate-in">
         <span class="feature-icon">🎨</span>
         <h3>Style Classification</h3>
-        <p>Multi-axis classification along period, school, and technique using CLIP zero-shot
+        <p>Multi-axis classification along period, school, and genre using CLIP
         embeddings — mapping a work's position in the broader landscape of art history.</p>
         <span class="tech-tag">CLIP</span>
         <span class="tech-tag">Zero-Shot</span>
@@ -942,7 +942,7 @@
 <footer>
   <div class="container">
     <div class="footer-logo">ArtSleuth</div>
-    <div class="footer-tagline">AI Art Forensics &amp; Analysis Framework</div>
+    <div class="footer-tagline">Computational Art Analysis Framework</div>
     <div class="footer-links">
       <a href="https://github.com/ladyFaye1998/ArtSleuth" target="_blank">GitHub</a>
       <a href="https://github.com/ladyFaye1998/ArtSleuth/blob/main/docs/methodology.md" target="_blank">Methodology</a>
@@ -1012,7 +1012,7 @@
   // ── Simulated analysis ──
   const periods    = ['Renaissance','Baroque','Romantic','Impressionist','Post-Impressionist','Modern','Contemporary','Mannerist','Neoclassical'];
   const schools    = ['Florentine','Venetian','Dutch Golden Age','French Academic','Northern Renaissance','Spanish','Flemish','German Expressionist'];
-  const techniques = ['Oil on Canvas','Tempera on Panel','Fresco','Oil on Panel','Watercolour','Gouache','Mixed Media','Encaustic'];
+  const genres = ['Abstract Painting','Cityscape','Genre Painting','Illustration','Landscape','Nude Painting','Portrait','Religious Painting','Sketch And Study','Still Life'];
   const artists    = ['Artemisia Gentileschi','Rembrandt van Rijn','Caravaggio','Vermeer','Rubens','Titian','Velázquez','El Greco','Raphael','Monet','Van Gogh','Cézanne'];
 
   function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -1030,14 +1030,14 @@
         // Style
         const pIdx = Math.floor(rng() * periods.length);
         const sIdx = Math.floor(rng() * schools.length);
-        const tIdx = Math.floor(rng() * techniques.length);
+        const tIdx = Math.floor(rng() * genres.length);
         const pConf = 0.55 + rng() * 0.4;
         const sConf = 0.45 + rng() * 0.4;
         const tConf = 0.50 + rng() * 0.4;
 
         setBar('period', periods[pIdx], pConf);
         setBar('school', schools[sIdx], sConf);
-        setBar('tech', techniques[tIdx], tConf);
+        setBar('tech', genres[tIdx], tConf);
 
         // Attribution
         const numCands = 3;

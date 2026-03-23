@@ -15,7 +15,7 @@ tags:
   - cultural-heritage
 ---
 
-# ArtSleuth — AI Art Forensics & Analysis Framework
+# ArtSleuth — Computational Art Analysis Framework
 
 Upload a painting and get brushstroke analysis, style classification,
 artist attribution, forgery screening, and workshop decomposition —

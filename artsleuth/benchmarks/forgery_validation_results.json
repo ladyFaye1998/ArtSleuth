@@ -1,4 +1,12 @@
 {
+  "summary": {
+    "n_artists": 126,
+    "min_works": 80,
+    "protocol": "80/20 split, Mahalanobis one-class, equal genuine/impostor, Unknown Artist excluded",
+    "mean_auc_dino": 0.873,
+    "mean_auc_clip": 0.958,
+    "mean_auc_fused": 0.897
+  },
   "per_artist": [
     {
       "artist": "vincent-van-gogh",
@@ -298,13 +306,22 @@
       "auc_fused": 0.9133
     },
     {
-      "artist": "joaqu\u00e3\u00adn-sorolla",
+      "artist": "joaquin-sorolla",
       "n_ref": 268,
       "n_genuine": 67,
       "n_impostor": 67,
       "auc_dino": 0.7587,
       "auc_clip": 0.9209,
       "auc_fused": 0.8002
+    },
+    {
+      "artist": "joaqu\u00e3\u00adn-sorolla",
+      "n_ref": 268,
+      "n_genuine": 67,
+      "n_impostor": 67,
+      "auc_dino": 0.8138,
+      "auc_clip": 0.9305,
+      "auc_fused": 0.8585
     },
     {
       "artist": "zinaida-serebriakova",
@@ -347,369 +364,369 @@
       "n_ref": 234,
       "n_genuine": 59,
       "n_impostor": 59,
-      "auc_dino": 0.9201,
-      "auc_clip": 0.9871,
-      "auc_fused": 0.9339
+      "auc_dino": 0.9385,
+      "auc_clip": 0.979,
+      "auc_fused": 0.9454
     },
     {
       "artist": "peter-paul-rubens",
       "n_ref": 207,
       "n_genuine": 52,
       "n_impostor": 52,
-      "auc_dino": 0.9453,
-      "auc_clip": 0.9933,
-      "auc_fused": 0.9582
+      "auc_dino": 0.9504,
+      "auc_clip": 0.997,
+      "auc_fused": 0.9656
     },
     {
       "artist": "gustave-loiseau",
       "n_ref": 204,
       "n_genuine": 52,
       "n_impostor": 52,
-      "auc_dino": 0.9793,
-      "auc_clip": 0.9959,
-      "auc_fused": 0.9837
+      "auc_dino": 0.9475,
+      "auc_clip": 0.9956,
+      "auc_fused": 0.9589
     },
     {
       "artist": "david-burliuk",
       "n_ref": 198,
       "n_genuine": 50,
       "n_impostor": 50,
-      "auc_dino": 0.7364,
-      "auc_clip": 0.882,
-      "auc_fused": 0.7772
+      "auc_dino": 0.7696,
+      "auc_clip": 0.9072,
+      "auc_fused": 0.816
     },
     {
       "artist": "konstantin-korovin",
       "n_ref": 197,
       "n_genuine": 50,
       "n_impostor": 50,
-      "auc_dino": 0.8588,
-      "auc_clip": 0.9268,
-      "auc_fused": 0.8892
+      "auc_dino": 0.8216,
+      "auc_clip": 0.9364,
+      "auc_fused": 0.8684
     },
     {
       "artist": "thomas-eakins",
       "n_ref": 192,
       "n_genuine": 48,
       "n_impostor": 48,
-      "auc_dino": 0.822,
-      "auc_clip": 0.9102,
-      "auc_fused": 0.8416
+      "auc_dino": 0.8893,
+      "auc_clip": 0.8967,
+      "auc_fused": 0.9032
     },
     {
       "artist": "vasily-surikov",
       "n_ref": 190,
       "n_genuine": 48,
       "n_impostor": 48,
-      "auc_dino": 0.763,
-      "auc_clip": 0.9249,
-      "auc_fused": 0.7769
+      "auc_dino": 0.8411,
+      "auc_clip": 0.8984,
+      "auc_fused": 0.8555
     },
     {
       "artist": "lucian-freud",
       "n_ref": 187,
       "n_genuine": 47,
       "n_impostor": 47,
-      "auc_dino": 0.904,
-      "auc_clip": 0.9805,
-      "auc_fused": 0.9226
+      "auc_dino": 0.9081,
+      "auc_clip": 0.9891,
+      "auc_fused": 0.9249
     },
     {
       "artist": "aleksey-savrasov",
       "n_ref": 184,
       "n_genuine": 46,
       "n_impostor": 46,
-      "auc_dino": 0.9494,
-      "auc_clip": 0.9797,
-      "auc_fused": 0.9551
+      "auc_dino": 0.957,
+      "auc_clip": 0.9924,
+      "auc_fused": 0.9608
     },
     {
       "artist": "egon-schiele",
       "n_ref": 180,
       "n_genuine": 46,
       "n_impostor": 46,
-      "auc_dino": 0.8129,
-      "auc_clip": 0.9712,
-      "auc_fused": 0.8393
+      "auc_dino": 0.8492,
+      "auc_clip": 0.9594,
+      "auc_fused": 0.8715
     },
     {
       "artist": "berthe-morisot",
       "n_ref": 180,
       "n_genuine": 45,
       "n_impostor": 45,
-      "auc_dino": 0.9175,
-      "auc_clip": 0.957,
-      "auc_fused": 0.9373
+      "auc_dino": 0.8795,
+      "auc_clip": 0.9763,
+      "auc_fused": 0.9027
     },
     {
       "artist": "vasily-polenov",
       "n_ref": 180,
       "n_genuine": 45,
       "n_impostor": 45,
-      "auc_dino": 0.7556,
-      "auc_clip": 0.9002,
-      "auc_fused": 0.7817
+      "auc_dino": 0.6844,
+      "auc_clip": 0.9259,
+      "auc_fused": 0.723
     },
     {
       "artist": "giovanni-boldini",
       "n_ref": 180,
       "n_genuine": 45,
       "n_impostor": 45,
-      "auc_dino": 0.8005,
-      "auc_clip": 0.9867,
-      "auc_fused": 0.8272
+      "auc_dino": 0.7975,
+      "auc_clip": 0.9225,
+      "auc_fused": 0.8119
     },
     {
       "artist": "fernand-leger",
       "n_ref": 178,
       "n_genuine": 45,
       "n_impostor": 45,
-      "auc_dino": 0.9546,
-      "auc_clip": 0.9812,
-      "auc_fused": 0.9625
+      "auc_dino": 0.9867,
+      "auc_clip": 0.9763,
+      "auc_fused": 0.9926
     },
     {
       "artist": "gustave-courbet",
       "n_ref": 173,
       "n_genuine": 44,
       "n_impostor": 44,
-      "auc_dino": 0.828,
-      "auc_clip": 0.9298,
-      "auc_fused": 0.8559
+      "auc_dino": 0.7841,
+      "auc_clip": 0.8895,
+      "auc_fused": 0.8202
     },
     {
       "artist": "orest-kiprensky",
       "n_ref": 172,
       "n_genuine": 44,
       "n_impostor": 44,
-      "auc_dino": 0.9406,
-      "auc_clip": 0.9886,
-      "auc_fused": 0.9561
+      "auc_dino": 0.9106,
+      "auc_clip": 0.9804,
+      "auc_fused": 0.922
     },
     {
       "artist": "edouard-cortes",
       "n_ref": 171,
       "n_genuine": 43,
       "n_impostor": 43,
-      "auc_dino": 0.9984,
+      "auc_dino": 0.9919,
       "auc_clip": 1.0,
-      "auc_fused": 0.9989
+      "auc_fused": 0.9946
     },
     {
       "artist": "john-henry-twachtman",
       "n_ref": 171,
       "n_genuine": 43,
       "n_impostor": 43,
-      "auc_dino": 0.9286,
-      "auc_clip": 0.9492,
-      "auc_fused": 0.9329
+      "auc_dino": 0.9091,
+      "auc_clip": 0.9519,
+      "auc_fused": 0.9194
     },
     {
       "artist": "edouard-manet",
       "n_ref": 168,
       "n_genuine": 42,
       "n_impostor": 42,
-      "auc_dino": 0.8333,
-      "auc_clip": 0.9002,
-      "auc_fused": 0.869
+      "auc_dino": 0.7772,
+      "auc_clip": 0.8753,
+      "auc_fused": 0.8078
     },
     {
       "artist": "georges-braque",
       "n_ref": 166,
       "n_genuine": 42,
       "n_impostor": 42,
-      "auc_dino": 0.9751,
-      "auc_clip": 0.9887,
-      "auc_fused": 0.9847
+      "auc_dino": 0.9144,
+      "auc_clip": 0.9932,
+      "auc_fused": 0.9337
     },
     {
       "artist": "francisco-goya",
       "n_ref": 164,
       "n_genuine": 41,
       "n_impostor": 41,
-      "auc_dino": 0.8656,
-      "auc_clip": 0.9667,
-      "auc_fused": 0.8816
+      "auc_dino": 0.8804,
+      "auc_clip": 0.9774,
+      "auc_fused": 0.9012
     },
     {
       "artist": "kuzma-petrov-vodkin",
       "n_ref": 164,
       "n_genuine": 41,
       "n_impostor": 41,
-      "auc_dino": 0.8679,
-      "auc_clip": 0.9667,
-      "auc_fused": 0.8917
+      "auc_dino": 0.8459,
+      "auc_clip": 0.9393,
+      "auc_fused": 0.8662
     },
     {
       "artist": "ferdinand-hodler",
       "n_ref": 163,
       "n_genuine": 41,
       "n_impostor": 41,
-      "auc_dino": 0.9161,
+      "auc_dino": 0.8608,
       "auc_clip": 0.9518,
-      "auc_fused": 0.9334
+      "auc_fused": 0.8911
     },
     {
       "artist": "titian",
       "n_ref": 163,
       "n_genuine": 41,
       "n_impostor": 41,
-      "auc_dino": 0.9494,
-      "auc_clip": 0.9994,
-      "auc_fused": 0.9595
+      "auc_dino": 0.9239,
+      "auc_clip": 0.9839,
+      "auc_fused": 0.9381
     },
     {
       "artist": "joshua-reynolds",
       "n_ref": 160,
       "n_genuine": 40,
       "n_impostor": 40,
-      "auc_dino": 0.935,
-      "auc_clip": 0.9981,
-      "auc_fused": 0.9525
+      "auc_dino": 0.9762,
+      "auc_clip": 0.9994,
+      "auc_fused": 0.9888
     },
     {
       "artist": "utagawa-kuniyoshi",
       "n_ref": 159,
       "n_genuine": 40,
       "n_impostor": 40,
-      "auc_dino": 0.9806,
-      "auc_clip": 1.0,
-      "auc_fused": 0.9944
+      "auc_dino": 0.9344,
+      "auc_clip": 0.9981,
+      "auc_fused": 0.9556
     },
     {
       "artist": "nikolay-bogdanov-belsky",
       "n_ref": 158,
       "n_genuine": 40,
       "n_impostor": 40,
-      "auc_dino": 0.6594,
-      "auc_clip": 0.9119,
-      "auc_fused": 0.6931
+      "auc_dino": 0.7069,
+      "auc_clip": 0.9331,
+      "auc_fused": 0.7406
     },
     {
       "artist": "juan-gris",
       "n_ref": 156,
       "n_genuine": 40,
       "n_impostor": 40,
-      "auc_dino": 0.9831,
-      "auc_clip": 0.9994,
-      "auc_fused": 0.9881
+      "auc_dino": 0.9931,
+      "auc_clip": 0.9962,
+      "auc_fused": 0.9981
     },
     {
       "artist": "konstantin-somov",
       "n_ref": 155,
       "n_genuine": 39,
       "n_impostor": 39,
-      "auc_dino": 0.76,
-      "auc_clip": 0.8823,
-      "auc_fused": 0.7857
+      "auc_dino": 0.8146,
+      "auc_clip": 0.8869,
+      "auc_fused": 0.831
     },
     {
       "artist": "ilya-mashkov",
       "n_ref": 154,
       "n_genuine": 39,
       "n_impostor": 39,
-      "auc_dino": 0.7765,
-      "auc_clip": 0.9211,
-      "auc_fused": 0.8172
+      "auc_dino": 0.8067,
+      "auc_clip": 0.9145,
+      "auc_fused": 0.8356
     },
     {
       "artist": "valentin-serov",
       "n_ref": 152,
       "n_genuine": 39,
       "n_impostor": 39,
-      "auc_dino": 0.8041,
-      "auc_clip": 0.9001,
-      "auc_fused": 0.8166
+      "auc_dino": 0.7258,
+      "auc_clip": 0.9152,
+      "auc_fused": 0.7482
     },
     {
       "artist": "tintoretto",
       "n_ref": 149,
       "n_genuine": 38,
       "n_impostor": 38,
-      "auc_dino": 0.955,
-      "auc_clip": 0.9965,
-      "auc_fused": 0.9661
+      "auc_dino": 0.9578,
+      "auc_clip": 0.9841,
+      "auc_fused": 0.9681
     },
     {
       "artist": "hieronymus-bosch",
       "n_ref": 145,
       "n_genuine": 37,
       "n_impostor": 37,
-      "auc_dino": 0.8568,
-      "auc_clip": 0.992,
-      "auc_fused": 0.8912
+      "auc_dino": 0.9357,
+      "auc_clip": 1.0,
+      "auc_fused": 0.9533
     },
     {
       "artist": "gustave-caillebotte",
       "n_ref": 145,
       "n_genuine": 37,
       "n_impostor": 37,
-      "auc_dino": 0.7378,
-      "auc_clip": 0.9379,
-      "auc_fused": 0.7874
+      "auc_dino": 0.7122,
+      "auc_clip": 0.8795,
+      "auc_fused": 0.748
     },
     {
       "artist": "lucas-cranach-the-elder",
       "n_ref": 143,
       "n_genuine": 36,
       "n_impostor": 36,
-      "auc_dino": 0.9367,
-      "auc_clip": 0.9946,
-      "auc_fused": 0.9614
+      "auc_dino": 0.9614,
+      "auc_clip": 0.9985,
+      "auc_fused": 0.9776
     },
     {
       "artist": "vasily-perov",
       "n_ref": 142,
       "n_genuine": 36,
       "n_impostor": 36,
-      "auc_dino": 0.8634,
-      "auc_clip": 0.9344,
-      "auc_fused": 0.8904
+      "auc_dino": 0.9043,
+      "auc_clip": 0.9475,
+      "auc_fused": 0.9113
     },
     {
       "artist": "frans-hals",
       "n_ref": 140,
       "n_genuine": 36,
       "n_impostor": 36,
-      "auc_dino": 0.9738,
-      "auc_clip": 0.9969,
-      "auc_fused": 0.9815
+      "auc_dino": 0.9923,
+      "auc_clip": 0.9985,
+      "auc_fused": 0.9969
     },
     {
       "artist": "pietro-perugino",
       "n_ref": 138,
       "n_genuine": 35,
       "n_impostor": 35,
-      "auc_dino": 0.9682,
-      "auc_clip": 0.9943,
-      "auc_fused": 0.978
+      "auc_dino": 0.9592,
+      "auc_clip": 0.991,
+      "auc_fused": 0.9657
     },
     {
       "artist": "bartolome-esteban-murillo",
       "n_ref": 136,
       "n_genuine": 35,
       "n_impostor": 35,
-      "auc_dino": 0.9527,
-      "auc_clip": 0.9927,
-      "auc_fused": 0.9592
+      "auc_dino": 0.9665,
+      "auc_clip": 0.9984,
+      "auc_fused": 0.9747
     },
     {
       "artist": "ivan-bilibin",
       "n_ref": 136,
       "n_genuine": 35,
       "n_impostor": 35,
-      "auc_dino": 0.8359,
-      "auc_clip": 0.9763,
-      "auc_fused": 0.8776
+      "auc_dino": 0.8163,
+      "auc_clip": 0.9567,
+      "auc_fused": 0.8457
     },
     {
       "artist": "katsushika-hokusai",
       "n_ref": 136,
       "n_genuine": 35,
       "n_impostor": 35,
-      "auc_dino": 0.9347,
+      "auc_dino": 0.9551,
       "auc_clip": 1.0,
-      "auc_fused": 0.9567
+      "auc_fused": 0.9665
     },
     {
       "artist": "antoine-blanchard",
@@ -725,133 +742,133 @@
       "n_ref": 135,
       "n_genuine": 34,
       "n_impostor": 34,
-      "auc_dino": 0.8002,
-      "auc_clip": 0.9118,
-      "auc_fused": 0.8071
+      "auc_dino": 0.8434,
+      "auc_clip": 0.9247,
+      "auc_fused": 0.8521
     },
     {
       "artist": "theo-van-rysselberghe",
       "n_ref": 135,
       "n_genuine": 34,
       "n_impostor": 34,
-      "auc_dino": 0.7612,
-      "auc_clip": 0.923,
-      "auc_fused": 0.7837
+      "auc_dino": 0.8434,
+      "auc_clip": 0.9498,
+      "auc_fused": 0.8659
     },
     {
       "artist": "fra-angelico",
       "n_ref": 133,
       "n_genuine": 34,
       "n_impostor": 34,
-      "auc_dino": 0.9879,
-      "auc_clip": 0.9991,
-      "auc_fused": 0.9922
+      "auc_dino": 0.9948,
+      "auc_clip": 0.9896,
+      "auc_fused": 0.9983
     },
     {
       "artist": "jan-matejko",
       "n_ref": 133,
       "n_genuine": 34,
       "n_impostor": 34,
-      "auc_dino": 0.8884,
-      "auc_clip": 0.9585,
-      "auc_fused": 0.8997
+      "auc_dino": 0.9308,
+      "auc_clip": 0.9628,
+      "auc_fused": 0.9369
     },
     {
       "artist": "sir-lawrence-alma-tadema",
       "n_ref": 132,
       "n_genuine": 34,
       "n_impostor": 34,
-      "auc_dino": 0.8642,
-      "auc_clip": 0.9827,
-      "auc_fused": 0.8927
+      "auc_dino": 0.8927,
+      "auc_clip": 0.9801,
+      "auc_fused": 0.9135
     },
     {
       "artist": "vasily-vereshchagin",
       "n_ref": 132,
       "n_genuine": 34,
       "n_impostor": 34,
-      "auc_dino": 0.6661,
-      "auc_clip": 0.9403,
-      "auc_fused": 0.7093
+      "auc_dino": 0.6981,
+      "auc_clip": 0.9438,
+      "auc_fused": 0.7266
     },
     {
       "artist": "leonardo-da-vinci",
       "n_ref": 131,
       "n_genuine": 33,
       "n_impostor": 33,
-      "auc_dino": 0.8228,
-      "auc_clip": 0.9927,
-      "auc_fused": 0.8604
+      "auc_dino": 0.9137,
+      "auc_clip": 1.0,
+      "auc_fused": 0.9348
     },
     {
       "artist": "odilon-redon",
       "n_ref": 131,
       "n_genuine": 33,
       "n_impostor": 33,
-      "auc_dino": 0.8173,
-      "auc_clip": 0.8907,
-      "auc_fused": 0.8365
+      "auc_dino": 0.9265,
+      "auc_clip": 0.9467,
+      "auc_fused": 0.9366
     },
     {
       "artist": "thomas-gainsborough",
       "n_ref": 131,
       "n_genuine": 33,
       "n_impostor": 33,
-      "auc_dino": 0.91,
-      "auc_clip": 0.9669,
-      "auc_fused": 0.9247
+      "auc_dino": 0.9486,
+      "auc_clip": 0.9945,
+      "auc_fused": 0.9688
     },
     {
       "artist": "anthony-van-dyck",
       "n_ref": 130,
       "n_genuine": 33,
       "n_impostor": 33,
-      "auc_dino": 0.9789,
+      "auc_dino": 0.9853,
       "auc_clip": 1.0,
-      "auc_fused": 0.989
+      "auc_fused": 0.9917
     },
     {
       "artist": "georges-seurat",
       "n_ref": 129,
       "n_genuine": 33,
       "n_impostor": 33,
-      "auc_dino": 0.8687,
-      "auc_clip": 0.9449,
-      "auc_fused": 0.8953
+      "auc_dino": 0.8714,
+      "auc_clip": 0.9743,
+      "auc_fused": 0.8999
     },
     {
       "artist": "arkhip-kuindzhi",
       "n_ref": 128,
       "n_genuine": 33,
       "n_impostor": 33,
-      "auc_dino": 0.843,
-      "auc_clip": 0.9008,
-      "auc_fused": 0.8494
+      "auc_dino": 0.9082,
+      "auc_clip": 0.978,
+      "auc_fused": 0.9265
     },
     {
       "artist": "aubrey-beardsley",
       "n_ref": 128,
       "n_genuine": 33,
       "n_impostor": 33,
-      "auc_dino": 0.9063,
-      "auc_clip": 0.9844,
-      "auc_fused": 0.9293
+      "auc_dino": 0.9357,
+      "auc_clip": 1.0,
+      "auc_fused": 0.9633
     },
     {
       "artist": "el-greco",
       "n_ref": 127,
       "n_genuine": 32,
       "n_impostor": 32,
-      "auc_dino": 0.9941,
-      "auc_clip": 0.998,
-      "auc_fused": 0.999
+      "auc_dino": 0.9814,
+      "auc_clip": 1.0,
+      "auc_fused": 0.9932
     },
     {
       "artist": "gene-davis",
       "n_ref": 124,
       "n_genuine": 31,
       "n_impostor": 31,
-      "auc_dino": 0.9979,
+      "auc_dino": 1.0,
       "auc_clip": 1.0,
       "auc_fused": 1.0
     },
@@ -860,281 +877,270 @@
       "n_ref": 123,
       "n_genuine": 31,
       "n_impostor": 31,
-      "auc_dino": 0.9199,
-      "auc_clip": 0.9813,
-      "auc_fused": 0.9365
+      "auc_dino": 0.9532,
+      "auc_clip": 0.9875,
+      "auc_fused": 0.9584
     },
     {
       "artist": "fernando-botero",
       "n_ref": 120,
       "n_genuine": 31,
       "n_impostor": 31,
-      "auc_dino": 0.8918,
-      "auc_clip": 0.9979,
-      "auc_fused": 0.9105
+      "auc_dino": 0.8928,
+      "auc_clip": 0.9927,
+      "auc_fused": 0.9168
     },
     {
       "artist": "hans-memling",
       "n_ref": 120,
       "n_genuine": 31,
       "n_impostor": 31,
-      "auc_dino": 0.9272,
-      "auc_clip": 1.0,
-      "auc_fused": 0.9553
+      "auc_dino": 0.9303,
+      "auc_clip": 0.9844,
+      "auc_fused": 0.9428
     },
     {
       "artist": "edvard-munch",
       "n_ref": 120,
       "n_genuine": 30,
       "n_impostor": 30,
-      "auc_dino": 0.9656,
-      "auc_clip": 0.9978,
-      "auc_fused": 0.9767
+      "auc_dino": 0.9111,
+      "auc_clip": 0.9433,
+      "auc_fused": 0.9278
     },
     {
       "artist": "mstislav-dobuzhinsky",
       "n_ref": 119,
       "n_genuine": 30,
       "n_impostor": 30,
-      "auc_dino": 0.8522,
-      "auc_clip": 0.94,
-      "auc_fused": 0.8722
+      "auc_dino": 0.8133,
+      "auc_clip": 0.95,
+      "auc_fused": 0.8333
     },
     {
       "artist": "karl-bryullov",
       "n_ref": 116,
       "n_genuine": 29,
       "n_impostor": 29,
-      "auc_dino": 0.8228,
-      "auc_clip": 0.9738,
-      "auc_fused": 0.849
+      "auc_dino": 0.9287,
+      "auc_clip": 0.981,
+      "auc_fused": 0.9417
     },
     {
       "artist": "raphael",
       "n_ref": 114,
       "n_genuine": 29,
       "n_impostor": 29,
-      "auc_dino": 0.8621,
-      "auc_clip": 0.9643,
-      "auc_fused": 0.8977
+      "auc_dino": 0.9512,
+      "auc_clip": 0.9964,
+      "auc_fused": 0.9572
     },
     {
       "artist": "pierre-bonnard",
       "n_ref": 113,
       "n_genuine": 29,
       "n_impostor": 29,
-      "auc_dino": 0.8205,
-      "auc_clip": 0.9631,
-      "auc_fused": 0.8514
+      "auc_dino": 0.7253,
+      "auc_clip": 0.9489,
+      "auc_fused": 0.761
     },
     {
       "artist": "william-turner",
       "n_ref": 112,
       "n_genuine": 29,
       "n_impostor": 29,
-      "auc_dino": 0.8668,
-      "auc_clip": 0.9762,
-      "auc_fused": 0.8977
+      "auc_dino": 0.9215,
+      "auc_clip": 0.9845,
+      "auc_fused": 0.9429
     },
     {
       "artist": "henri-martin",
       "n_ref": 112,
       "n_genuine": 28,
       "n_impostor": 28,
-      "auc_dino": 0.9018,
-      "auc_clip": 0.9592,
-      "auc_fused": 0.9171
+      "auc_dino": 0.9133,
+      "auc_clip": 0.9834,
+      "auc_fused": 0.9337
     },
     {
       "artist": "dante-gabriel-rossetti",
       "n_ref": 111,
       "n_genuine": 28,
       "n_impostor": 28,
-      "auc_dino": 0.9298,
-      "auc_clip": 0.9681,
-      "auc_fused": 0.9349
+      "auc_dino": 0.9426,
+      "auc_clip": 0.9834,
+      "auc_fused": 0.9515
     },
     {
       "artist": "joseph-wright",
       "n_ref": 108,
       "n_genuine": 27,
       "n_impostor": 27,
-      "auc_dino": 0.9191,
-      "auc_clip": 0.9739,
-      "auc_fused": 0.9383
+      "auc_dino": 0.8656,
+      "auc_clip": 0.989,
+      "auc_fused": 0.8916
     },
     {
       "artist": "james-mcneill-whistler",
       "n_ref": 107,
       "n_genuine": 27,
       "n_impostor": 27,
-      "auc_dino": 0.8532,
+      "auc_dino": 0.8025,
       "auc_clip": 0.9657,
-      "auc_fused": 0.8765
+      "auc_fused": 0.8368
     },
     {
       "artist": "raoul-dufy",
       "n_ref": 106,
       "n_genuine": 27,
       "n_impostor": 27,
-      "auc_dino": 0.8573,
-      "auc_clip": 0.9547,
-      "auc_fused": 0.8903
+      "auc_dino": 0.8038,
+      "auc_clip": 0.9877,
+      "auc_fused": 0.8491
     },
     {
       "artist": "viktor-vasnetsov",
       "n_ref": 105,
       "n_genuine": 27,
       "n_impostor": 27,
-      "auc_dino": 0.6818,
-      "auc_clip": 0.8162,
-      "auc_fused": 0.7037
+      "auc_dino": 0.7682,
+      "auc_clip": 0.9246,
+      "auc_fused": 0.7833
     },
     {
       "artist": "paolo-veronese",
       "n_ref": 104,
       "n_genuine": 26,
       "n_impostor": 26,
-      "auc_dino": 0.8876,
-      "auc_clip": 0.9527,
-      "auc_fused": 0.8979
+      "auc_dino": 0.9053,
+      "auc_clip": 0.9689,
+      "auc_fused": 0.9201
     },
     {
       "artist": "michelangelo",
       "n_ref": 103,
       "n_genuine": 26,
       "n_impostor": 26,
-      "auc_dino": 0.9956,
-      "auc_clip": 1.0,
-      "auc_fused": 1.0
+      "auc_dino": 0.9541,
+      "auc_clip": 0.997,
+      "auc_fused": 0.9704
     },
     {
       "artist": "m.c.-escher",
       "n_ref": 100,
       "n_genuine": 26,
       "n_impostor": 26,
-      "auc_dino": 0.5577,
-      "auc_clip": 0.9157,
-      "auc_fused": 0.6021
+      "auc_dino": 0.6095,
+      "auc_clip": 0.8994,
+      "auc_fused": 0.6494
     },
     {
       "artist": "hans-holbein-the-younger",
       "n_ref": 96,
       "n_genuine": 25,
       "n_impostor": 25,
-      "auc_dino": 0.84,
-      "auc_clip": 0.992,
-      "auc_fused": 0.8704
+      "auc_dino": 0.9056,
+      "auc_clip": 0.9936,
+      "auc_fused": 0.9296
     },
     {
       "artist": "maxime-maufra",
       "n_ref": 95,
       "n_genuine": 24,
       "n_impostor": 24,
-      "auc_dino": 0.9045,
-      "auc_clip": 0.974,
-      "auc_fused": 0.9167
+      "auc_dino": 0.9913,
+      "auc_clip": 0.9983,
+      "auc_fused": 0.9913
     },
     {
       "artist": "niko-pirosmani",
       "n_ref": 90,
       "n_genuine": 23,
       "n_impostor": 23,
-      "auc_dino": 0.845,
-      "auc_clip": 0.9792,
-      "auc_fused": 0.8639
+      "auc_dino": 0.8866,
+      "auc_clip": 0.9641,
+      "auc_fused": 0.8941
     },
     {
       "artist": "andy-warhol",
       "n_ref": 85,
       "n_genuine": 22,
       "n_impostor": 22,
-      "auc_dino": 0.938,
-      "auc_clip": 0.9545,
-      "auc_fused": 0.9504
+      "auc_dino": 0.8058,
+      "auc_clip": 0.907,
+      "auc_fused": 0.8161
     },
     {
       "artist": "gustav-klimt",
       "n_ref": 84,
       "n_genuine": 21,
       "n_impostor": 21,
-      "auc_dino": 0.7574,
-      "auc_clip": 0.9637,
-      "auc_fused": 0.7868
+      "auc_dino": 0.8095,
+      "auc_clip": 0.9955,
+      "auc_fused": 0.8707
     },
     {
       "artist": "henri-fantin-latour",
       "n_ref": 84,
       "n_genuine": 21,
       "n_impostor": 21,
-      "auc_dino": 0.9002,
-      "auc_clip": 0.9819,
-      "auc_fused": 0.9184
+      "auc_dino": 0.9773,
+      "auc_clip": 1.0,
+      "auc_fused": 0.9887
     },
     {
       "artist": "mikhail-vrubel",
       "n_ref": 76,
       "n_genuine": 19,
       "n_impostor": 19,
-      "auc_dino": 0.7202,
-      "auc_clip": 0.9252,
-      "auc_fused": 0.7396
+      "auc_dino": 0.6177,
+      "auc_clip": 0.8227,
+      "auc_fused": 0.6537
     },
     {
       "artist": "jacob-jordaens",
       "n_ref": 75,
       "n_genuine": 19,
       "n_impostor": 19,
-      "auc_dino": 0.9501,
-      "auc_clip": 1.0,
-      "auc_fused": 0.9557
+      "auc_dino": 0.9114,
+      "auc_clip": 0.9945,
+      "auc_fused": 0.9169
     },
     {
       "artist": "jacek-malczewski",
       "n_ref": 72,
       "n_genuine": 19,
       "n_impostor": 19,
-      "auc_dino": 0.7036,
-      "auc_clip": 0.9474,
-      "auc_fused": 0.7618
+      "auc_dino": 0.6593,
+      "auc_clip": 0.9612,
+      "auc_fused": 0.7091
     },
     {
       "artist": "koloman-moser",
       "n_ref": 68,
       "n_genuine": 17,
       "n_impostor": 17,
-      "auc_dino": 0.7128,
-      "auc_clip": 0.8962,
-      "auc_fused": 0.7336
+      "auc_dino": 0.7716,
+      "auc_clip": 0.7059,
+      "auc_fused": 0.7751
     },
     {
       "artist": "edward-burne-jones",
       "n_ref": 67,
       "n_genuine": 17,
       "n_impostor": 17,
-      "auc_dino": 0.917,
-      "auc_clip": 1.0,
-      "auc_fused": 0.9239
+      "auc_dino": 0.9066,
+      "auc_clip": 0.9792,
+      "auc_fused": 0.9204
     },
     {
       "artist": "gustave-moreau",
       "n_ref": 66,
       "n_genuine": 17,
       "n_impostor": 17,
-      "auc_dino": 0.8685,
-      "auc_clip": 0.955,
-      "auc_fused": 0.8754
+      "auc_dino": 0.9654,
+      "auc_clip": 1.0,
+      "auc_fused": 0.9827
     }
-  ],
-  "summary": {
-    "n_artists": 125,
-    "min_works": 80,
-    "protocol": "80/20 split, Mahalanobis one-class, equal genuine/impostor, Unknown Artist excluded",
-    "mean_auc_dino": 0.8667,
-    "median_auc_dino": 0.8687,
-    "mean_auc_clip": 0.9579,
-    "median_auc_clip": 0.9657,
-    "mean_auc_fused": 0.8913,
-    "median_auc_fused": 0.9019
-  }
+  ]
 }

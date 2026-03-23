@@ -193,7 +193,7 @@ Linear probe and end-to-end evaluation on the full [WikiArt](https://huggingface
 
 </div>
 
-<sub>Top four rows: logistic-regression linear probes (macro-averaged across 27 styles, 129 artists, 11 genres). Bottom row: end-to-end classification heads trained jointly with the fusion backbone. Fine-tuning partially unfreezes the last 3 transformer blocks of each backbone, uses multi-task CE + supervised contrastive loss, AdamW with cosine annealing, and mixed-precision training (5 epochs, effective batch 64). Reproducible notebook on [Kaggle](https://www.kaggle.com/ladyfaye/artsleuth-benchmark).</sub>
+<sub>Top four rows: logistic-regression linear probes (macro-averaged across 27 styles, 129 artists, 11 genres). Bottom row: end-to-end classification heads trained jointly with the fusion backbone. Fine-tuning partially unfreezes the last 3 transformer blocks of each backbone, uses multi-task CE + supervised contrastive loss, AdamW with cosine annealing, and mixed-precision training (5 epochs, effective batch 64). Reproducible via `benchmarks/` scripts in this repository.</sub>
 
 <br>
 
@@ -211,16 +211,16 @@ artsleuth benchmark --device cuda --backbone-size base
 
 <br>
 
-For each of 125 named artists (≥ 80 works, excluding the catch-all "Unknown Artist" category), we fit a Mahalanobis-distance reference model from 80 % of their authenticated WikiArt works, then test whether held-out genuine paintings score lower (closer to the reference distribution) than impostor paintings by other artists. ROC-AUC = 1.0 means perfect separation; 0.5 means chance.
+For each of 126 named artists (≥ 80 works, excluding the catch-all "Unknown Artist" category), we fit a Mahalanobis-distance reference model from 80 % of their authenticated WikiArt works, then test whether held-out genuine paintings score lower (closer to the reference distribution) than impostor paintings by other artists. ROC-AUC = 1.0 means perfect separation; 0.5 means chance.
 
 <div align="center">
 
 | | DINOv2 ViT-B/14 | CLIP ViT-L/14 | Fused (concat) |
 |:---|:---:|:---:|:---:|
-| **Mean AUC** | 0.867 | 0.958 | 0.891 |
-| **Median AUC** | 0.869 | 0.966 | 0.902 |
-| AUC ≥ 0.95 | 25 / 125 artists | 98 / 125 artists | 40 / 125 artists |
-| AUC ≥ 0.90 | 56 / 125 artists | 119 / 125 artists | 66 / 125 artists |
+| **Mean AUC** | 0.873 | 0.958 | 0.897 |
+| **Median AUC** | 0.895 | 0.970 | 0.918 |
+| AUC ≥ 0.95 | 28 / 126 artists | 81 / 126 artists | 36 / 126 artists |
+| AUC ≥ 0.90 | 62 / 126 artists | 113 / 126 artists | 75 / 126 artists |
 
 </div>
 
@@ -233,30 +233,30 @@ Top 15 and bottom 5 by fused AUC:
 | Artist | Works | DINOv2 | CLIP | Fused |
 |:---|:---:|:---:|:---:|:---:|
 | Sam Francis | 317 | 1.000 | 1.000 | 1.000 |
-| Gene Davis | 155 | 0.998 | 1.000 | 1.000 |
-| Michelangelo | 129 | 0.996 | 1.000 | 1.000 |
 | Antoine Blanchard | 170 | 1.000 | 1.000 | 1.000 |
-| El Greco | 159 | 0.994 | 0.998 | 0.999 |
-| Édouard Cortès | 214 | 0.998 | 1.000 | 0.999 |
-| Utagawa Kuniyoshi | 199 | 0.981 | 1.000 | 0.994 |
-| Fra Angelico | 167 | 0.988 | 0.999 | 0.992 |
-| Anthony van Dyck | 163 | 0.979 | 1.000 | 0.989 |
-| Juan Gris | 196 | 0.983 | 0.999 | 0.988 |
+| Gene Davis | 155 | 1.000 | 1.000 | 1.000 |
+| Fra Angelico | 167 | 0.995 | 0.990 | 0.998 |
+| Juan Gris | 196 | 0.993 | 0.996 | 0.998 |
+| Frans Hals | 176 | 0.992 | 0.999 | 0.997 |
+| Édouard Cortès | 214 | 0.992 | 1.000 | 0.995 |
+| El Greco | 159 | 0.981 | 1.000 | 0.993 |
+| Fernand Léger | 223 | 0.987 | 0.976 | 0.993 |
+| Anthony van Dyck | 163 | 0.985 | 1.000 | 0.992 |
+| Maxime Maufra | 119 | 0.991 | 0.998 | 0.991 |
+| Joshua Reynolds | 200 | 0.976 | 0.999 | 0.989 |
+| Henri Fantin-Latour | 105 | 0.977 | 1.000 | 0.989 |
 | Ivan Aivazovsky | 577 | 0.980 | 0.998 | 0.986 |
-| Georges Braque | 208 | 0.975 | 0.989 | 0.985 |
-| Gustave Loiseau | 256 | 0.979 | 0.996 | 0.984 |
-| Frans Hals | 176 | 0.974 | 0.997 | 0.982 |
-| Pietro Perugino | 173 | 0.968 | 0.994 | 0.978 |
+| Gustave Moreau | 83 | 0.965 | 1.000 | 0.983 |
 | … | | | | |
-| Boris Kustodiev | 633 | 0.700 | 0.827 | 0.729 |
 | Salvador Dalí | 479 | 0.675 | 0.876 | 0.725 |
-| Vasily Vereshchagin | 166 | 0.666 | 0.940 | 0.709 |
-| Viktor Vasnetsov | 132 | 0.682 | 0.816 | 0.704 |
-| M. C. Escher | 126 | 0.558 | 0.916 | 0.602 |
+| Vasily Polenov | 225 | 0.684 | 0.926 | 0.723 |
+| Jacek Malczewski | 91 | 0.659 | 0.961 | 0.709 |
+| Mikhail Vrubel | 95 | 0.618 | 0.823 | 0.654 |
+| M. C. Escher | 126 | 0.610 | 0.899 | 0.649 |
 
 </div>
 
-<sub>Mahalanobis-distance one-class classification on WikiArt (125 named artists, 80/20 split, equal genuine/impostor test sets, seed 42). Artists with distinctive visual signatures (Michelangelo, El Greco, ukiyo-e prints) approach perfect separation; stylistically versatile artists (Dalí, Escher) are harder to model as a single distribution. Full per-artist table on [Kaggle](https://www.kaggle.com/code/ladyfaye/artsleuth-forgery-validation).</sub>
+<sub>Mahalanobis-distance one-class classification on WikiArt (126 named artists, 80/20 split, equal genuine/impostor test sets, seed 42). Artists with distinctive visual signatures (El Greco, Fra Angelico, ukiyo-e prints) approach perfect separation; stylistically versatile artists (Dalí, Escher) are harder to model as a single distribution. Full per-artist results in `artsleuth/benchmarks/forgery_validation_results.json`.</sub>
 
 </details>
 
@@ -299,13 +299,13 @@ Automated art classification has a rich history, and ArtSleuth builds on the sho
 
 **Where we fall short — and we know it.**
 
-- **Compute-constrained training.** &ensp;Fine-tuning ran for 5 epochs on a single Tesla P100 within a 12-hour Kaggle session. More epochs, larger effective batches, or higher-VRAM GPUs (A100, H100) would very likely improve the numbers. We chose to report what we could reproduce on freely available hardware rather than extrapolate.
+- **Compute-constrained training.** &ensp;Fine-tuning ran for 5 epochs on a single GPU with 16 GB VRAM. More epochs, larger effective batches, or higher-VRAM GPUs (A100, H100) would very likely improve the numbers. We chose to report what we could reproduce on accessible hardware rather than extrapolate.
 
 - **Frozen-fusion underperformance.** &ensp;Our frozen cross-attention fusion (65.0 % style) actually trails bare CLIP (67.1 %). The fusion head needs gradient signal from task labels to learn a useful alignment — it does not help out of the box. We report this rather than hide it.
 
 - **No standardised benchmark protocol.** &ensp;WikiArt classification has no single accepted evaluation protocol. Class counts, splits, and averaging methods vary between papers, which makes apples-to-apples comparison frustratingly difficult. Our numbers use macro-averaging, which is the most conservative choice (each of the 27 styles counts equally, regardless of how many images it contains). Papers that report micro-averaged or weighted scores will appear higher on the same data.
 
-- **Forgery detection validated on embeddings, not on physical forgeries.** &ensp;We validated the one-class anomaly detector (Mahalanobis distance) on WikiArt across all 125 named artists with ≥ 80 works. Mean ROC-AUC: **0.958** (CLIP), **0.891** (fused DINOv2 + CLIP), **0.867** (DINOv2 alone). Median fused AUC is 0.902; four artists reach perfect 1.000. Full per-artist results on [Kaggle](https://www.kaggle.com/code/ladyfaye/artsleuth-forgery-validation). However, this evaluates embedding-space separation between *different* artists — it does not test against actual physical forgeries authenticated by conservators, which is a harder and more practically relevant problem.
+- **Forgery detection validated on embeddings, not on physical forgeries.** &ensp;We validated the one-class anomaly detector (Mahalanobis distance) on WikiArt across 126 named artists with ≥ 80 works. Mean ROC-AUC: **0.958** (CLIP), **0.897** (fused DINOv2 + CLIP), **0.873** (DINOv2 alone). Median fused AUC is 0.918; three artists reach perfect 1.000. Full per-artist results are in `artsleuth/benchmarks/forgery_validation_results.json`. However, this evaluates embedding-space separation between *different* artists — it does not test against actual physical forgeries authenticated by conservators, which is a harder and more practically relevant problem.
 
 - **Workshop decomposition is unsupervised.** &ensp;The Dirichlet-process model infers "hands" from embedding clusters, but there is no ground-truth labelled dataset of workshop paintings with per-region hand annotations to validate against. Art-historical validation by domain experts is still needed.
 
