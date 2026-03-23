@@ -103,7 +103,9 @@ def create_app() -> gr.Blocks:
                 if explanation.composite is not None:
                     heatmap_image = explanation.composite
             except Exception:
-                pass
+                forgery_html += _info_html(
+                    "Saliency heatmap could not be generated for this image."
+                )
 
             return (
                 style_html,
@@ -147,21 +149,22 @@ def create_app() -> gr.Blocks:
 
             if similarity > 0.85:
                 interp = (
-                    "Very high similarity — likely the same artist, "
-                    "period, or a direct copy."
+                    "Very high embedding similarity — the works share "
+                    "strong stylistic features. This does not confirm "
+                    "shared authorship on its own."
                 )
             elif similarity > 0.65:
                 interp = (
-                    "Moderate similarity — shared stylistic traits "
-                    "but distinct execution."
+                    "Moderate similarity — some shared stylistic "
+                    "traits, but distinct in other respects."
                 )
             elif similarity > 0.40:
                 interp = (
-                    "Low similarity — different styles with some "
-                    "overlapping features."
+                    "Low similarity — different stylistic profiles "
+                    "with some overlapping features."
                 )
             else:
-                interp = "Minimal similarity — markedly different works."
+                interp = "Minimal similarity — markedly different stylistic profiles."
 
             sim_html = (
                 '<div style="text-align:center;padding:1.5rem">'
@@ -371,7 +374,7 @@ def create_app() -> gr.Blocks:
                             label="Forgery Screening",
                         )
                         analyze_heatmap = gr.Image(
-                            label="Grad-CAM Heatmap",
+                            label="Saliency Heatmap",
                         )
 
                 analyze_btn.click(
@@ -491,7 +494,7 @@ def _hand_map_palette(n: int) -> list[list[int]]:
 
 
 def _build_benchmark_table() -> str:
-    """Return an HTML table with full WikiArt SOTA benchmark numbers."""
+    """Return an HTML table with WikiArt benchmark numbers."""
     row = (
         '<tr style="border-bottom:{border}">'
         '<td style="padding:0.5rem 1rem;text-align:left;{extra}">{name}</td>'

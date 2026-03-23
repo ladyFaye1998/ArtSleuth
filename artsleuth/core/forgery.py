@@ -250,17 +250,9 @@ class ForgeryDetector:
         z_scores = np.abs(diff) / (std + 1e-12)
         top_indices = np.argsort(z_scores)[::-1][:5]
 
-        feature_names = [
-            "palette_warmth",
-            "stroke_coherence",
-            "texture_energy",
-            "compositional_balance",
-            "edge_contrast",
-        ]
-
         indicators = []
         for idx in top_indices:
-            name = feature_names[idx] if idx < len(feature_names) else f"feature_{idx}"
+            name = f"dim_{idx}"
             z = float(z_scores[idx])
             desc = _describe_anomaly(name, z)
             indicators.append(AnomalyIndicator(feature_name=name, z_score=z, description=desc))
@@ -285,5 +277,7 @@ def _describe_anomaly(feature_name: str, z_score: float) -> str:
     severity = (
         "substantially" if z_score > 3.0 else "moderately" if z_score > 2.0 else "slightly"
     )
-    readable = feature_name.replace("_", " ")
-    return f"The query painting's {readable} departs {severity} (z = {z_score:.1f}) from the reference corpus."
+    return (
+        f"Embedding dimension {feature_name} departs {severity} "
+        f"(z = {z_score:.1f}) from the reference corpus."
+    )

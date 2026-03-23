@@ -8,10 +8,13 @@ finer control over individual stages, use the component modules directly.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import logging
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from PIL import Image
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from artsleuth.config import AnalysisConfig
@@ -50,6 +53,7 @@ class AnalysisResult:
     forgery: "ForgeryReport | None" = None
     workshop: "WorkshopReport | None" = None
     temporal: "TemporalPrediction | None" = None
+    warnings: list[str] = field(default_factory=list)
 
     def explain(self, target: str = "attribution") -> "ExplanationMap":
         """Generate an interpretable visual overlay for the analysis.
@@ -145,6 +149,8 @@ def run_pipeline(
         style_report=style_report,
     )
 
+    pipeline_warnings: list[str] = []
+
     # Workshop decomposition (Bayesian mixture, replaces flat k-means)
     workshop_report = None
     if config.enable_workshop and brushstroke_report.descriptors:
@@ -173,8 +179,10 @@ def run_pipeline(
                 coherences=coherences,
                 energies=energies,
             )
-        except Exception:
-            pass
+        except Exception as exc:
+            msg = f"Workshop decomposition skipped: {exc}"
+            logger.warning(msg)
+            pipeline_warnings.append(msg)
 
     # Temporal style drift estimation
     temporal_prediction = None
@@ -188,8 +196,10 @@ def run_pipeline(
                     attribution_report.consensus_artist,
                     style_report.embedding,
                 )
-        except Exception:
-            pass
+        except Exception as exc:
+            msg = f"Temporal estimation skipped: {exc}"
+            logger.warning(msg)
+            pipeline_warnings.append(msg)
 
     forgery_report = None
     if reference_artist is not None:
@@ -209,4 +219,5 @@ def run_pipeline(
         forgery=forgery_report,
         workshop=workshop_report,
         temporal=temporal_prediction,
+        warnings=pipeline_warnings,
     )

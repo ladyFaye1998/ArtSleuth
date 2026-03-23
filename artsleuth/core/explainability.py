@@ -1,25 +1,20 @@
 """
 Interpretable visual explanations for ArtSleuth analyses.
 
-Saying "this painting is 82% likely Artemisia" without showing *where*
+Saying "this painting is 82 % likely Artemisia" without showing *where*
 the model is looking isn't very useful.  Conservators and art historians
 need to see the evidence — the equivalent of a colleague pointing at
 the canvas and saying "look at this passage here."
 
-Two techniques, both composited at full resolution so the output is
-publication-ready without extra matplotlib wrangling:
-
-  * **GradCAM** — coarse heatmaps of what the network considers
-    "important" (Selvaraju et al., 2017).
-  * **Attention rollout** — finer-grained patch-level salience
-    aggregated across transformer layers (Abnar & Zuidema, 2020).
-
-References
-----------
-Selvaraju, R. R. et al. (2017). Grad-CAM: Visual Explanations from
-    Deep Networks via Gradient-Based Localization. *ICCV*.
-Abnar, S. & Zuidema, W. (2020). Quantifying Attention Flow in
-    Transformers. *ACL*.
+The current implementation uses **gradient-based saliency**: we
+backpropagate the sum of the backbone's output features and visualise
+the input-gradient magnitude as a spatial heatmap.  This is a
+simplified approximation — not class-specific Grad-CAM and not true
+attention rollout.  It highlights which pixels the backbone is most
+sensitive to, which is useful but coarser than a per-verdict
+explanation.  Proper Grad-CAM (Selvaraju et al., 2017) and attention
+rollout (Abnar & Zuidema, 2020) require hook access to intermediate
+layers; these are planned but not yet implemented.
 """
 
 from __future__ import annotations
@@ -103,7 +98,11 @@ class ExplainabilityEngine:
         image: "Image.Image",
         target_label: str = "attribution",
     ) -> ExplanationMap:
-        """Produce a Grad-CAM heatmap for the given image and target.
+        """Produce a gradient-based saliency map for the given image.
+
+        This is a simplified approximation: we backpropagate the sum of
+        backbone output features and use input-gradient magnitude as the
+        spatial signal.  It is *not* class-specific Grad-CAM.
 
         Parameters
         ----------
@@ -116,7 +115,7 @@ class ExplainabilityEngine:
         Returns
         -------
         ExplanationMap
-            Grad-CAM heatmap and composite overlay.
+            Saliency heatmap and composite overlay.
         """
         from artsleuth.models.backbones import load_backbone
         from artsleuth.preprocessing.transforms import prepare_for_backbone
@@ -150,7 +149,7 @@ class ExplainabilityEngine:
 
         return ExplanationMap(
             heatmap=heatmap,
-            method="gradcam",
+            method="saliency",
             target_label=target_label,
             composite=composite,
         )

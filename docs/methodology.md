@@ -30,11 +30,15 @@ CLIP (Radford et al., 2021) encodes images and text in a shared embedding space.
 
 ### 1. Preprocessing
 
-Artwork images undergo three corrective transforms:
+The default pipeline applies standard vision-transformer preprocessing: resize, centre-crop, and ImageNet normalisation.
+
+Three optional art-specific corrective transforms are implemented in `preprocessing/transforms.py` but are **not applied on the default inference path** (they require explicit invocation):
 
 - **Varnish correction**: Attenuates the warm amber shift introduced by aged surface coatings, approximating the painting's original colour temperature.
 - **Craquelure suppression**: Selective median filtering that reduces age-induced crack patterns without blurring brushstroke edges.
 - **Canvas texture normalisation**: Frequency-domain filtering that attenuates the periodic weave pattern of the canvas support.
+
+These exist as utilities for users who want to experiment with domain-specific preprocessing, but our benchmarks and default analysis do not use them.
 
 ### 2. Patch Extraction
 
@@ -72,15 +76,15 @@ A one-class anomaly detector evaluates the Mahalanobis distance of the query emb
 
 $$D_M(\mathbf{x}) = \sqrt{(\mathbf{x} - \boldsymbol{\mu})^\top \Sigma^{-1} (\mathbf{x} - \boldsymbol{\mu})}$$
 
-The distance is normalised to a 0–1 anomaly score via sigmoid transform. Per-feature z-scores identify the specific dimensions contributing to the anomaly.
+The distance is normalised to a 0–1 anomaly score via sigmoid transform. Per-dimension z-scores identify which embedding dimensions contribute most to the anomaly. Note that these are raw embedding dimensions, not named interpretable features — they should be read as "this dimension departs significantly," not as evidence about a specific physical property.
 
 ### 7. Explainability
 
-Grad-CAM heatmaps highlight the image regions most influential to each analytical verdict. The heatmap is composited over the original artwork at full resolution using the Inferno colourmap — chosen for its perceptual uniformity and warm tonality evocative of gallery lighting.
+Gradient-based saliency maps highlight the image regions the backbone is most sensitive to. The current implementation backpropagates the sum of backbone output features and uses the input-gradient magnitude as a spatial signal — this is a simplified approximation, not class-specific Grad-CAM or true attention rollout. The heatmap is composited over the original artwork at full resolution using the Inferno colourmap — chosen for its perceptual uniformity and warm tonality evocative of gallery lighting. Proper per-verdict Grad-CAM and attention rollout are planned but not yet implemented.
 
-### 8. Cross-Attention Backbone Fusion
+### 8. Cross-Attention Backbone Fusion (training-time)
 
-Standard pipelines concatenate CLIP and DINOv2 embeddings, treating style-semantic and texture-structural features as independent channels.  ArtSleuth instead uses *style-guided cross-attention*: CLIP embeddings serve as queries attending over DINOv2 patch tokens, producing fused features where semantic understanding directs structural analysis.
+The default inference pipeline concatenates CLIP and DINOv2 embeddings. For benchmark fine-tuning, ArtSleuth additionally provides a *style-guided cross-attention* module: CLIP embeddings serve as queries attending over DINOv2 patch tokens, producing fused features where semantic understanding directs structural analysis. This cross-attention architecture is used during end-to-end training (the "Fusion · e2e" benchmark row) but is **not** part of the default inference path.
 
 The cross-attention mechanism uses multi-head attention (8 heads, 512 internal dim) with a learned temperature parameter that governs the sharpness of attention weights.  An optional residual connection preserves the raw CLIP embedding as a semantic shortcut.
 
@@ -88,7 +92,7 @@ This architecture is motivated by the observation that knowing a painting is "Ba
 
 ### 9. Temporal Style Drift Modelling
 
-All existing art-attribution systems treat an artist as a single static distribution.  ArtSleuth models the evolution of an artist's style over time using Gaussian process regression in a PCA-reduced embedding space.
+Most art-attribution systems treat an artist as a single static distribution.  ArtSleuth models the evolution of an artist's style over time using Gaussian process regression in a PCA-reduced embedding space.
 
 For each artist with time-stamped reference works, the model:
 

@@ -15,7 +15,7 @@
 
 <br>
 
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Lora&weight=500&size=22&pause=2800&color=9DC0D8&center=true&vCenter=true&width=680&lines=Brushstroke+forensics+%C2%B7+Style+attribution+%C2%B7+Forgery+detection;Cross-attention+backbone+fusion+%C2%B7+Temporal+drift+modelling;Where+connoisseurship+meets+computation)](https://github.com/ladyFaye1998/ArtSleuth)
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Lora&weight=500&size=22&pause=2800&color=9DC0D8&center=true&vCenter=true&width=680&lines=Brushstroke+analysis+%C2%B7+Style+attribution+%C2%B7+Anomaly+screening;Dual-backbone+feature+fusion+%C2%B7+Temporal+drift+modelling;Where+connoisseurship+meets+computation)](https://github.com/ladyFaye1998/ArtSleuth)
 
 <br>
 
@@ -37,14 +37,14 @@ Brushstroke directionality, impasto relief, palette temperature, the habitual ge
 
 | | Capability | Method |
 |:---:|:---|:---|
-| ![Brushstroke](https://img.shields.io/badge/-Brushstroke_Analysis-1A2E48?style=flat-square) | Stroke orientation, coherence, energy, curvature with patch-level clustering | Structure tensor decomposition via DINOv2 |
+| ![Brushstroke](https://img.shields.io/badge/-Brushstroke_Analysis-1A2E48?style=flat-square) | Stroke orientation, coherence, energy, curvature with patch-level clustering | Structure tensor on image gradients + DINOv2 patch embeddings |
 | ![Style](https://img.shields.io/badge/-Style_Classification-1A2E48?style=flat-square) | Period, school, and technique prediction | CLIP embeddings through learned linear heads |
 | ![Attribution](https://img.shields.io/badge/-Artist_Attribution-1A2E48?style=flat-square) | Embedding-space comparison with temporal plausibility scoring | Cosine similarity with GP-based date estimation |
 | ![Workshop](https://img.shields.io/badge/-Workshop_Decomposition-1A2E48?style=flat-square) | Bayesian inference of distinct hands in collaborative paintings | Dirichlet process Gaussian mixture model |
-| ![Forgery](https://img.shields.io/badge/-Forgery_Detection-1A2E48?style=flat-square) | One-class anomaly scoring with adversarial robustness testing | Mahalanobis distance plus historical forgery simulation |
-| ![Fusion](https://img.shields.io/badge/-Cross--Attention_Fusion-1A2E48?style=flat-square) | Style-guided patch attention across dual backbones | Multi-head cross-attention (CLIP Q, DINOv2 KV) |
+| ![Forgery](https://img.shields.io/badge/-Anomaly_Screening-1A2E48?style=flat-square) | One-class anomaly scoring with adversarial robustness testing | Mahalanobis distance plus historical forgery simulation |
+| ![Fusion](https://img.shields.io/badge/-Dual--Backbone_Fusion-1A2E48?style=flat-square) | Complementary features from two vision transformers | Concatenation at inference; cross-attention available for training |
 | ![Temporal](https://img.shields.io/badge/-Temporal_Drift-1A2E48?style=flat-square) | Models how an artist's style evolves over decades | Gaussian process regression in embedding space |
-| ![Explainability](https://img.shields.io/badge/-Explainability-1A2E48?style=flat-square) | Visual heatmaps showing where the model looks and why | Grad-CAM and attention rollout |
+| ![Explainability](https://img.shields.io/badge/-Explainability-1A2E48?style=flat-square) | Visual heatmaps highlighting regions the model considers salient | Gradient-based saliency maps |
 
 </div>
 
@@ -56,7 +56,7 @@ Brushstroke directionality, impasto relief, palette temperature, the habitual ge
 
 ### ✦ What's Novel
 
-ArtSleuth introduces four contributions not found in existing art-analysis frameworks:
+ArtSleuth combines several techniques that are typically studied in isolation:
 
 1. **Style-Guided Cross-Attention Fusion** — CLIP's semantic understanding directs DINOv2's patch-level attention via multi-head cross-attention with learned temperature, producing fused features neither backbone achieves alone.
 
@@ -118,33 +118,28 @@ artsleuth demo
 %%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1A2E48', 'primaryTextColor': '#F0F0F0', 'primaryBorderColor': '#9DC0D8', 'lineColor': '#9DC0D8', 'secondaryColor': '#1A2E48', 'tertiaryColor': '#1A2E48', 'edgeLabelBackground': '#0D1117', 'clusterBkg': '#0D1117', 'clusterBorder': '#9DC0D8', 'titleColor': '#9DC0D8'}}}%%
 
 graph TD
-    Input["Artwork Image"] --> Preprocess
+    Input["Artwork Image"] --> Resize["Resize · Crop · Normalise"]
 
-    subgraph prep ["Preprocessing"]
-        Preprocess["Varnish Correction"] --> Crack["Craquelure Suppression"]
-        Crack --> Canvas["Canvas Texture Filtering"]
-    end
+    Resize --> Patches["Patch Extraction"]
+    Resize --> FullImage["Full-Image Encoding"]
 
-    prep --> Patches["Patch Extraction"]
-    prep --> FullImage["Full-Image Encoding"]
+    Patches --> DINO["DINOv2"]
+    FullImage --> CLIPEnc["CLIP"]
 
-    Patches --> DINO["DINOv2 ViT-B/14"]
-    FullImage --> CLIPEnc["CLIP ViT-L/14"]
-
-    DINO --> CrossAttn["Style-Guided Cross-Attention"]
-    CLIPEnc --> CrossAttn
-
-    CrossAttn --> Brushstroke["Brushstroke Analysis"]
-    CrossAttn --> WorkshopNode["Workshop Decomposition"]
+    DINO --> Brushstroke["Brushstroke Analysis"]
+    DINO --> WorkshopNode["Workshop Decomposition"]
     CLIPEnc --> Style["Style Classification"]
-    CrossAttn --> Attribution["Attribution Scoring"]
+
+    DINO --> Concat["Feature Concatenation"]
+    CLIPEnc --> Concat
+
+    Concat --> Attribution["Attribution Scoring"]
     Attribution --> Temporal["Temporal Drift Model"]
 
-    Brushstroke --> Fusion["Feature Fusion"]
-    Style --> Fusion
-    Fusion --> Forgery["Forgery Detection"]
-    Fusion --> Adversarial["Adversarial Robustness"]
-    Fusion --> Explain["Explainability Engine"]
+    Concat --> Forgery["Forgery Detection"]
+    Concat --> Adversarial["Adversarial Robustness"]
+
+    DINO --> Explain["Saliency Maps"]
 
     Forgery --> Report["Analysis Report"]
     Attribution --> Report
@@ -159,17 +154,21 @@ graph TD
     Report --> MCP["MCP Server"]
 ```
 
+<sub>The inference pipeline concatenates CLIP + DINOv2 embeddings. Cross-attention fusion is available as a training-time architecture (used in the benchmark fine-tuning) but is **not** part of the default inference path.</sub>
+
 <br>
 
 <div align="center">
 
 | Backbone | Strength | Used For |
 |:---|:---|:---|
-| **DINOv2** · ViT-B/14 | Fine-grained texture and structure (768-d) | Brushstroke analysis · cross-attention K/V |
-| **CLIP** · ViT-L/14 | Semantic-stylistic understanding (768-d) | Style classification · cross-attention Q |
-| **Fusion** · Cross-Attention | Style-aware structural features | Attribution · forgery · workshop decomposition |
+| **DINOv2** | Fine-grained texture and structure | Brushstroke analysis · patch embeddings |
+| **CLIP** | Semantic-stylistic understanding | Style classification · style embeddings |
+| **Concat** | Complementary feature combination | Attribution · forgery detection |
 
 </div>
+
+<sub>Default backbone sizes: DINOv2 ViT-S/14 + CLIP ViT-B/32. Benchmarks in the table below used larger variants (DINOv2 ViT-B/14 + CLIP ViT-L/14). Pass `--backbone-size base` or `--backbone-size large` for parity with benchmark results.</sub>
 
 <br>
 
@@ -193,7 +192,7 @@ Linear probe and end-to-end evaluation on the full [WikiArt](https://huggingface
 
 </div>
 
-<sub>Top four rows: logistic-regression linear probes (macro-averaged across 27 styles, 129 artists, 11 genres). Bottom row: end-to-end classification heads trained jointly with the fusion backbone. Fine-tuning partially unfreezes the last 3 transformer blocks of each backbone, uses multi-task CE + supervised contrastive loss, AdamW with cosine annealing, and mixed-precision training (5 epochs, effective batch 64). Reproducible notebook on [Kaggle](https://www.kaggle.com/ladyfaye/artsleuth-sota-benchmark).</sub>
+<sub>Top four rows: logistic-regression linear probes (macro-averaged across 27 styles, 129 artists, 11 genres). Bottom row: end-to-end classification heads trained jointly with the fusion backbone. Fine-tuning partially unfreezes the last 3 transformer blocks of each backbone, uses multi-task CE + supervised contrastive loss, AdamW with cosine annealing, and mixed-precision training (5 epochs, effective batch 64). Reproducible notebook on [Kaggle](https://www.kaggle.com/ladyfaye/artsleuth-benchmark).</sub>
 
 <br>
 
@@ -419,7 +418,7 @@ ArtSleuth/
 │   │   ├── style.py           #   Style classification
 │   │   ├── attribution.py     #   Artist attribution scoring
 │   │   ├── forgery.py         #   Anomaly-based forgery detection
-│   │   ├── explainability.py  #   GradCAM & attention overlays
+│   │   ├── explainability.py  #   Gradient saliency overlays
 │   │   ├── temporal.py        #   Temporal style drift (GP)
 │   │   ├── workshop.py        #   Bayesian workshop decomposition
 │   │   ├── adversarial.py     #   Adversarial robustness testing
@@ -500,7 +499,7 @@ See [`docs/methodology.md`](docs/methodology.md) for the full technical discussi
 ```bibtex
 @software{lesin2026artsleuth,
   author    = {Lesin, Danielle},
-  title     = {{ArtSleuth}: {AI} Art Forensics \& Analysis Framework},
+  title     = {{ArtSleuth}: Computational Art Analysis Framework},
   year      = {2026},
   url       = {https://github.com/ladyFaye1998/ArtSleuth},
   license   = {MIT}
