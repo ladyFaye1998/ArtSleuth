@@ -46,7 +46,7 @@ class ExplanationMap:
         Normalised attention array of shape ``(H, W)`` in [0, 1],
         at the original image resolution.
     method:
-        Name of the explanation technique ("gradcam" or "attention_rollout").
+        Name of the explanation technique ("saliency" (gradient-based)).
     target_label:
         The classification label or verdict this explanation pertains to.
     composite:

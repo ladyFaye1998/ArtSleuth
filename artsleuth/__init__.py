@@ -1,5 +1,5 @@
 """
-ArtSleuth — AI Art Forensics & Analysis Framework.
+ArtSleuth — Computational Art Analysis Framework.
 
 There's a gap between what connoisseurs *feel* when they look at a
 painting and what we can actually quantify.  Brushstroke directionality,
@@ -73,8 +73,9 @@ def analyze(
     -------
     AnalysisResult
         A structured report containing style classification, attribution
-        scores, brushstroke features, forgery indicators, and an
-        explainability handle for generating visual overlays.
+        scores, brushstroke features, and an explainability handle for
+        generating visual overlays. Forgery screening requires passing a
+        reference_artist to run_pipeline directly.
     """
     from artsleuth.core.pipeline import run_pipeline
 

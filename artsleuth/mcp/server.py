@@ -80,7 +80,7 @@ def create_server() -> Any:
                 name="classify_style",
                 description=(
                     "Classify an artwork by historical period, art-historical "
-                    "school, and material technique."
+                    "school, and subject genre."
                 ),
                 inputSchema={
                     "type": "object",
@@ -183,7 +183,7 @@ def _handle_analyze(args: dict[str, Any], config: Any) -> dict[str, Any]:
         "style": {
             "period": {"label": result.style.period.label, "confidence": result.style.period.confidence},
             "school": {"label": result.style.school.label, "confidence": result.style.school.confidence},
-            "technique": {"label": result.style.technique.label, "confidence": result.style.technique.confidence},
+            "genre": {"label": result.style.technique.label, "confidence": result.style.technique.confidence},
         },
         "attribution": {
             "consensus_artist": result.attribution.consensus_artist,
@@ -206,7 +206,7 @@ def _handle_classify(args: dict[str, Any], config: Any) -> dict[str, Any]:
     return {
         "period": {"label": report.period.label, "confidence": report.period.confidence, "top_k": report.period.top_k},
         "school": {"label": report.school.label, "confidence": report.school.confidence, "top_k": report.school.top_k},
-        "technique": {"label": report.technique.label, "confidence": report.technique.confidence, "top_k": report.technique.top_k},
+        "genre": {"label": report.technique.label, "confidence": report.technique.confidence, "top_k": report.technique.top_k},
     }
 
 
@@ -233,10 +233,13 @@ def _handle_compare(args: dict[str, Any], config: Any) -> dict[str, Any]:
     return {
         "similarity": similarity,
         "interpretation": (
-            "Very likely same artist or workshop" if similarity > 0.85
-            else "Probable stylistic relationship" if similarity > 0.65
-            else "Some shared characteristics" if similarity > 0.45
-            else "Distinct stylistic profiles"
+            "High embedding similarity — shared stylistic features, but does not confirm shared authorship"
+            if similarity > 0.85
+            else "Moderate similarity — some shared stylistic traits"
+            if similarity > 0.65
+            else "Low similarity — some overlapping features"
+            if similarity > 0.45
+            else "Minimal similarity — distinct stylistic profiles"
         ),
         "work_a": {"period": report_a.period.label, "school": report_a.school.label},
         "work_b": {"period": report_b.period.label, "school": report_b.school.label},

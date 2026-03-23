@@ -195,7 +195,7 @@ def create_app() -> gr.Blocks:
                     "School", report_a.school, report_b.school,
                 )
                 + _axis_row(
-                    "Technique",
+                    "Genre",
                     report_a.technique,
                     report_b.technique,
                 )

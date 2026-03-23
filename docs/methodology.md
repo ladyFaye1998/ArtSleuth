@@ -64,7 +64,7 @@ Patch embeddings from DINOv2 are clustered (k-means) to reveal regions of stylis
 
 ### 4. Style Classification
 
-The full image is encoded via CLIP, and the resulting embedding is projected through three independent linear heads (period, school, technique). The heads are trained on labelled art-historical corpora and produce calibrated probability distributions over the respective taxonomies.
+The full image is encoded via CLIP, and the resulting embedding is projected through three independent linear heads (period, school, genre). The heads are trained on labelled art-historical corpora and produce calibrated probability distributions over the respective taxonomies.
 
 ### 5. Attribution
 

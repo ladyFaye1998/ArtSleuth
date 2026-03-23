@@ -83,7 +83,7 @@ def load_backbone(
         Backbone architecture to load.
     size:
         Model-size variant (small / base / large).  Defaults to
-        ``BackboneSize.SMALL`` for backward compatibility.
+        ``BackboneSize.BASE`` to match shipped pretrained weights.
     device:
         PyTorch device string.
     cache_dir:

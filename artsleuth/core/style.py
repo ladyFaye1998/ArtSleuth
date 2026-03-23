@@ -1,8 +1,8 @@
 """
-Style classification — period, school, and technique.
+Style classification — period, school, and genre.
 
 Three axes: *period* (Renaissance, Baroque, …), *school* (Venetian,
-Flemish, …), and *technique* (oil on canvas, tempera on panel, …).
+Flemish, …), and *genre* (portrait, landscape, …).
 
 These labels are culturally constructed — "Baroque" isn't a pixel value,
 it's a consensus built over 400 years of art-historical writing.  CLIP
@@ -130,7 +130,7 @@ class StyleReport:
     school:
         Art-historical school prediction.
     technique:
-        Material technique prediction.
+        Subject genre prediction (portrait, landscape, etc.).
     embedding:
         The raw CLIP embedding vector, useful for downstream similarity
         searches across a corpus.
@@ -146,7 +146,7 @@ class StyleReport:
 
 
 class StyleClassifier:
-    """Classifies artworks by period, school, and technique.
+    """Classifies artworks by period, school, and genre.
 
     The classifier uses CLIP as its feature backbone and applies three
     independent linear projection heads — one per style axis.  These

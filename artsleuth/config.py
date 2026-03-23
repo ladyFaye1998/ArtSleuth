@@ -28,9 +28,9 @@ class BackboneSize(str, Enum):
     """Model-size variant for each backbone family.
 
     Larger variants produce richer features at the cost of inference
-    speed and memory.  ViT-S and ViT-B/32 are the defaults for rapid
-    prototyping; ViT-B/14 and ViT-L/14 are recommended for
-    publication-grade results.
+    speed and memory.  ViT-B/14 and ViT-L/14 are the defaults, matching
+    shipped pretrained weights.  ViT-S/14 and ViT-B/32 (``small``) trade
+    accuracy for speed.
     """
 
     SMALL = "small"
@@ -115,12 +115,6 @@ class AnalysisConfig(BaseModel):
             "backbone encoding. Experimental — not used in published benchmarks."
         ),
     )
-    num_workers: int = Field(
-        default=4,
-        ge=0,
-        description="Dataloader worker count for batch operations.",
-    )
-
     # --- Novel module settings -----------------------------------------------
 
     backbone_size: BackboneSize = Field(
@@ -133,17 +127,13 @@ class AnalysisConfig(BaseModel):
             "≥24 GB VRAM)."
         ),
     )
-    use_fusion: bool = Field(
+    enable_temporal: bool = Field(
         default=False,
         description=(
-            "Use cross-attention backbone fusion instead of concatenation. "
-            "Only effective during training; the default inference pipeline "
-            "uses feature concatenation regardless of this setting."
+            "Attempt temporal style drift estimation (requires a populated "
+            "TemporalRegistry; no bundled data is shipped, so this has no "
+            "effect out of the box)."
         ),
-    )
-    enable_temporal: bool = Field(
-        default=True,
-        description="Enable temporal style drift adjustment in attribution.",
     )
     enable_workshop: bool = Field(
         default=True,

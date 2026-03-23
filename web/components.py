@@ -145,7 +145,7 @@ def format_style_report(style_report: StyleReport) -> str:
     axes = [
         ("Period", style_report.period, _NAVY),
         ("School", style_report.school, _BLUE),
-        ("Technique", style_report.technique, _ROSE),
+        ("Genre", style_report.technique, _ROSE),
     ]
 
     parts: list[str] = []

@@ -52,11 +52,10 @@ class CandidateAttribution:
     score:
         Probability estimate (0–1) that the query painting is by this hand.
     confidence_interval:
-        95 % credible interval around the score, reflecting epistemic
-        uncertainty in limited reference corpora.
+        95 % confidence interval (normal approximation) around the score,
+        reflecting epistemic uncertainty in limited reference corpora.
     supporting_features:
-        Human-readable list of the features most responsible for this
-        attribution (e.g. "brushstroke coherence", "palette warmth").
+        Human-readable list of qualitative feature-correspondence descriptions.
     """
 
     artist: str
@@ -103,8 +102,7 @@ class AttributionAnalyzer:
        of known-attribution works using cosine similarity.
     3. Similarities are calibrated into probability estimates via
        temperature-scaled softmax.
-    4. Confidence intervals are derived using a non-parametric bootstrap
-       over patch-level embeddings.
+    4. Confidence intervals are derived via normal approximation.
 
     Parameters
     ----------

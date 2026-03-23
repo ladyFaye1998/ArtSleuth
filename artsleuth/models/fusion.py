@@ -167,7 +167,7 @@ class DualBackboneFusion(nn.Module):
         device: str = "cpu",
         cache_dir: Path | None = None,
         *,
-        backbone_size: str = "small",
+        backbone_size: str = "base",
         residual: bool = True,
     ) -> None:
         super().__init__()

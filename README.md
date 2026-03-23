@@ -43,7 +43,7 @@ Brushstroke directionality, impasto relief, palette temperature, the habitual ge
 | ![Workshop](https://img.shields.io/badge/-Workshop_Decomposition-1A2E48?style=flat-square) | Bayesian inference of distinct hands in collaborative paintings | Dirichlet process Gaussian mixture model |
 | ![Forgery](https://img.shields.io/badge/-Anomaly_Screening-1A2E48?style=flat-square) | One-class anomaly scoring with adversarial robustness testing | Mahalanobis distance plus historical forgery simulation |
 | ![Fusion](https://img.shields.io/badge/-Dual--Backbone_Fusion-1A2E48?style=flat-square) | Complementary features from two vision transformers | Concatenation at inference; cross-attention available for training |
-| ![Temporal](https://img.shields.io/badge/-Temporal_Drift-1A2E48?style=flat-square) | Models how an artist's style evolves over decades | Gaussian process regression in embedding space |
+| ![Temporal](https://img.shields.io/badge/-Temporal_Drift-1A2E48?style=flat-square) | Models how an artist's style evolves over decades | Gaussian process regression in embedding space (requires user-supplied dated references) |
 | ![Explainability](https://img.shields.io/badge/-Explainability-1A2E48?style=flat-square) | Visual heatmaps highlighting regions the model considers salient | Gradient-based saliency maps |
 
 </div>
@@ -60,7 +60,7 @@ ArtSleuth combines several techniques that are typically studied in isolation:
 
 1. **Style-Guided Cross-Attention Fusion** — CLIP's semantic understanding directs DINOv2's patch-level attention via multi-head cross-attention with learned temperature, producing fused features neither backbone achieves alone.
 
-2. **Temporal Style Drift Modelling** — Gaussian process regression over time-stamped reference embeddings captures how an artist's hand evolves across decades, adjusting attribution scores for temporal plausibility.
+2. **Temporal Style Drift Modelling** — Gaussian process regression over time-stamped reference embeddings captures how an artist's hand evolves across decades, reporting temporal plausibility as a separate signal. Requires user-supplied dated references; no bundled data is shipped.
 
 3. **Hierarchical Workshop Decomposition** — A Dirichlet process Gaussian mixture model automatically infers the number of distinct hands in a painting, replacing flat k-means with art-historically grounded probabilistic clustering.
 
@@ -118,6 +118,7 @@ artsleuth demo
 %%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1A2E48', 'primaryTextColor': '#F0F0F0', 'primaryBorderColor': '#9DC0D8', 'lineColor': '#9DC0D8', 'secondaryColor': '#1A2E48', 'tertiaryColor': '#1A2E48', 'edgeLabelBackground': '#0D1117', 'clusterBkg': '#0D1117', 'clusterBorder': '#9DC0D8', 'titleColor': '#9DC0D8'}}}%%
 
 graph TD
+    %% Temporal drift is optional (off by default; needs user TemporalRegistry data)
     Input["Artwork Image"] --> Resize["Resize · Crop · Normalise"]
 
     Resize --> Patches["Patch Extraction"]
@@ -134,7 +135,7 @@ graph TD
     CLIPEnc --> Concat
 
     Concat --> Attribution["Attribution Scoring"]
-    Attribution --> Temporal["Temporal Drift Model"]
+    Attribution -.->|optional| Temporal["Temporal Drift Model"]
 
     Concat --> Forgery["Forgery Detection"]
     Concat --> Adversarial["Adversarial Robustness"]
@@ -143,7 +144,7 @@ graph TD
 
     Forgery --> Report["Analysis Report"]
     Attribution --> Report
-    Temporal --> Report
+    Temporal -.-> Report
     Style --> Report
     Brushstroke --> Report
     WorkshopNode --> Report

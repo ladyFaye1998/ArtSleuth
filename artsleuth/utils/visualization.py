@@ -94,7 +94,7 @@ def plot_style_distribution(
     axis_data = [
         ("Period", style_report.period),
         ("School", style_report.school),
-        ("Technique", style_report.technique),
+        ("Genre", style_report.technique),
     ]
 
     for ax, color, (title, pred) in zip(axes, colors, axis_data):

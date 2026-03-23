@@ -76,12 +76,16 @@ class ForgeryReport:
         to the anomaly score.
     reference_artist:
         The artist against whose corpus the query was screened.
+    screening_status:
+        ``"not_configured"`` when no reference corpus exists for the artist;
+        ``"completed"`` when screening ran against fitted reference statistics.
     """
 
     anomaly_score: float = 0.0
     is_flagged: bool = False
     indicators: list[AnomalyIndicator] = field(default_factory=list)
     reference_artist: str = "Unknown"
+    screening_status: str = "not_configured"
 
 
 # --- Detector ---------------------------------------------------------------
@@ -153,6 +157,7 @@ class ForgeryDetector:
                     )
                 ],
                 reference_artist=reference_artist,
+                screening_status="not_configured",
             )
 
         anomaly_score, indicators = self._compute_anomaly(features, stats)
@@ -162,6 +167,7 @@ class ForgeryDetector:
             is_flagged=anomaly_score > self._config.confidence_threshold,
             indicators=indicators,
             reference_artist=reference_artist,
+            screening_status="completed",
         )
 
     def fit_reference(self, artist: str, feature_vectors: np.ndarray) -> None:

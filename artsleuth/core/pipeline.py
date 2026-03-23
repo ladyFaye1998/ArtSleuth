@@ -36,7 +36,7 @@ class AnalysisResult:
     image_path:
         Path to the analysed image file.
     style:
-        Style classification (period, school, technique).
+        Style classification (period, school, genre).
     brushstrokes:
         Brushstroke pattern analysis.
     attribution:
@@ -83,7 +83,7 @@ class AnalysisResult:
             f"{'─' * 50}",
             f"  Period     : {self.style.period.label} ({self.style.period.confidence:.0%})",
             f"  School     : {self.style.school.label} ({self.style.school.confidence:.0%})",
-            f"  Technique  : {self.style.technique.label} ({self.style.technique.confidence:.0%})",
+            f"  Genre      : {self.style.technique.label} ({self.style.technique.confidence:.0%})",
             f"  Attribution: {self.attribution.consensus_artist} "
             f"({self.attribution.consensus_confidence:.0%})",
         ]
@@ -99,9 +99,15 @@ class AnalysisResult:
                 f"({self.temporal.confidence_band[0]:.0f}"
                 f"–{self.temporal.confidence_band[1]:.0f})."
             )
-        if self.forgery and self.forgery.is_flagged:
+        if self.forgery and self.forgery.screening_status == "not_configured":
             lines.append(
-                f"  ⚑ Anomaly flag raised (score {self.forgery.anomaly_score:.2f}) — "
+                "  ⚑ Forgery screening not configured "
+                f"(no reference corpus for '{self.forgery.reference_artist}')."
+            )
+        elif self.forgery and self.forgery.is_flagged:
+            lines.append(
+                f"  ⚑ Anomaly flag raised (score {self.forgery.anomaly_score:.2f}; "
+                f"screening {self.forgery.screening_status}) — "
                 "further technical examination recommended."
             )
         return "\n".join(lines)

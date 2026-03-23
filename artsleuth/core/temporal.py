@@ -9,8 +9,8 @@ distort attribution scores.
 This module fits a Gaussian process over time-stamped reference
 embeddings for each artist, modelling the expected trajectory of their
 style through embedding space.  Given a query painting, it estimates
-the most likely date of execution and adjusts attribution confidence
-based on temporal plausibility.
+the most likely date of execution and reports temporal plausibility as a
+separate signal (it does not modify attribution scores directly).
 
 References
 ----------

@@ -16,6 +16,7 @@ class TestForgeryReport:
         assert report.anomaly_score == 0.0
         assert report.is_flagged is False
         assert report.reference_artist == "Unknown"
+        assert report.screening_status == "not_configured"
 
     def test_flagged_report(self) -> None:
         report = ForgeryReport(anomaly_score=0.95, is_flagged=True)
@@ -36,6 +37,7 @@ class TestForgeryDetector:
         report = detector.detect(img, reference_artist="Vermeer")
 
         assert not report.is_flagged
+        assert report.screening_status == "not_configured"
         assert len(report.indicators) > 0
 
     def test_fit_and_detect_inlier(self) -> None:
@@ -62,6 +64,7 @@ class TestForgeryDetector:
             report = detector.detect(img, reference_artist="Test Artist")
 
         assert report.anomaly_score < 0.5
+        assert report.screening_status == "completed"
 
     def test_fit_and_detect_outlier(self) -> None:
         config = AnalysisConfig(device="cpu")
@@ -86,3 +89,4 @@ class TestForgeryDetector:
             report = detector.detect(img, reference_artist="Test Artist")
 
         assert report.anomaly_score > 0.5
+        assert report.screening_status == "completed"
