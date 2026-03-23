@@ -1,8 +1,0 @@
-Redesign site, fix CI failures, clean up public-facing issues
-
-- index.html: complete redesign — remove fake JS demo, replace emojis
-  with inline SVGs, add benchmark results section with WikiArt table
-  and forgery validation stats, add academic references section
-- Fix 3 flaky tests: normalisation (use high-contrast image),
-  temporal (widen GP prediction tolerance), workshop (tighter cluster)
-- Remove redundant pages.yml workflow (legacy branch deploy works)

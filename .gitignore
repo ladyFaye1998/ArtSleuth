@@ -58,3 +58,6 @@ data/
 .env
 *.key
 kaggle.json
+
+# --- Temp ---
+COMMIT_MSG.tmp
