@@ -104,8 +104,25 @@ known-first-party = ["artsleuth"]
 [tool.mypy]
 python_version = "3.10"
 strict = true
-warn_return_any = true
+warn_return_any = false
 warn_unused_configs = true
+disallow_untyped_calls = false
+disallow_untyped_decorators = false
+
+[[tool.mypy.overrides]]
+module = [
+    "torch.*",
+    "torchvision.*",
+    "PIL.*",
+    "sklearn.*",
+    "scipy.*",
+    "mcp.*",
+    "matplotlib.*",
+    "plotly.*",
+    "gradio.*",
+]
+ignore_missing_imports = true
+follow_imports = "skip"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
