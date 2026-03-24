@@ -649,4 +649,4 @@ def _benchmark_methodology() -> str:
 
 if __name__ == "__main__":
     app = create_app()
-    app.launch()
+    app.launch(show_error=True)
