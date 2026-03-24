@@ -193,11 +193,19 @@ class _CLIPHFWrapper(nn.Module):
     def encode_text(
         self, input_ids: torch.Tensor, attention_mask: torch.Tensor | None = None,
     ) -> torch.Tensor:
-        """Return L2-normalised text embeddings via the CLIP text encoder."""
-        feats = self.clip_model.get_text_features(
+        """Return L2-normalised text embeddings via the CLIP text encoder.
+
+        Manually runs text_model + text_projection to avoid
+        inconsistencies with ``get_text_features`` across transformers
+        versions.
+        """
+        text_out = self.clip_model.text_model(
             input_ids=input_ids, attention_mask=attention_mask,
         )
-        return feats / (feats.norm(dim=-1, keepdim=True) + 1e-12)
+        pooled = text_out[1] if not isinstance(text_out, torch.Tensor) else text_out
+        projected = self.clip_model.text_projection(pooled)
+        projected = projected.float()
+        return projected / (projected.norm(dim=-1, keepdim=True) + 1e-12)
 
 
 # --- Loader implementations ------------------------------------------------
