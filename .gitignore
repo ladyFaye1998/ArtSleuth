@@ -59,5 +59,10 @@ data/
 *.key
 kaggle.json
 
+# --- Generated Videos (frames kept, source videos excluded) ---
+assets/videos/
+generate_videos.py
+
 # --- Temp ---
 COMMIT_MSG.tmp
+test_art.png

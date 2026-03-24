@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import logging
+from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -35,7 +36,7 @@ def create_server() -> Any:
     """
     try:
         from mcp.server import Server
-        from mcp.types import TextContent, Tool
+        from mcp.types import Tool, TextContent
     except ImportError as exc:
         raise ImportError(
             "The MCP server requires the 'mcp' package. "

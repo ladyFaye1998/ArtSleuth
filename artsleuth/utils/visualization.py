@@ -67,7 +67,7 @@ def save_heatmap_overlay(
 
 
 def plot_style_distribution(
-    style_report: StyleReport,
+    style_report: "StyleReport",
     path: str | Path,
     *,
     dpi: int = 300,
@@ -97,7 +97,7 @@ def plot_style_distribution(
         ("Genre", style_report.technique),
     ]
 
-    for ax, color, (title, pred) in zip(axes, colors, axis_data, strict=False):
+    for ax, color, (title, pred) in zip(axes, colors, axis_data):
         labels = [label for label, _ in pred.top_k]
         scores = [score for _, score in pred.top_k]
 
@@ -115,8 +115,8 @@ def plot_style_distribution(
 
 
 def plot_brushstroke_map(
-    report: BrushstrokeReport,
-    original_image: Image,
+    report: "BrushstrokeReport",
+    original_image: "Image",
     path: str | Path,
     *,
     dpi: int = 300,
@@ -137,8 +137,8 @@ def plot_brushstroke_map(
     import matplotlib
 
     matplotlib.use("Agg")
-    import matplotlib.patches as mpatches
     import matplotlib.pyplot as plt
+    import matplotlib.patches as mpatches
 
     fig, ax = plt.subplots(figsize=(12, 8), facecolor=PALETTE["background"])
     ax.imshow(np.array(original_image))
@@ -146,7 +146,7 @@ def plot_brushstroke_map(
     cluster_colors = ["#D4899A", "#9DC0D8", "#d4af37", "#7c2d12"]
 
     if report.cluster_labels is not None:
-        for desc, label in zip(report.descriptors, report.cluster_labels, strict=False):
+        for desc, label in zip(report.descriptors, report.cluster_labels):
             x, y, w, h = desc.bbox
             color = cluster_colors[int(label) % len(cluster_colors)]
             rect = mpatches.Rectangle(
@@ -166,7 +166,7 @@ def plot_brushstroke_map(
 
 
 def render_analysis_summary(
-    result: AnalysisResult,
+    result: "AnalysisResult",
     path: str | Path,
     *,
     dpi: int = 300,

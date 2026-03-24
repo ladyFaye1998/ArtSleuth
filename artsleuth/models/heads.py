@@ -262,7 +262,7 @@ def _try_load_pretrained_heads(
     loaded: set[str] = set()
 
     for axis_name in ("period", "technique"):
-        heads[axis_name]
+        head = heads[axis_name]
         local_name = _LOCAL_HEAD_FILES.get(axis_name)
         local_path = _PACKAGE_WEIGHTS_DIR / local_name if local_name else None
 

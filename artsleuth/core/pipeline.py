@@ -47,15 +47,15 @@ class AnalysisResult:
     """
 
     image_path: str
-    style: StyleReport
-    brushstrokes: BrushstrokeReport
-    attribution: AttributionReport
-    forgery: ForgeryReport | None = None
-    workshop: WorkshopReport | None = None
-    temporal: TemporalPrediction | None = None
+    style: "StyleReport"
+    brushstrokes: "BrushstrokeReport"
+    attribution: "AttributionReport"
+    forgery: "ForgeryReport | None" = None
+    workshop: "WorkshopReport | None" = None
+    temporal: "TemporalPrediction | None" = None
     warnings: list[str] = field(default_factory=list)
 
-    def explain(self, target: str = "attribution") -> ExplanationMap:
+    def explain(self, target: str = "attribution") -> "ExplanationMap":
         """Generate an interpretable visual overlay for the analysis.
 
         Parameters
@@ -116,7 +116,7 @@ class AnalysisResult:
 def run_pipeline(
     image_path: str,
     *,
-    config: AnalysisConfig,
+    config: "AnalysisConfig",
     reference_artist: str | None = None,
 ) -> AnalysisResult:
     """Execute the full analysis pipeline.
@@ -161,9 +161,9 @@ def run_pipeline(
     workshop_report = None
     if config.enable_workshop and brushstroke_report.descriptors:
         try:
-            import numpy as np
-
             from artsleuth.core.workshop import WorkshopDecomposition
+
+            import numpy as np
 
             decomposer = WorkshopDecomposition(
                 max_hands=config.workshop_max_hands,

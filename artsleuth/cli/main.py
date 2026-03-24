@@ -348,7 +348,7 @@ def server(transport: str) -> None:
 # --- Helpers ----------------------------------------------------------------
 
 
-def _render_result(result: object) -> None:
+def _render_result(result: "object") -> None:
     """Pretty-print an AnalysisResult to the console."""
     from artsleuth.core.pipeline import AnalysisResult
 

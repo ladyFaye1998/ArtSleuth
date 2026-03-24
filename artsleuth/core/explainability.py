@@ -23,6 +23,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
+import torch
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -58,7 +59,7 @@ class ExplanationMap:
     target_label: str
     composite: np.ndarray | None = None
 
-    def save(self, path: str | Path, dpi: int = 300) -> None:
+    def save(self, path: "str | Path", dpi: int = 300) -> None:
         """Save the composite overlay to disk.
 
         Parameters
@@ -94,7 +95,7 @@ class ExplainabilityEngine:
 
     def gradcam(
         self,
-        image: Image.Image,
+        image: "Image.Image",
         target_label: str = "attribution",
     ) -> ExplanationMap:
         """Produce a gradient-based saliency map for the given image.
@@ -158,7 +159,7 @@ class ExplainabilityEngine:
 
     def attention_rollout(
         self,
-        image: Image.Image,
+        image: "Image.Image",
         target_label: str = "style",
     ) -> ExplanationMap:
         """Produce an attention-rollout map.
@@ -198,7 +199,7 @@ class ExplainabilityEngine:
 
     @staticmethod
     def _blend_heatmap(
-        image: Image.Image,
+        image: "Image.Image",
         heatmap: np.ndarray,
         alpha: float = 0.5,
     ) -> np.ndarray:

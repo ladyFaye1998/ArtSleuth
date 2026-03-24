@@ -40,10 +40,10 @@ _IMAGENET_STD = (0.229, 0.224, 0.225)
 
 
 def extract_patches(
-    image: Image.Image,
+    image: "Image.Image",
     *,
     patch_size: int = 224,
-    strategy: PatchStrategy = "adaptive",
+    strategy: "PatchStrategy" = "adaptive",
     max_resolution: int = 2048,
     overlap: float = 0.25,
 ) -> tuple[list[torch.Tensor], list[tuple[int, int, int, int]]]:
@@ -87,7 +87,7 @@ def extract_patches(
 
 
 def _grid_patches(
-    image: Image.Image,
+    image: "Image.Image",
     patch_size: int,
     overlap: float,
 ) -> tuple[list[torch.Tensor], list[tuple[int, int, int, int]]]:
@@ -115,7 +115,7 @@ def _grid_patches(
 
 
 def _salient_patches(
-    image: Image.Image,
+    image: "Image.Image",
     patch_size: int,
     max_patches: int = 64,
 ) -> tuple[list[torch.Tensor], list[tuple[int, int, int, int]]]:
@@ -155,7 +155,7 @@ def _salient_patches(
 
 
 def _adaptive_patches(
-    image: Image.Image,
+    image: "Image.Image",
     patch_size: int,
     overlap: float,
     salient_boost: int = 16,
@@ -168,7 +168,7 @@ def _adaptive_patches(
 
     # De-duplicate patches that overlap significantly with grid patches
     existing = set(grid_bboxes)
-    for patch, bbox in zip(salient_patches_list, salient_bboxes, strict=False):
+    for patch, bbox in zip(salient_patches_list, salient_bboxes):
         if bbox not in existing:
             grid_patches.append(patch)
             grid_bboxes.append(bbox)

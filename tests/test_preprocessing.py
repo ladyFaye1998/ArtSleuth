@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
+import torch
 from PIL import Image
 
 from artsleuth.config import BackboneType
@@ -77,7 +78,7 @@ class TestPatchExtraction:
         rng = np.random.RandomState(42)
         arr = rng.randint(0, 255, (256, 256, 3), dtype=np.uint8)
         img = Image.fromarray(arr)
-        patches, _bboxes = extract_patches(
+        patches, bboxes = extract_patches(
             img, patch_size=64, strategy="salient", max_resolution=256
         )
         assert len(patches) > 0

@@ -36,16 +36,16 @@ from artsleuth.models.fusion import DualBackboneFusion, StyleGuidedAttention
 
 __all__ = [
     "AnalysisConfig",
-    "AttributionAnalyzer",
     "BrushstrokeAnalyzer",
-    "DualBackboneFusion",
-    "ExplainabilityEngine",
-    "ForgeryDetector",
     "StyleClassifier",
-    "StyleGuidedAttention",
-    "TemporalRegistry",
+    "AttributionAnalyzer",
+    "ForgeryDetector",
+    "ExplainabilityEngine",
     "TemporalStyleModel",
+    "TemporalRegistry",
     "WorkshopDecomposition",
+    "DualBackboneFusion",
+    "StyleGuidedAttention",
     "analyze",
 ]
 
@@ -54,7 +54,7 @@ def analyze(
     image_path: str,
     *,
     config: AnalysisConfig | None = None,
-) -> AnalysisResult:
+) -> "AnalysisResult":
     """Run the full ArtSleuth analysis pipeline on a single artwork.
 
     This is the primary entry point for casual usage. For fine-grained
