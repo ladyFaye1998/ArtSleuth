@@ -66,9 +66,9 @@ _BACKBONE_CACHE: dict[str, nn.Module] = {}
 
 
 def load_backbone(
-    backbone_type: "BackboneType",
+    backbone_type: BackboneType,
     *,
-    size: "BackboneSize | None" = None,
+    size: BackboneSize | None = None,
     device: str = "cpu",
     cache_dir: Path | None = None,
 ) -> nn.Module:
@@ -117,8 +117,8 @@ def load_backbone(
 
 
 def embedding_dim(
-    backbone_type: "BackboneType",
-    size: "BackboneSize | None" = None,
+    backbone_type: BackboneType,
+    size: BackboneSize | None = None,
 ) -> int:
     """Return the output embedding dimensionality for a backbone."""
     from artsleuth.config import BackboneSize, BackboneType
