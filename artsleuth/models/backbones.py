@@ -66,9 +66,9 @@ _BACKBONE_CACHE: dict[str, nn.Module] = {}
 
 
 def load_backbone(
-    backbone_type: BackboneType,
+    backbone_type: "BackboneType",
     *,
-    size: BackboneSize | None = None,
+    size: "BackboneSize | None" = None,
     device: str = "cpu",
     cache_dir: Path | None = None,
 ) -> nn.Module:
@@ -117,8 +117,8 @@ def load_backbone(
 
 
 def embedding_dim(
-    backbone_type: BackboneType,
-    size: BackboneSize | None = None,
+    backbone_type: "BackboneType",
+    size: "BackboneSize | None" = None,
 ) -> int:
     """Return the output embedding dimensionality for a backbone."""
     from artsleuth.config import BackboneSize, BackboneType
@@ -138,7 +138,11 @@ def embedding_dim(
 
 
 class _DINOv2Wrapper(nn.Module):
-    """Wraps the DINOv2 model to return CLS-token embeddings."""
+    """Wraps DINOv2 to return CLS-token embeddings as a plain tensor.
+
+    Handles both torch.hub (returns dict or tensor) and HuggingFace
+    transformers (returns BaseModelOutputWithPooling) output formats.
+    """
 
     def __init__(self, model: nn.Module) -> None:
         super().__init__()
@@ -146,16 +150,22 @@ class _DINOv2Wrapper(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         features = self.model(x)
+        if hasattr(features, "last_hidden_state"):
+            return features.last_hidden_state[:, 0, :]
         if isinstance(features, dict):
-            return features.get(
-                "x_norm_clstoken",
-                features.get("cls_token", features),
-            )
-        return features
+            tok = features.get("x_norm_clstoken")
+            if tok is not None:
+                return tok
+            tok = features.get("cls_token")
+            if tok is not None:
+                return tok
+        if isinstance(features, torch.Tensor):
+            return features
+        return features.last_hidden_state[:, 0, :]
 
 
 class _CLIPVisualWrapper(nn.Module):
-    """Wraps the CLIP visual encoder to match the expected interface."""
+    """Wraps the OpenAI ``clip`` package model to return image features."""
 
     def __init__(self, model: nn.Module) -> None:
         super().__init__()
@@ -163,6 +173,22 @@ class _CLIPVisualWrapper(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model.encode_image(x).float()
+
+
+class _CLIPHFWrapper(nn.Module):
+    """Wraps a HuggingFace ``CLIPModel`` to return projected image features.
+
+    Uses ``get_image_features`` which applies both the vision encoder and
+    the visual projection, matching the output space of OpenAI's
+    ``encode_image``.
+    """
+
+    def __init__(self, model: nn.Module) -> None:
+        super().__init__()
+        self.model = model
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.model.get_image_features(pixel_values=x).float()
 
 
 # --- Loader implementations ------------------------------------------------
@@ -207,10 +233,10 @@ def _load_clip(
         wrapper = _CLIPVisualWrapper(model)
         wrapper.eval()
         return wrapper
-    except ImportError:
+    except Exception:
         hf_name = _CLIP_HF_FALLBACK[size_key]
         logger.info(
-            "openai-clip not installed; using HuggingFace (%s).", hf_name,
+            "openai-clip unavailable; using HuggingFace (%s).", hf_name,
         )
         from transformers import CLIPModel
 
@@ -218,6 +244,6 @@ def _load_clip(
             hf_name,
             cache_dir=str(cache_dir) if cache_dir else None,
         )
-        model = model.vision_model
-        model.eval()
-        return model.to(device)
+        wrapper = _CLIPHFWrapper(model)
+        wrapper.eval()
+        return wrapper.to(device)
