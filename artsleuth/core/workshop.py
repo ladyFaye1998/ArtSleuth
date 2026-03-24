@@ -189,6 +189,8 @@ class WorkshopDecomposition:
             probabilities, spatial hand map, and diagnostics.
         """
         from sklearn.mixture import BayesianGaussianMixture
+        from sklearn.decomposition import PCA
+        from sklearn.preprocessing import StandardScaler
 
         n_patches = embeddings.shape[0]
 
@@ -198,17 +200,41 @@ class WorkshopDecomposition:
                 coherences=coherences, energies=energies,
             )
 
+        # Reduce dimensionality: full covariance on raw 768-d embeddings
+        # is ill-conditioned when n_patches << n_features.
+        n_features = embeddings.shape[1]
+        n_pca = min(n_patches - 1, 32, n_features)
+        if n_pca < n_features:
+            reduced = PCA(n_components=n_pca, random_state=self._random_state).fit_transform(embeddings)
+        else:
+            reduced = embeddings.copy()
+        reduced = StandardScaler().fit_transform(reduced)
+
+        n_comp = min(self._max_hands, n_patches)
         model = BayesianGaussianMixture(
-            n_components=min(self._max_hands, n_patches),
+            n_components=n_comp,
             covariance_type="full",
             weight_concentration_prior_type="dirichlet_process",
+            reg_covar=1e-2,
             random_state=self._random_state,
             max_iter=300,
         )
-        model.fit(embeddings)
+        try:
+            model.fit(reduced)
+        except ValueError:
+            # Last-resort fallback: diagonal covariance
+            model = BayesianGaussianMixture(
+                n_components=n_comp,
+                covariance_type="diag",
+                weight_concentration_prior_type="dirichlet_process",
+                reg_covar=1e-1,
+                random_state=self._random_state,
+                max_iter=300,
+            )
+            model.fit(reduced)
 
-        raw_labels = model.predict(embeddings)
-        raw_probs = model.predict_proba(embeddings)
+        raw_labels = model.predict(reduced)
+        raw_probs = model.predict_proba(reduced)
 
         # --- Prune negligible components ------------------------------------
         unique_labels, counts = np.unique(raw_labels, return_counts=True)
@@ -295,7 +321,7 @@ class WorkshopDecomposition:
         if bboxes:
             hand_map = self._build_hand_map(patch_labels, bboxes, image_size)
 
-        bic_score = self._compute_bic(model, embeddings)
+        bic_score = self._compute_bic(model, reduced)
 
         is_workshop = num_hands > 1 and all(
             a.confidence > self._min_hand_fraction for a in assignments
