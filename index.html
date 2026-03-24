@@ -529,6 +529,7 @@ body {
   color: var(--gold-d); text-decoration: none;
   border-bottom: 1px dotted rgba(201,168,76,.3);
 }
+.s-footer { flex-direction: column; align-items: center; justify-content: center; }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
@@ -598,8 +599,8 @@ body {
     <li><a href="#" data-target="0.25">Capabilities</a></li>
     <li><a href="#" data-target="0.42">Methodology</a></li>
     <li><a href="#" data-target="0.68">Results</a></li>
-    <li><a href="#" data-target="0.80">Install</a></li>
-    <li><a href="#" data-target="0.90">References</a></li>
+    <li><a href="#" data-target="0.78">Install</a></li>
+    <li><a href="#" data-target="0.87">References</a></li>
   </ul>
 </nav>
 
@@ -773,7 +774,7 @@ body {
     </div>
 
     <!-- Scene 5: Install -->
-    <div class="scene s-install" id="sc-install" data-enter="0.80" data-exit="0.90">
+    <div class="scene s-install" id="sc-install" data-enter="0.78" data-exit="0.87">
       <div class="install-col" data-from="left">
         <h3>Command Line</h3>
         <div class="code-block">
@@ -796,23 +797,32 @@ body {
       </div>
     </div>
 
-    <!-- Scene 6: References + Close -->
-    <div class="scene s-refs" id="sc-refs" data-enter="0.90" data-exit="1.0" data-from="center">
+    <!-- Scene 6: References -->
+    <div class="scene s-refs" id="sc-refs" data-enter="0.87" data-exit="0.95" data-from="center">
       <div class="refs-panel">
         <h2>References</h2>
         <ol>
-          <li>Morelli, G. (1890). <em>Italian Painters</em>. John Murray.</li>
+          <li>Morelli, G. (1890). <em>Italian Painters: Critical Studies of Their Works</em>. John Murray.</li>
           <li>Berenson, B. (1902). <em>The Study and Criticism of Italian Art</em>. George Bell &amp; Sons.</li>
-          <li>Lyu, S., Rockmore, D. &amp; Farid, H. (2004). A digital technique for art authentication. <em>PNAS</em>. <a href="https://doi.org/10.1073/pnas.0406398101" target="_blank" rel="noopener">doi</a></li>
-          <li>Saleh, B. &amp; Elgammal, A. (2016). Large-scale classification of fine-art paintings. <em>JOCCH</em>. <a href="https://doi.org/10.1145/2801634" target="_blank" rel="noopener">doi</a></li>
+          <li>Ainsworth, M. W. (2005). From Connoisseurship to Technical Art History. <em>Getty Research Journal</em>, 159&ndash;176.</li>
+          <li>Lyu, S., Rockmore, D. &amp; Farid, H. (2004). A digital technique for art authentication. <em>PNAS</em>, 101(49). <a href="https://doi.org/10.1073/pnas.0406398101" target="_blank" rel="noopener">doi</a></li>
+          <li>Johnson, C. R. et al. (2008). Image processing for artist identification. <em>IEEE Signal Proc. Mag.</em>, 25(4). <a href="https://doi.org/10.1109/MSP.2008.923513" target="_blank" rel="noopener">doi</a></li>
+          <li>Saleh, B. &amp; Elgammal, A. (2016). Large-scale classification of fine-art paintings. <em>JOCCH</em>, 8(4). <a href="https://doi.org/10.1145/2801634" target="_blank" rel="noopener">doi</a></li>
           <li>Vaswani, A. et al. (2017). Attention is all you need. <em>NeurIPS</em>. <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">arXiv</a></li>
-          <li>Caron, M. et al. (2021). Emerging properties in self-supervised ViTs. <em>ICCV</em>. <a href="https://arxiv.org/abs/2104.14294" target="_blank" rel="noopener">arXiv</a></li>
-          <li>Radford, A. et al. (2021). Learning transferable visual models. <em>ICML</em>. <a href="https://arxiv.org/abs/2103.00020" target="_blank" rel="noopener">arXiv</a></li>
-          <li>Blei, D. M. &amp; Jordan, M. I. (2006). Variational inference for Dirichlet process mixtures. <em>Bayesian Analysis</em>. <a href="https://doi.org/10.1214/06-BA104" target="_blank" rel="noopener">doi</a></li>
+          <li>Caron, M. et al. (2021). Emerging properties in self-supervised vision transformers. <em>ICCV</em>. <a href="https://arxiv.org/abs/2104.14294" target="_blank" rel="noopener">arXiv</a></li>
+          <li>Radford, A. et al. (2021). Learning transferable visual models from natural language supervision. <em>ICML</em>. <a href="https://arxiv.org/abs/2103.00020" target="_blank" rel="noopener">arXiv</a></li>
+          <li>Blei, D. M. &amp; Jordan, M. I. (2006). Variational inference for Dirichlet process mixtures. <em>Bayesian Analysis</em>, 1(1). <a href="https://doi.org/10.1214/06-BA104" target="_blank" rel="noopener">doi</a></li>
           <li>Rasmussen, C. E. &amp; Williams, C. K. I. (2006). <em>Gaussian Processes for Machine Learning</em>. MIT Press.</li>
-          <li>Oquab, M. et al. (2024). DINOv2: Robust visual features without supervision. <em>TMLR</em>. <a href="https://arxiv.org/abs/2304.07193" target="_blank" rel="noopener">arXiv</a></li>
+          <li>Oquab, M. et al. (2024). DINOv2: Learning robust visual features without supervision. <em>TMLR</em>. <a href="https://arxiv.org/abs/2304.07193" target="_blank" rel="noopener">arXiv</a></li>
+          <li>Jose, J. et al. (2025). DINOv2 meets text. <em>CVPR</em>. <a href="https://arxiv.org/abs/2501.00564" target="_blank" rel="noopener">arXiv</a></li>
+          <li>Anonymous (2025). PATCH: heterogeneity of artistic practice in historical paintings. <a href="https://arxiv.org/abs/2502.01912" target="_blank" rel="noopener">arXiv</a></li>
+          <li>W&ouml;lfflin, H. (1915). <em>Principles of Art History</em>.</li>
         </ol>
       </div>
+    </div>
+
+    <!-- Scene 7: Footer -->
+    <div class="scene s-footer" id="sc-footer" data-enter="0.94" data-exit="1.0" data-from="center">
       <footer class="site-footer">
         <div class="footer-top">
           <svg width="30" height="30" viewBox="0 0 60 60" style="color:var(--gold)"><use href="#logo-icon"/></svg>
@@ -852,7 +862,7 @@ body {
           &copy; 2025 <a href="https://github.com/ladyFaye1998" target="_blank" rel="noopener">ladyFaye1998</a> &middot; Released under the <a href="https://github.com/ladyFaye1998/ArtSleuth/blob/main/LICENSE" target="_blank" rel="noopener">MIT Licence</a></p>
         </div>
       </footer>
-    </div>
+    </div><!-- /sc-footer -->
 
   </div>
 </div>
@@ -863,8 +873,9 @@ body {
   <div class="nav-dot" data-target="0.25"><span class="nav-label">Capabilities</span></div>
   <div class="nav-dot" data-target="0.42"><span class="nav-label">Methodology</span></div>
   <div class="nav-dot" data-target="0.68"><span class="nav-label">Results</span></div>
-  <div class="nav-dot" data-target="0.80"><span class="nav-label">Install</span></div>
-  <div class="nav-dot" data-target="0.90"><span class="nav-label">References</span></div>
+  <div class="nav-dot" data-target="0.78"><span class="nav-label">Install</span></div>
+  <div class="nav-dot" data-target="0.87"><span class="nav-label">References</span></div>
+  <div class="nav-dot" data-target="0.94"><span class="nav-label">Footer</span></div>
 </nav>
 
 <script>
@@ -948,7 +959,8 @@ body {
     /* Content scenes */
     scenes.forEach(function(sc){
       var en=parseFloat(sc.dataset.enter), ex=parseFloat(sc.dataset.exit);
-      var from=sc.dataset.from||'center', vis=bell(progress,en,ex);
+      var from=sc.dataset.from||'center';
+      var vis = (ex >= 1.0) ? ramp(progress, en, en + (ex-en)*.25) : bell(progress,en,ex);
       sc.style.opacity=vis;
       sc.classList.toggle('active',vis>.05);
       var off=(1-easeOut(Math.min(1,vis*3)))*100;
@@ -993,7 +1005,7 @@ body {
     } else { methBlocks.forEach(function(b){b.style.opacity=0;}); }
 
     /* Install */
-    var instVis=bell(progress,.80,.90);
+    var instVis=bell(progress,.78,.87);
     var instScene=document.getElementById('sc-install');
     instScene.style.opacity=instVis>.01?1:0;
     instScene.classList.toggle('active',instVis>.01);
@@ -1023,7 +1035,7 @@ body {
     if(dataVis<.1) statsAnimated=false;
 
     /* Nav dots */
-    var bounds=[0,.12,.25,.42,.68,.80,.90], ai=0;
+    var bounds=[0,.12,.25,.42,.68,.78,.87,.94], ai=0;
     for(var k=bounds.length-1;k>=0;k--){ if(progress>=bounds[k]-.02){ai=k;break;} }
     dots.forEach(function(d,i){ d.classList.toggle('active',i===ai); });
   }
