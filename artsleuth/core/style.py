@@ -145,13 +145,54 @@ class StyleReport:
 # --- Classifier -------------------------------------------------------------
 
 
-class StyleClassifier:
-    """Classifies artworks by period, school, and genre.
+_TEXT_EMB_CACHE: dict[str, torch.Tensor] = {}
+_TOKENIZER_CACHE: list = []
 
-    The classifier uses CLIP as its feature backbone and applies three
-    independent linear projection heads — one per style axis.  These
-    heads can be loaded from pre-trained weights on HuggingFace or
-    fine-tuned on a user-provided corpus.
+# Prompt templates tuned for CLIP's pre-training distribution
+_PERIOD_PROMPT = "a painting in the {} style"
+_SCHOOL_PROMPT = "a painting from the {} school of art"
+_GENRE_PROMPT = "a {} painting"
+_ARTIST_PROMPT = "a painting by {}"
+
+# Well-known artists for zero-shot estimation
+KNOWN_ARTISTS: list[str] = [
+    "Leonardo da Vinci", "Raphael", "Michelangelo", "Titian",
+    "Sandro Botticelli", "Giovanni Bellini", "Jan van Eyck",
+    "Albrecht Dürer", "Hieronymus Bosch", "Hans Holbein",
+    "El Greco", "Tintoretto", "Caravaggio", "Rembrandt",
+    "Vermeer", "Peter Paul Rubens", "Diego Velázquez",
+    "Artemisia Gentileschi", "Frans Hals",
+    "Jean-Antoine Watteau", "François Boucher",
+    "Francisco Goya", "Eugène Delacroix", "J.M.W. Turner",
+    "Caspar David Friedrich", "John Constable",
+    "Gustave Courbet", "Jean-François Millet", "Édouard Manet",
+    "Claude Monet", "Pierre-Auguste Renoir", "Edgar Degas",
+    "Camille Pissarro", "Alfred Sisley",
+    "Vincent van Gogh", "Paul Cézanne", "Paul Gauguin",
+    "Henri de Toulouse-Lautrec", "Georges Seurat",
+    "Gustav Klimt", "Alphonse Mucha",
+    "Henri Matisse", "André Derain",
+    "Pablo Picasso", "Georges Braque",
+    "Edvard Munch", "Ernst Ludwig Kirchner", "Egon Schiele",
+    "Wassily Kandinsky", "Piet Mondrian", "Paul Klee",
+    "Jackson Pollock", "Mark Rothko", "Willem de Kooning",
+    "Andy Warhol", "Roy Lichtenstein",
+    "Salvador Dalí", "René Magritte", "Max Ernst",
+    "Frida Kahlo", "Henri Rousseau", "Amedeo Modigliani",
+    "Katsushika Hokusai", "Utagawa Hiroshige",
+    "Edward Hopper", "Norman Rockwell", "Georgia O'Keeffe",
+    "Marc Chagall", "Joan Miró", "Francis Bacon",
+]
+
+
+class StyleClassifier:
+    """Classifies artworks by period, school, and genre using CLIP
+    zero-shot classification.
+
+    Compares the CLIP image embedding against text embeddings of
+    category descriptions (e.g. "a painting in the Baroque style").
+    No trained classification heads required — this leverages CLIP's
+    pre-trained vision-language alignment directly.
 
     Parameters
     ----------
@@ -163,7 +204,6 @@ class StyleClassifier:
         self._config = config
         self._device = config.resolve_device()
         self._backbone: torch.nn.Module | None = None
-        self._heads: dict[str, torch.nn.Linear] | None = None
 
     # --- Public API ---------------------------------------------------------
 
@@ -184,11 +224,10 @@ class StyleClassifier:
             scores, plus the raw CLIP embedding.
         """
         embedding = self._encode(image)
-        heads = self._ensure_heads()
 
-        period = self._predict_axis(embedding, heads["period"], PERIODS, top_k)
-        school = self._predict_axis(embedding, heads["school"], SCHOOLS, top_k)
-        technique = self._predict_axis(embedding, heads["technique"], TECHNIQUES, top_k)
+        period = self._zero_shot_axis(embedding, PERIODS, _PERIOD_PROMPT, top_k)
+        school = self._zero_shot_axis(embedding, SCHOOLS, _SCHOOL_PROMPT, top_k)
+        technique = self._zero_shot_axis(embedding, TECHNIQUES, _GENRE_PROMPT, top_k)
 
         return StyleReport(
             period=period,
@@ -197,13 +236,33 @@ class StyleClassifier:
             embedding=embedding.cpu().numpy(),
         )
 
+    def estimate_artist(
+        self, embedding_np: np.ndarray, top_k: int = 5,
+    ) -> list[tuple[str, float]]:
+        """Zero-shot artist estimation from a CLIP embedding.
+
+        Returns a ranked list of ``(artist, probability)`` tuples.
+        """
+        emb = torch.from_numpy(embedding_np).float().to(self._device)
+        text_embs = self._get_text_embeddings(KNOWN_ARTISTS, _ARTIST_PROMPT)
+
+        emb_norm = emb / (emb.norm() + 1e-12)
+        similarity = emb_norm @ text_embs.T
+        probs = F.softmax(similarity / 0.02, dim=-1)
+
+        values, indices = torch.topk(probs, min(top_k, len(KNOWN_ARTISTS)))
+        return [
+            (KNOWN_ARTISTS[int(idx)], float(val))
+            for val, idx in zip(values, indices)
+        ]
+
     # --- Internal Methods ---------------------------------------------------
 
     def _ensure_backbone(self) -> torch.nn.Module:
         """Lazy-load the CLIP vision encoder."""
         if self._backbone is None:
-            from artsleuth.config import BackboneType
             from artsleuth.models.backbones import load_backbone
+            from artsleuth.config import BackboneType
 
             self._backbone = load_backbone(
                 BackboneType.CLIP,
@@ -212,24 +271,10 @@ class StyleClassifier:
             )
         return self._backbone
 
-    def _ensure_heads(self) -> dict[str, torch.nn.Linear]:
-        """Lazy-load or initialise the classification heads."""
-        if self._heads is None:
-            from artsleuth.models.heads import build_style_heads
-
-            self._heads = build_style_heads(
-                period_classes=len(PERIODS),
-                school_classes=len(SCHOOLS),
-                technique_classes=len(TECHNIQUES),
-                device=self._device,
-                cache_dir=self._config.cache_dir,
-            )
-        return self._heads
-
     def _encode(self, image: Image.Image) -> torch.Tensor:
         """Extract a CLIP embedding from the input image."""
-        from artsleuth.config import BackboneType
         from artsleuth.preprocessing.transforms import prepare_for_backbone
+        from artsleuth.config import BackboneType
 
         tensor = prepare_for_backbone(
             image,
@@ -245,22 +290,70 @@ class StyleClassifier:
 
         return embedding.squeeze(0)
 
-    @staticmethod
-    def _predict_axis(
+    def _get_text_embeddings(
+        self, labels: list[str], prompt_template: str,
+    ) -> torch.Tensor:
+        """Encode text labels via CLIP text encoder, with caching."""
+        cache_key = prompt_template + "\x00" + "\x00".join(labels)
+        if cache_key in _TEXT_EMB_CACHE:
+            return _TEXT_EMB_CACHE[cache_key].to(self._device)
+
+        backbone = self._ensure_backbone()
+        if not hasattr(backbone, "encode_text"):
+            raise RuntimeError(
+                "CLIP text encoder not available; zero-shot requires "
+                "the HuggingFace CLIPModel backend."
+            )
+
+        tokenizer = self._get_tokenizer()
+        texts = [prompt_template.format(label) for label in labels]
+        inputs = tokenizer(
+            texts, return_tensors="pt", padding=True, truncation=True,
+        )
+        inputs = {k: v.to(self._device) for k, v in inputs.items()}
+
+        with torch.no_grad():
+            text_embs = backbone.encode_text(**inputs)
+
+        _TEXT_EMB_CACHE[cache_key] = text_embs.cpu()
+        return text_embs
+
+    def _get_tokenizer(self):
+        """Lazy-load and cache the CLIP tokenizer."""
+        if _TOKENIZER_CACHE:
+            return _TOKENIZER_CACHE[0]
+
+        from transformers import AutoTokenizer
+
+        hf_name = "openai/clip-vit-large-patch14"
+        tokenizer = AutoTokenizer.from_pretrained(
+            hf_name,
+            cache_dir=str(self._config.cache_dir) if self._config.cache_dir else None,
+        )
+        _TOKENIZER_CACHE.append(tokenizer)
+        return tokenizer
+
+    def _zero_shot_axis(
+        self,
         embedding: torch.Tensor,
-        head: torch.nn.Linear,
         labels: list[str],
+        prompt_template: str,
         top_k: int,
     ) -> StylePrediction:
-        """Run a single classification head and return a StylePrediction."""
-        with torch.no_grad():
-            logits = head(embedding)
-            probs = F.softmax(logits, dim=-1)
+        """Classify one axis via CLIP text-image cosine similarity."""
+        text_embs = self._get_text_embeddings(labels, prompt_template)
+
+        emb_norm = embedding / (embedding.norm() + 1e-12)
+        similarity = emb_norm @ text_embs.T
+        probs = F.softmax(similarity / 0.02, dim=-1)
 
         top_values, top_indices = torch.topk(probs, min(top_k, len(labels)))
         top_k_list = [
-            (labels[idx], float(val)) for val, idx in zip(top_values, top_indices, strict=False)
+            (labels[int(idx)], float(val))
+            for val, idx in zip(top_values, top_indices)
         ]
 
         best_label, best_conf = top_k_list[0]
-        return StylePrediction(label=best_label, confidence=best_conf, top_k=top_k_list)
+        return StylePrediction(
+            label=best_label, confidence=best_conf, top_k=top_k_list,
+        )

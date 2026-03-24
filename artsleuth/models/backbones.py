@@ -176,21 +176,28 @@ class _CLIPVisualWrapper(nn.Module):
 class _CLIPHFWrapper(nn.Module):
     """Wraps a HuggingFace ``CLIPModel`` to return projected image features.
 
-    Manually runs vision_model + visual_projection rather than relying
-    on ``get_image_features`` whose return type varies across
-    transformers versions.
+    Retains the full model so the text encoder remains available for
+    zero-shot classification.
     """
 
     def __init__(self, clip_model: nn.Module) -> None:
         super().__init__()
-        self.vision_model = clip_model.vision_model
-        self.visual_projection = clip_model.visual_projection
+        self.clip_model = clip_model
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        vision_out = self.vision_model(pixel_values=x)
+        vision_out = self.clip_model.vision_model(pixel_values=x)
         pooled = vision_out[1] if not isinstance(vision_out, torch.Tensor) else vision_out
-        projected = self.visual_projection(pooled)
+        projected = self.clip_model.visual_projection(pooled)
         return projected.float()
+
+    def encode_text(
+        self, input_ids: torch.Tensor, attention_mask: torch.Tensor | None = None,
+    ) -> torch.Tensor:
+        """Return L2-normalised text embeddings via the CLIP text encoder."""
+        feats = self.clip_model.get_text_features(
+            input_ids=input_ids, attention_mask=attention_mask,
+        )
+        return feats / (feats.norm(dim=-1, keepdim=True) + 1e-12)
 
 
 # --- Loader implementations ------------------------------------------------

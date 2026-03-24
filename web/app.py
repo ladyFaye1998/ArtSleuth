@@ -65,7 +65,7 @@ def create_app() -> gr.Blocks:
         try:
             from artsleuth.config import AnalysisConfig
             from artsleuth.core.pipeline import run_pipeline
-            from artsleuth.core.attribution import estimate_artist_from_style
+            from artsleuth.core.style import StyleClassifier
             from web.components import (
                 format_style_report,
                 format_attribution_report,
@@ -86,11 +86,14 @@ def create_app() -> gr.Blocks:
 
             style_html = format_style_report(result.style)
 
-            artist_candidates = estimate_artist_from_style(
-                result.style.period.top_k,
-                result.style.technique.top_k,
-            )
-            artist_html = _format_artist_estimation(artist_candidates)
+            try:
+                classifier = StyleClassifier(config)
+                artist_top = classifier.estimate_artist(
+                    result.style.embedding, top_k=5,
+                )
+            except Exception:
+                artist_top = []
+            artist_html = _format_artist_estimation(artist_top)
 
             attribution_html = format_attribution_report(
                 result.attribution,
@@ -536,20 +539,23 @@ def create_app() -> gr.Blocks:
 # ── helpers ─────────────────────────────────────────────────────────
 
 
-def _format_artist_estimation(candidates) -> str:
-    """Render heuristic artist candidates as HTML."""
+def _format_artist_estimation(candidates: list[tuple[str, float]]) -> str:
+    """Render zero-shot artist candidates as HTML.
+
+    *candidates* is a list of ``(artist_name, probability)`` tuples.
+    """
     if not candidates:
         return _info_html("Could not estimate artist for this image.")
 
-    top = candidates[0]
+    top_name, top_conf = candidates[0]
     bars = ""
-    for cand in candidates:
-        pct = min(max(cand.score * 100, 0), 100)
+    for name, conf in candidates:
+        pct = min(max(conf * 100, 0), 100)
         bars += (
             f'<div style="margin:6px 0;font-family:\'Inter\',sans-serif;">'
             f'<div style="display:flex;justify-content:space-between;'
             f'font-size:0.84rem;color:#0f1f35;font-weight:500;margin-bottom:3px;">'
-            f'<span>{cand.artist}</span>'
+            f'<span>{name}</span>'
             f'<span style="font-weight:600;">{pct:.1f}%</span></div>'
             f'<div style="background:#e8e0d4;border-radius:6px;height:8px;'
             f'overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,0.06);">'
@@ -569,11 +575,11 @@ def _format_artist_estimation(candidates) -> str:
         'border-bottom:2px solid #c9a84c;padding-bottom:0.4rem;">'
         'Artist Estimation</h3>'
         f'<div style="font-size:0.9rem;color:#0f1f35;margin-bottom:0.6rem;">'
-        f'<strong>Most likely:</strong> {top.artist} ({top.score:.0%})</div>'
+        f'<strong>Most likely:</strong> {top_name} ({top_conf:.0%})</div>'
         f'{bars}'
         '<div style="font-size:0.75rem;color:#6b5e50;margin-top:0.6rem;'
         'font-style:italic;font-weight:300;">'
-        'Estimated from style classification (period + genre). '
+        'CLIP zero-shot estimation. '
         'For definitive attribution, consult a qualified art historian.</div>'
         '</div>'
     )
