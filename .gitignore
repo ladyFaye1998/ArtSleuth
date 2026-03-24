@@ -59,8 +59,7 @@ data/
 *.key
 kaggle.json
 
-# --- Generated Videos (frames kept, source videos excluded) ---
-assets/videos/
+# --- Video generation script (not needed in repo) ---
 generate_videos.py
 
 # --- Temp ---

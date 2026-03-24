@@ -1,975 +1,760 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ArtSleuth — Computational Art Analysis</title>
-  <meta name="description" content="Where connoisseurship meets computation. A framework fusing vision transformers with centuries of art-historical method.">
-  <meta name="author" content="ladyFaye1998">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArtSleuth — Computational Art Analysis</title>
+<meta name="description" content="Where connoisseurship meets computation. A framework fusing vision transformers with centuries of art-historical method.">
+<meta name="author" content="ladyFaye1998">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ================================================================
+   IMMERSIVE SCROLL-DRIVEN DOCUMENTARY
+   The body is tall (scroll runway). The .stage is fixed full-viewport.
+   Scroll position drives ALL visual transitions via --progress (0–1).
+   ================================================================ */
 
-    :root {
-      --parchment:    #f4ead5;
-      --parchment-d:  #e8dcc8;
-      --parchment-dd: #d4c5a9;
-      --ink:          #1a1714;
-      --ink-l:        #2c261e;
-      --ink-ll:       #3d352b;
-      --gold:         #c9a84c;
-      --gold-l:       #dfc06a;
-      --gold-d:       #8a7434;
-      --sepia:        #6e5a3e;
-      --sepia-l:      #8c7656;
-      --warm-red:     #8b3a3a;
-      --blue:         #4a6a7a;
-      --green:        #5a7a52;
-      --fd: 'Cormorant Garamond', 'Georgia', serif;
-      --fc: 'Cinzel', 'Georgia', serif;
-      --fb: 'Inter', -apple-system, sans-serif;
-      --fm: 'Fira Code', 'Consolas', monospace;
-    }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: var(--fb);
-      background: var(--parchment);
-      color: var(--ink);
-      line-height: 1.75;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
+:root {
+  --parchment:    #f4ead5;
+  --parchment-d:  #e8dcc8;
+  --parchment-dd: #d4c5a9;
+  --ink:          #1a1714;
+  --ink-l:        #2c261e;
+  --gold:         #c9a84c;
+  --gold-l:       #dfc06a;
+  --gold-d:       #8a7434;
+  --sepia:        #6e5a3e;
+  --warm-red:     #8b3a3a;
+  --fd: 'Cormorant Garamond', Georgia, serif;
+  --fc: 'Cinzel', Georgia, serif;
+  --fb: 'Inter', -apple-system, sans-serif;
+  --fm: 'Fira Code', Consolas, monospace;
+}
 
-    a { color: var(--warm-red); text-decoration: none; transition: color .3s; }
-    a:hover { color: var(--gold-d); }
-    .ctr { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+html { overflow-y: scroll; }
+body {
+  height: 9000px;
+  background: var(--ink);
+  font-family: var(--fb);
+  -webkit-font-smoothing: antialiased;
+  cursor: default;
+}
 
-    /* ── Navigation ── */
-    .nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 500;
-      padding: .65rem 0;
-      background: rgba(244,234,213,.92);
-      backdrop-filter: blur(16px) saturate(1.3);
-      border-bottom: 1px solid rgba(201,168,76,.15);
-      transition: all .5s ease;
-    }
-    .nav.scrolled {
-      background: rgba(244,234,213,.97);
-      box-shadow: 0 2px 20px rgba(26,23,20,.08);
-      border-bottom-color: rgba(201,168,76,.3);
-    }
-    .nav .ctr { display: flex; align-items: center; justify-content: space-between; }
-    .nav-brand {
-      font-family: var(--fc); font-size: 1.15rem; font-weight: 600;
-      color: var(--gold-d); letter-spacing: .15em; text-transform: uppercase;
-    }
-    .nav-links { list-style: none; display: flex; gap: 1.8rem; }
-    .nav-links a {
-      font-family: var(--fb); font-size: .7rem; font-weight: 500;
-      letter-spacing: .12em; text-transform: uppercase;
-      color: var(--sepia); transition: color .3s;
-    }
-    .nav-links a:hover { color: var(--gold); }
+/* ── Fixed stage ── */
+.stage {
+  position: fixed; inset: 0;
+  overflow: hidden;
+  background: var(--ink);
+}
 
-    /* ── Hero ── */
-    .hero {
-      position: relative;
-      min-height: 100vh;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden;
-      background: var(--ink);
-    }
-    .hero-frame-canvas {
-      position: absolute; inset: 0;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .hero-frame-canvas img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      opacity: .55;
-      filter: sepia(.3) saturate(.8);
-    }
-    .hero-vignette {
-      position: absolute; inset: 0;
-      background:
-        radial-gradient(ellipse 70% 60% at 50% 50%, transparent 30%, rgba(26,23,20,.7) 100%),
-        linear-gradient(to bottom, rgba(26,23,20,.3) 0%, transparent 30%, transparent 70%, rgba(26,23,20,.9) 100%);
-      pointer-events: none;
-    }
-    .hero-texture {
-      position: absolute; inset: 0;
-      background-image: url('assets/handwriting-texture.png');
-      background-size: 800px auto;
-      opacity: .04;
-      mix-blend-mode: overlay;
-      pointer-events: none;
-    }
-    .hero-content {
-      position: relative; z-index: 10;
-      text-align: center;
-      padding: 2rem;
-      max-width: 800px;
-    }
-    .hero-overline {
-      font-family: var(--fb); font-size: .65rem; font-weight: 500;
-      letter-spacing: .25em; text-transform: uppercase;
-      color: var(--gold-l); margin-bottom: 1rem;
-      display: flex; align-items: center; justify-content: center; gap: 1rem;
-    }
-    .hero-overline::before, .hero-overline::after {
-      content: ''; width: 40px; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold-l), transparent);
-    }
-    .hero h1 {
-      font-family: var(--fc); font-size: clamp(3rem, 8vw, 5.5rem);
-      font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-      color: var(--parchment);
-      text-shadow: 0 2px 30px rgba(201,168,76,.25), 0 0 80px rgba(201,168,76,.08);
-      margin-bottom: .3rem;
-      line-height: 1.1;
-    }
-    .hero-subtitle {
-      font-family: var(--fd); font-size: clamp(1rem, 2.5vw, 1.45rem);
-      font-weight: 300; font-style: italic;
-      color: var(--parchment-dd);
-      opacity: .8; margin-bottom: 1.8rem;
-    }
-    .hero-desc {
-      font-family: var(--fd); font-size: 1.05rem;
-      color: var(--parchment-dd); opacity: .65;
-      max-width: 560px; margin: 0 auto 2.5rem;
-      line-height: 1.9; font-weight: 300;
-    }
-    .hero-badges {
-      display: flex; flex-wrap: wrap; justify-content: center;
-      gap: .4rem; margin-bottom: 2.2rem;
-    }
-    .hero-badge {
-      font-family: var(--fb); font-size: .65rem; font-weight: 500;
-      letter-spacing: .04em; padding: .3rem .8rem;
-      border: 1px solid rgba(201,168,76,.3);
-      border-radius: 2px; color: var(--gold-l);
-      background: rgba(201,168,76,.06);
-    }
-    .hero-cta { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
-    .btn {
-      display: inline-flex; align-items: center; gap: .5rem;
-      padding: .75rem 2rem; font-family: var(--fb);
-      font-size: .8rem; font-weight: 600; letter-spacing: .08em;
-      text-transform: uppercase; border: none; cursor: pointer;
-      transition: all .4s cubic-bezier(.4,0,.2,1);
-    }
-    .btn-primary {
-      background: var(--gold); color: var(--ink);
-      box-shadow: 0 4px 20px rgba(201,168,76,.3);
-    }
-    .btn-primary:hover {
-      background: var(--gold-l); color: var(--ink);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(201,168,76,.4);
-    }
-    .btn-outline {
-      background: transparent; color: var(--parchment-dd);
-      border: 1px solid rgba(232,220,200,.3);
-    }
-    .btn-outline:hover {
-      border-color: var(--gold); color: var(--gold);
-    }
-    .hero-scroll-hint {
-      position: absolute; bottom: 2rem; left: 50%;
-      transform: translateX(-50%);
-      font-family: var(--fb); font-size: .6rem;
-      letter-spacing: .2em; text-transform: uppercase;
-      color: var(--parchment-dd); opacity: .4;
-      animation: scrollHint 2.5s ease-in-out infinite;
-    }
-    @keyframes scrollHint {
-      0%, 100% { opacity: .4; transform: translateX(-50%) translateY(0); }
-      50% { opacity: .7; transform: translateX(-50%) translateY(6px); }
-    }
+/* ── Layer stack ── */
+.layer-video,
+.layer-atmo,
+.layer-overlay,
+.layer-content { position: absolute; inset: 0; }
 
-    /* ── Cloud Divider ── */
-    .cloud-divider {
-      position: relative; height: 300px; overflow: hidden;
-      background: var(--ink);
-    }
-    .cloud-divider img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      opacity: .6;
-    }
-    .cloud-divider .fade-top {
-      position: absolute; top: 0; left: 0; right: 0; height: 80px;
-      background: linear-gradient(to bottom, var(--ink), transparent);
-    }
-    .cloud-divider .fade-bottom {
-      position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
-      background: linear-gradient(to top, var(--parchment), transparent);
-    }
-    .cloud-divider-inv .fade-top {
-      background: linear-gradient(to bottom, var(--parchment), transparent);
-    }
-    .cloud-divider-inv .fade-bottom {
-      background: linear-gradient(to top, var(--ink), transparent);
-    }
+.layer-video    { z-index: 0; }
+.layer-atmo     { z-index: 1; pointer-events: none; }
+.layer-overlay  { z-index: 2; pointer-events: none; }
+.layer-content  { z-index: 3; }
 
-    /* ── Section Styling ── */
-    section { padding: 5rem 0; position: relative; }
+/* ── Video backgrounds ── */
+.bg-vid {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: none;
+  will-change: opacity, transform;
+}
 
-    .section-header { text-align: center; margin-bottom: 3.5rem; }
-    .section-overline {
-      font-family: var(--fb); font-size: .65rem; font-weight: 500;
-      letter-spacing: .22em; text-transform: uppercase;
-      color: var(--gold-d);
-      display: flex; align-items: center; justify-content: center; gap: .8rem;
-      margin-bottom: .6rem;
-    }
-    .section-overline::before, .section-overline::after {
-      content: ''; width: 30px; height: 1px;
-      background: var(--gold-d);
-    }
-    .section-header h2 {
-      font-family: var(--fc); font-size: clamp(1.6rem, 3.5vw, 2.3rem);
-      font-weight: 600; letter-spacing: .06em;
-      color: var(--ink);
-    }
-    .section-header p {
-      font-family: var(--fd); font-size: 1.05rem;
-      color: var(--sepia); max-width: 520px;
-      margin: .4rem auto 0; font-weight: 400;
-      font-style: italic;
-    }
+/* ── Atmosphere layers ── */
+.atmo-cloud {
+  position: absolute;
+  width: 160%; height: 100%;
+  top: 0; left: -30%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.12;
+  will-change: transform;
+  pointer-events: none;
+}
+.atmo-cloud-1 { background-image: url('assets/clouds-top.png'); }
+.atmo-cloud-2 { background-image: url('assets/clouds-top.png'); transform: scaleX(-1); opacity: 0.07; top: 10%; }
 
-    .section-dark { background: var(--ink); color: var(--parchment); }
-    .section-dark .section-overline { color: var(--gold-l); }
-    .section-dark .section-overline::before,
-    .section-dark .section-overline::after { background: var(--gold-l); }
-    .section-dark .section-header h2 { color: var(--parchment); }
-    .section-dark .section-header p { color: var(--parchment-dd); opacity: .7; }
+.atmo-map {
+  position: absolute; inset: 0;
+  background: url('assets/old-map-overlay.png') center / cover no-repeat;
+  opacity: 0;
+  will-change: transform, opacity;
+}
 
-    /* ── Demo Section ── */
-    #demo { background: var(--parchment); }
-    .demo-container {
-      position: relative;
-      max-width: 1000px; margin: 0 auto;
-    }
-    .demo-frame {
-      position: relative;
-      border: 3px solid var(--gold-d);
-      border-radius: 4px;
-      overflow: hidden;
-      box-shadow:
-        0 0 0 1px rgba(201,168,76,.15),
-        0 20px 60px rgba(26,23,20,.15),
-        0 0 100px rgba(201,168,76,.05);
-    }
-    .demo-frame::before {
-      content: ''; position: absolute; inset: -3px;
-      border: 1px solid rgba(201,168,76,.1);
-      border-radius: 6px; pointer-events: none; z-index: 2;
-    }
-    .demo-frame iframe {
-      width: 100%; height: 740px;
-      border: none; display: block;
-      background: var(--ink);
-    }
-    .demo-ornament {
-      position: absolute; width: 24px; height: 24px;
-      border: 2px solid var(--gold-d); z-index: 3;
-    }
-    .demo-ornament.tl { top: -4px; left: -4px; border-right: none; border-bottom: none; }
-    .demo-ornament.tr { top: -4px; right: -4px; border-left: none; border-bottom: none; }
-    .demo-ornament.bl { bottom: -4px; left: -4px; border-right: none; border-top: none; }
-    .demo-ornament.br { bottom: -4px; right: -4px; border-left: none; border-top: none; }
-    .demo-note {
-      text-align: center; margin-top: 1.2rem;
-      font-family: var(--fd); font-size: .9rem;
-      color: var(--sepia-l); font-style: italic;
-    }
+.atmo-compass {
+  position: absolute;
+  bottom: 2rem; right: 2rem;
+  width: 70px; height: 70px;
+  opacity: 0.08;
+  will-change: transform;
+}
+.atmo-compass img { width: 100%; height: 100%; object-fit: contain; filter: sepia(1) brightness(1.8); }
 
-    /* ── Features ── */
-    #features {
-      background:
-        url('assets/old-map-overlay.png') center / cover no-repeat,
-        var(--parchment-d);
-      background-blend-mode: soft-light;
-    }
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-    }
-    .feature-card {
-      position: relative;
-      background: var(--parchment);
-      border: 1px solid var(--parchment-dd);
-      padding: 2rem 1.6rem;
-      transition: all .4s cubic-bezier(.4,0,.2,1);
-      overflow: hidden;
-    }
-    .feature-card::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--gold-d), var(--gold), var(--gold-d));
-      opacity: 0;
-      transition: opacity .4s;
-    }
-    .feature-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(26,23,20,.1);
-      border-color: var(--gold);
-    }
-    .feature-card:hover::before { opacity: 1; }
-    .feature-icon {
-      width: 40px; height: 40px;
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 1rem;
-      color: var(--gold-d);
-    }
-    .feature-icon svg { width: 28px; height: 28px; fill: currentColor; }
-    .feature-card h3 {
-      font-family: var(--fc); font-size: .95rem;
-      font-weight: 600; letter-spacing: .04em;
-      color: var(--ink); margin-bottom: .5rem;
-    }
-    .feature-card p {
-      font-size: .84rem; color: var(--sepia);
-      line-height: 1.75; font-weight: 300;
-    }
-    .feature-tags {
-      display: flex; flex-wrap: wrap; gap: .3rem;
-      margin-top: .8rem;
-    }
-    .feature-tag {
-      font-size: .6rem; font-weight: 500;
-      letter-spacing: .04em; text-transform: uppercase;
-      padding: .15rem .5rem;
-      background: rgba(201,168,76,.08);
-      border: 1px solid rgba(201,168,76,.2);
-      color: var(--gold-d);
-    }
+.atmo-particles {
+  position: absolute; inset: 0;
+  overflow: hidden;
+}
+.atmo-particle {
+  position: absolute; border-radius: 50%;
+  background: rgba(201,168,76,.15);
+  box-shadow: 0 0 8px rgba(201,168,76,.08);
+  animation: particleDrift var(--dur) ease-in-out infinite;
+  opacity: 0;
+}
+@keyframes particleDrift {
+  0%, 100% { opacity: 0; transform: translate(0, 0) scale(.6); }
+  50% { opacity: var(--op); transform: translate(var(--dx), var(--dy)) scale(1); }
+}
 
-    /* ── Methodology ── */
-    #methodology { background: var(--parchment); position: relative; }
-    #methodology::before {
-      content: ''; position: absolute; inset: 0;
-      background: url('assets/handwriting-texture.png') center / 900px auto;
-      opacity: .025; pointer-events: none;
-    }
-    .meth-wrap {
-      position: relative; z-index: 1;
-      max-width: 760px; margin: 0 auto;
-    }
-    .meth-wrap h3 {
-      font-family: var(--fc); font-size: 1.1rem;
-      font-weight: 600; letter-spacing: .04em;
-      color: var(--ink); margin: 2.5rem 0 .7rem;
-      padding-bottom: .4rem;
-      border-bottom: 1px solid var(--gold);
-    }
-    .meth-wrap h4 {
-      font-family: var(--fd); font-size: 1.1rem;
-      font-weight: 600; color: var(--ink);
-      margin: 1.5rem 0 .4rem;
-      font-style: italic;
-    }
-    .meth-wrap p, .meth-wrap li {
-      font-size: .88rem; color: var(--sepia);
-      line-height: 1.85; font-weight: 300;
-    }
-    .meth-wrap ul, .meth-wrap ol { padding-left: 1.4rem; margin: .6rem 0; }
-    .meth-wrap li { margin-bottom: .3rem; }
-    .meth-wrap strong { font-weight: 600; color: var(--ink); }
-    .meth-wrap em { color: var(--ink-l); }
-    .meth-wrap code {
-      font-family: var(--fm); font-size: .82rem;
-      background: rgba(201,168,76,.1);
-      padding: 1px 6px; border-radius: 2px;
-      color: var(--gold-d);
-    }
-    .math-block {
-      background: var(--parchment-d);
-      border: 1px solid var(--parchment-dd);
-      border-left: 3px solid var(--gold);
-      padding: 1rem 1.5rem; margin: 1rem 0;
-      font-family: var(--fm); font-size: .84rem;
-      color: var(--ink); text-align: center;
-    }
-    .meth-dropcap::first-letter {
-      float: left; font-family: var(--fc);
-      font-size: 3.2rem; line-height: .85;
-      padding-right: .15rem; padding-top: .08rem;
-      color: var(--gold-d); font-weight: 700;
-    }
+/* ── Overlay (vignette + colour grade) ── */
+.vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 65% 55% at 50% 50%, transparent 0%, rgba(26,23,20,.65) 100%);
+}
+.colour-grade {
+  position: absolute; inset: 0;
+  background: rgba(26,23,20,0);
+  transition: background .8s;
+}
 
-    /* ── Architecture ── */
-    #architecture { background: var(--parchment-d); }
-    .arch-container { max-width: 650px; margin: 0 auto; }
-    .arch-diagram {
-      background: var(--parchment);
-      border: 1px solid var(--parchment-dd);
-      padding: 2.5rem 2rem;
-      position: relative;
-    }
-    .arch-diagram::before {
-      content: ''; position: absolute; inset: 6px;
-      border: 1px solid rgba(201,168,76,.2);
-      pointer-events: none;
-    }
-    .arch-flow {
-      display: flex; flex-direction: column;
-      align-items: center; gap: .5rem;
-    }
-    .arch-node {
-      display: inline-flex; align-items: center; gap: .5rem;
-      padding: .55rem 1.6rem;
-      font-family: var(--fb); font-size: .8rem;
-      font-weight: 500; letter-spacing: .02em;
-      min-width: 200px; justify-content: center;
-      transition: all .3s;
-    }
-    .arch-node:hover { transform: scale(1.03); }
-    .an-input {
-      background: var(--parchment-d); color: var(--ink);
-      border: 1px solid var(--parchment-dd);
-    }
-    .an-backbone {
-      background: rgba(201,168,76,.08); color: var(--ink);
-      border: 1px solid rgba(201,168,76,.25);
-    }
-    .an-fusion {
-      background: var(--gold); color: var(--ink);
-      font-weight: 700;
-      box-shadow: 0 3px 12px rgba(201,168,76,.2);
-    }
-    .an-analysis {
-      background: rgba(139,58,58,.05); color: var(--ink);
-      border: 1px solid rgba(139,58,58,.15);
-    }
-    .an-output {
-      background: var(--ink); color: var(--gold);
-      font-weight: 700;
-    }
-    .arch-arrow {
-      color: var(--gold-d); opacity: .4;
-      font-size: 1.1rem; line-height: 1;
-    }
-    .arch-branch {
-      display: flex; gap: .6rem;
-      flex-wrap: wrap; justify-content: center;
-    }
-    .arch-branch .arch-node {
-      min-width: 90px; font-size: .72rem;
-      padding: .4rem .7rem;
-    }
+/* ── Content elements (driven by JS) ── */
+.scene {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  will-change: opacity, transform;
+  pointer-events: none;
+}
+.scene.active { pointer-events: auto; }
 
-    /* ── Benchmarks ── */
-    #benchmarks {
-      background: var(--ink);
-      position: relative; overflow: hidden;
-    }
-    #benchmarks::before {
-      content: ''; position: absolute; inset: 0;
-      background: url('assets/old-map-overlay.png') center / cover no-repeat;
-      opacity: .03; pointer-events: none;
-    }
-    .bench-container {
-      position: relative; z-index: 1;
-      max-width: 860px; margin: 0 auto;
-    }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem; margin-bottom: 2.5rem;
-    }
-    .stat-card {
-      text-align: center;
-      padding: 1.3rem .8rem;
-      background: rgba(244,234,213,.04);
-      border: 1px solid rgba(201,168,76,.12);
-      transition: all .35s;
-    }
-    .stat-card:hover {
-      transform: translateY(-3px);
-      border-color: var(--gold);
-      box-shadow: 0 8px 30px rgba(201,168,76,.08);
-    }
-    .stat-value {
-      font-family: var(--fc); font-size: 1.9rem;
-      font-weight: 700; color: var(--gold);
-      margin-bottom: .15rem;
-    }
-    .stat-label {
-      font-size: .65rem; letter-spacing: .1em;
-      text-transform: uppercase; color: var(--parchment-dd);
-      opacity: .6; font-weight: 500;
-    }
-    .bench-table-wrap {
-      background: rgba(244,234,213,.03);
-      border: 1px solid rgba(201,168,76,.12);
-      overflow: hidden; margin-bottom: 1.2rem;
-    }
-    .bench-table {
-      width: 100%; border-collapse: collapse;
-      font-size: .82rem;
-    }
-    .bench-table thead {
-      background: rgba(201,168,76,.06);
-    }
-    .bench-table th {
-      padding: .7rem .9rem; text-align: center;
-      font-weight: 600; font-size: .68rem;
-      letter-spacing: .08em; text-transform: uppercase;
-      color: var(--gold);
-      border-bottom: 1px solid rgba(201,168,76,.15);
-    }
-    .bench-table th:first-child { text-align: left; }
-    .bench-table td {
-      padding: .6rem .9rem; text-align: center;
-      border-bottom: 1px solid rgba(244,234,213,.03);
-      color: var(--parchment-dd); font-weight: 300;
-    }
-    .bench-table td:first-child {
-      text-align: left; font-weight: 500;
-      color: var(--parchment);
-    }
-    .bench-table tr:hover { background: rgba(201,168,76,.03); }
-    .bench-table .hl { background: rgba(201,168,76,.06); }
-    .bench-table .hl td {
-      font-weight: 600; color: var(--gold);
-      border-bottom: 2px solid rgba(201,168,76,.25);
-    }
-    .bench-note {
-      font-size: .75rem; color: var(--parchment-dd);
-      opacity: .4; text-align: center;
-      font-weight: 300; font-style: italic;
-    }
-    .bench-subtitle {
-      font-family: var(--fc); font-size: 1.05rem;
-      color: var(--parchment); text-align: center;
-      margin: 2.5rem 0 1rem; letter-spacing: .04em;
-    }
+/* ── Navigation dots ── */
+.nav-dots {
+  position: fixed; right: 1.5rem; top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex; flex-direction: column;
+  gap: .6rem;
+}
+.nav-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(201,168,76,.3);
+  background: transparent;
+  cursor: pointer;
+  transition: all .4s;
+}
+.nav-dot.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 8px rgba(201,168,76,.4);
+}
+.nav-dot:hover { border-color: var(--gold-l); }
+.nav-label {
+  position: absolute; right: 20px; top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--fb); font-size: .6rem;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--gold); white-space: nowrap;
+  opacity: 0; transition: opacity .3s;
+  pointer-events: none;
+}
+.nav-dot:hover .nav-label { opacity: 1; }
 
-    /* ── Install ── */
-    #install { background: var(--parchment-d); }
-    .install-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 2rem; max-width: 900px; margin: 0 auto;
-    }
-    .install-grid h3 {
-      font-family: var(--fc); font-size: .9rem;
-      font-weight: 600; letter-spacing: .04em;
-      color: var(--ink); margin-bottom: .8rem;
-    }
-    .code-block {
-      background: var(--ink);
-      color: var(--parchment-dd);
-      padding: 1.3rem 1.5rem;
-      font-family: var(--fm); font-size: .8rem;
-      line-height: 1.9; overflow-x: auto;
-      border-left: 3px solid var(--gold-d);
-      position: relative;
-    }
-    .code-block .cmt { color: var(--sepia-l); }
-    .code-block .hl { color: var(--gold); }
-    .code-block .str { color: var(--warm-red); }
-    .code-block .kw { color: var(--sepia-l); }
-    .copy-btn {
-      position: absolute; top: .6rem; right: .6rem;
-      background: rgba(244,234,213,.06);
-      border: 1px solid rgba(201,168,76,.15);
-      color: var(--parchment-dd); padding: 3px 10px;
-      font-size: .6rem; font-family: var(--fm);
-      cursor: pointer; transition: all .3s;
-      letter-spacing: .04em; text-transform: uppercase;
-    }
-    .copy-btn:hover {
-      background: rgba(201,168,76,.1);
-      color: var(--gold);
-      border-color: rgba(201,168,76,.3);
-    }
+/* ── Scene 0: Opening ── */
+.s-opening {
+  flex-direction: column;
+  text-align: center;
+  padding: 2rem;
+  gap: .5rem;
+}
+.s-opening .overline {
+  font-family: var(--fb); font-size: .6rem; font-weight: 500;
+  letter-spacing: .3em; text-transform: uppercase;
+  color: var(--gold-l);
+  display: flex; align-items: center; gap: 1rem;
+}
+.s-opening .overline::before, .s-opening .overline::after {
+  content: ''; width: 40px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-l), transparent);
+}
+.s-opening h1 {
+  font-family: var(--fc);
+  font-size: clamp(3.5rem, 9vw, 6rem);
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--parchment);
+  text-shadow: 0 2px 40px rgba(201,168,76,.2);
+  line-height: 1.1;
+}
+.s-opening .subtitle {
+  font-family: var(--fd); font-size: clamp(1rem, 2.5vw, 1.5rem);
+  font-weight: 300; font-style: italic;
+  color: var(--parchment-dd); opacity: .7;
+}
+.s-opening .desc {
+  font-family: var(--fd); font-size: 1rem;
+  color: var(--parchment-dd); opacity: .45;
+  max-width: 520px; line-height: 1.9;
+  margin-top: .5rem;
+}
+.s-opening .badges {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: .35rem; margin-top: 1rem;
+}
+.s-opening .badge {
+  font-size: .6rem; font-weight: 500; letter-spacing: .04em;
+  padding: .25rem .7rem;
+  border: 1px solid rgba(201,168,76,.25);
+  color: var(--gold-l);
+  background: rgba(201,168,76,.04);
+}
+.scroll-hint {
+  position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+  font-family: var(--fb); font-size: .55rem;
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--parchment-dd); opacity: .35;
+  animation: hintPulse 2.5s ease-in-out infinite;
+}
+@keyframes hintPulse {
+  0%,100% { opacity:.35; transform: translateX(-50%) translateY(0); }
+  50% { opacity:.6; transform: translateX(-50%) translateY(5px); }
+}
 
-    /* ── References ── */
-    #references { background: var(--parchment); }
-    .ref-container { max-width: 760px; margin: 0 auto; }
-    .ref-container ol {
-      padding-left: 0; counter-reset: ref;
-      list-style: none;
-    }
-    .ref-container li {
-      font-size: .8rem; color: var(--sepia);
-      margin-bottom: .8rem; line-height: 1.7;
-      font-weight: 300; padding-left: 2rem;
-      position: relative; counter-increment: ref;
-    }
-    .ref-container li::before {
-      content: counter(ref);
-      position: absolute; left: 0; top: .1rem;
-      font-family: var(--fc); font-weight: 700;
-      font-size: .75rem; color: var(--gold-d);
-      width: 1.4rem; text-align: right;
-    }
-    .ref-container li em { color: var(--ink); font-weight: 400; }
-    .ref-container a {
-      font-size: .7rem; font-weight: 500;
-      color: var(--warm-red);
-      border-bottom: 1px dotted var(--warm-red);
-      padding-bottom: 1px;
-    }
-    .ref-container a:hover {
-      color: var(--gold-d);
-      border-color: var(--gold-d);
-    }
+/* ── Scene 1: Demo ── */
+.s-demo {
+  padding: 2rem;
+  gap: 2.5rem;
+}
+.s-demo-text {
+  flex: 0 0 320px;
+  color: var(--parchment);
+}
+.s-demo-text .label {
+  font-family: var(--fb); font-size: .6rem; font-weight: 500;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: .5rem;
+}
+.s-demo-text h2 {
+  font-family: var(--fc); font-size: 1.8rem;
+  font-weight: 600; letter-spacing: .05em;
+  color: var(--parchment); margin-bottom: .6rem;
+}
+.s-demo-text p {
+  font-family: var(--fd); font-size: .95rem;
+  color: var(--parchment-dd); opacity: .7;
+  line-height: 1.8; font-style: italic;
+}
+.s-demo-frame {
+  flex: 1; max-width: 680px;
+  background: rgba(26,23,20,.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(201,168,76,.15);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 20px 80px rgba(0,0,0,.5);
+}
+.s-demo-frame iframe {
+  width: 100%; height: 560px;
+  border: none; display: block;
+}
+.demo-note {
+  position: absolute; bottom: 2rem; left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--fd); font-size: .8rem;
+  color: var(--parchment-dd); opacity: .4;
+  font-style: italic; white-space: nowrap;
+}
 
-    /* ── Footer ── */
-    .footer {
-      background: var(--ink);
-      color: var(--parchment-dd);
-      padding: 4rem 0 2.5rem;
-      position: relative;
-      text-align: center;
-    }
-    .footer::before {
-      content: ''; position: absolute;
-      top: 0; left: 0; right: 0; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold-d), transparent);
-    }
-    .footer-compass {
-      width: 80px; height: 80px; margin: 0 auto 1.5rem;
-      opacity: .25;
-    }
-    .footer-compass img {
-      width: 100%; height: 100%;
-      object-fit: contain;
-      filter: sepia(1) brightness(1.5);
-    }
-    .footer-brand {
-      font-family: var(--fc); font-size: 1.4rem;
-      font-weight: 600; letter-spacing: .12em;
-      color: var(--gold); margin-bottom: .2rem;
-    }
-    .footer-tagline {
-      font-family: var(--fd); font-size: .9rem;
-      font-style: italic; opacity: .4;
-      margin-bottom: 2rem;
-    }
-    .footer-note {
-      font-size: .7rem; opacity: .3;
-      border-top: 1px solid rgba(201,168,76,.1);
-      padding-top: 1.5rem; font-weight: 300;
-    }
+/* ── Scene 2: Capabilities ── */
+.s-cap {
+  flex-direction: column;
+  padding: 2rem;
+}
+.s-cap .cap-header {
+  text-align: center; margin-bottom: 1rem;
+}
+.s-cap .cap-header .label {
+  font-family: var(--fb); font-size: .6rem; font-weight: 500;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--gold);
+}
+.s-cap .cap-header h2 {
+  font-family: var(--fc); font-size: 1.6rem;
+  font-weight: 600; letter-spacing: .05em;
+  color: var(--parchment);
+}
+.cap-card {
+  position: absolute;
+  width: 420px; max-width: 90vw;
+  padding: 1.8rem 2rem;
+  background: rgba(26,23,20,.55);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(201,168,76,.12);
+  border-radius: 3px;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+.cap-card h3 {
+  font-family: var(--fc); font-size: .9rem;
+  font-weight: 600; letter-spacing: .04em;
+  color: var(--gold); margin-bottom: .4rem;
+}
+.cap-card p {
+  font-size: .82rem; color: var(--parchment-dd);
+  line-height: 1.75; font-weight: 300; opacity: .8;
+}
+.cap-card .tags {
+  display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .6rem;
+}
+.cap-card .tag {
+  font-size: .55rem; font-weight: 500;
+  letter-spacing: .04em; text-transform: uppercase;
+  padding: .12rem .45rem;
+  border: 1px solid rgba(201,168,76,.2);
+  color: var(--gold-d);
+}
+.cap-card-left { left: 5%; top: 50%; transform: translate(-80px, -50%); }
+.cap-card-right { right: 5%; top: 50%; transform: translate(80px, -50%); }
 
-    /* ── Reveal Animations ── */
-    .reveal {
-      opacity: 0; transform: translateY(30px);
-      transition: all .7s cubic-bezier(.4,0,.2,1);
-    }
-    .reveal.visible {
-      opacity: 1; transform: translateY(0);
-    }
-    .reveal-d1 { transition-delay: .1s; }
-    .reveal-d2 { transition-delay: .2s; }
-    .reveal-d3 { transition-delay: .3s; }
-    .reveal-d4 { transition-delay: .4s; }
-    .reveal-d5 { transition-delay: .5s; }
+/* ── Scene 3: Methodology ── */
+.s-meth {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+.meth-panel {
+  width: 640px; max-width: 92vw;
+  max-height: 80vh;
+  padding: 2.5rem 2.5rem;
+  background: rgba(26,23,20,.6);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(201,168,76,.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.meth-block {
+  position: absolute;
+  inset: 0;
+  padding: 2.5rem;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+.meth-block .label {
+  font-family: var(--fb); font-size: .55rem; font-weight: 500;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: .6rem;
+}
+.meth-block h3 {
+  font-family: var(--fc); font-size: 1.2rem;
+  font-weight: 600; letter-spacing: .04em;
+  color: var(--parchment); margin-bottom: .8rem;
+}
+.meth-block p, .meth-block li {
+  font-family: var(--fd); font-size: .9rem;
+  color: var(--parchment-dd); line-height: 1.85;
+  font-weight: 300; opacity: .85;
+}
+.meth-block strong { font-weight: 600; color: var(--parchment); }
+.meth-block ul { padding-left: 1.2rem; margin-top: .4rem; }
+.meth-block li { margin-bottom: .3rem; }
+.meth-block .math {
+  margin: .8rem 0;
+  padding: .8rem 1.2rem;
+  background: rgba(201,168,76,.04);
+  border-left: 2px solid var(--gold);
+  font-family: var(--fm); font-size: .8rem;
+  color: var(--parchment); text-align: center;
+}
+.meth-block em { color: var(--parchment-d); }
+.meth-block .dropcap::first-letter {
+  float: left; font-family: var(--fc);
+  font-size: 3rem; line-height: .85;
+  padding-right: .12rem; color: var(--gold);
+  font-weight: 700;
+}
 
-    /* ── Ornamental Separator ── */
-    .ornament {
-      display: flex; align-items: center;
-      justify-content: center; gap: 1rem;
-      margin: 2rem 0; opacity: .3;
-    }
-    .ornament::before, .ornament::after {
-      content: ''; flex: 1; max-width: 120px;
-      height: 1px; background: var(--gold-d);
-    }
-    .ornament svg { width: 16px; height: 16px; fill: var(--gold-d); }
-    .section-dark .ornament::before,
-    .section-dark .ornament::after { background: var(--gold); }
-    .section-dark .ornament svg { fill: var(--gold); }
+/* ── Scene 4: Architecture + Benchmarks ── */
+.s-data {
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+.data-panel {
+  width: 800px; max-width: 94vw;
+  padding: 2rem;
+  background: rgba(26,23,20,.6);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(201,168,76,.1);
+  border-radius: 3px;
+}
+.data-panel h2 {
+  font-family: var(--fc); font-size: 1.2rem;
+  font-weight: 600; letter-spacing: .04em;
+  color: var(--gold); text-align: center;
+  margin-bottom: 1.2rem;
+}
+.arch-flow {
+  display: flex; flex-direction: column;
+  align-items: center; gap: .4rem;
+  margin-bottom: 1.5rem;
+}
+.arch-node {
+  padding: .45rem 1.2rem;
+  font-size: .75rem; font-weight: 500;
+  letter-spacing: .02em;
+  min-width: 180px; text-align: center;
+  color: var(--parchment);
+}
+.an-input { background: rgba(244,234,213,.06); border: 1px solid rgba(244,234,213,.1); }
+.an-backbone { background: rgba(201,168,76,.06); border: 1px solid rgba(201,168,76,.15); }
+.an-fusion { background: var(--gold); color: var(--ink); font-weight: 700; }
+.an-analysis { background: rgba(139,58,58,.06); border: 1px solid rgba(139,58,58,.12); }
+.an-output { background: var(--ink); color: var(--gold); font-weight: 700; border: 1px solid rgba(201,168,76,.2); }
+.arch-arrow { color: var(--gold-d); opacity: .3; font-size: 1rem; }
+.arch-branch { display: flex; gap: .4rem; flex-wrap: wrap; justify-content: center; }
+.arch-branch .arch-node { min-width: 80px; font-size: .65rem; padding: .3rem .6rem; }
 
-    /* ── Particles (CSS-based) ── */
-    .particles-container { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-    .particle {
-      position: absolute; border-radius: 50%;
-      animation: particleFloat var(--dur, 6s) ease-in-out infinite;
-      opacity: 0;
-    }
-    @keyframes particleFloat {
-      0%, 100% { opacity: 0; transform: translateY(0) scale(.7); }
-      50% { opacity: var(--op, .2); transform: translateY(-20px) scale(1); }
-    }
+.stats-row {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: .8rem; margin-bottom: 1.2rem;
+}
+.stat-box { text-align: center; padding: .8rem .5rem; border: 1px solid rgba(201,168,76,.08); }
+.stat-val {
+  font-family: var(--fc); font-size: 1.6rem;
+  font-weight: 700; color: var(--gold);
+}
+.stat-lbl {
+  font-size: .58rem; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--parchment-dd);
+  opacity: .5;
+}
 
-    /* ── Scroll-driven frame animation label ── */
-    .scroll-progress-label {
-      position: fixed; bottom: 1.5rem; right: 1.5rem;
-      font-family: var(--fm); font-size: .6rem;
-      color: var(--gold-d); opacity: .3;
-      letter-spacing: .06em; z-index: 400;
-      pointer-events: none;
-    }
+.bench-tbl { width: 100%; border-collapse: collapse; font-size: .78rem; }
+.bench-tbl thead { background: rgba(201,168,76,.05); }
+.bench-tbl th {
+  padding: .55rem .7rem; text-align: center;
+  font-weight: 600; font-size: .62rem;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--gold);
+  border-bottom: 1px solid rgba(201,168,76,.12);
+}
+.bench-tbl th:first-child { text-align: left; }
+.bench-tbl td {
+  padding: .5rem .7rem; text-align: center;
+  color: var(--parchment-dd); font-weight: 300;
+  border-bottom: 1px solid rgba(255,255,255,.02);
+}
+.bench-tbl td:first-child { text-align: left; font-weight: 500; color: var(--parchment); }
+.bench-tbl .hl { background: rgba(201,168,76,.05); }
+.bench-tbl .hl td { font-weight: 600; color: var(--gold); }
+.bench-note {
+  font-size: .68rem; color: var(--parchment-dd);
+  opacity: .35; text-align: center; font-style: italic;
+  margin-top: .6rem;
+}
 
-    /* ── Responsive ── */
-    @media (max-width: 900px) {
-      .features-grid { grid-template-columns: repeat(2, 1fr); }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .install-grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 600px) {
-      .nav-links { display: none; }
-      .features-grid { grid-template-columns: 1fr; }
-      .stats-grid { grid-template-columns: 1fr 1fr; }
-      .arch-branch { flex-direction: column; align-items: center; }
-      .demo-frame iframe { height: 500px; }
-      .cloud-divider { height: 180px; }
-    }
-  </style>
+/* ── Scene 5: Install ── */
+.s-install {
+  gap: 2rem;
+  padding: 2rem;
+}
+.install-col {
+  flex: 1; max-width: 420px;
+}
+.install-col h3 {
+  font-family: var(--fc); font-size: .85rem;
+  font-weight: 600; letter-spacing: .04em;
+  color: var(--gold); margin-bottom: .6rem;
+}
+.code-block {
+  background: rgba(26,23,20,.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(201,168,76,.1);
+  border-left: 3px solid var(--gold-d);
+  padding: 1.2rem 1.4rem;
+  font-family: var(--fm); font-size: .75rem;
+  line-height: 1.9; color: var(--parchment-dd);
+  overflow-x: auto; position: relative;
+}
+.code-block .cmt { color: var(--sepia); }
+.code-block .hl { color: var(--gold); }
+.code-block .str { color: var(--warm-red); }
+.code-block .kw { color: var(--sepia); }
+.copy-btn {
+  position: absolute; top: .5rem; right: .5rem;
+  background: rgba(201,168,76,.06);
+  border: 1px solid rgba(201,168,76,.12);
+  color: var(--parchment-dd); padding: 2px 8px;
+  font-size: .55rem; font-family: var(--fm);
+  cursor: pointer; letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.copy-btn:hover { background: rgba(201,168,76,.12); color: var(--gold); }
+
+/* ── Scene 6: References + Close ── */
+.s-refs {
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+.refs-panel {
+  width: 680px; max-width: 92vw;
+  max-height: 70vh;
+  padding: 2rem 2.5rem;
+  background: rgba(26,23,20,.6);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(201,168,76,.1);
+  overflow-y: auto;
+}
+.refs-panel h2 {
+  font-family: var(--fc); font-size: 1.1rem;
+  font-weight: 600; letter-spacing: .04em;
+  color: var(--gold); text-align: center;
+  margin-bottom: 1.2rem;
+}
+.refs-panel ol {
+  padding-left: 0; counter-reset: ref;
+  list-style: none;
+}
+.refs-panel li {
+  font-size: .75rem; color: var(--parchment-dd);
+  margin-bottom: .6rem; line-height: 1.65;
+  font-weight: 300; padding-left: 1.8rem;
+  position: relative; counter-increment: ref;
+  opacity: .8;
+}
+.refs-panel li::before {
+  content: counter(ref); position: absolute;
+  left: 0; font-family: var(--fc);
+  font-weight: 700; font-size: .7rem;
+  color: var(--gold-d); width: 1.2rem; text-align: right;
+}
+.refs-panel li em { color: var(--parchment); font-weight: 400; }
+.refs-panel a {
+  font-size: .65rem; color: var(--warm-red);
+  border-bottom: 1px dotted var(--warm-red);
+}
+.refs-panel a:hover { color: var(--gold-d); }
+
+.closing {
+  text-align: center;
+}
+.closing-compass {
+  width: 90px; height: 90px; margin: 0 auto 1rem;
+  opacity: .2;
+}
+.closing-compass img { width: 100%; height: 100%; object-fit: contain; filter: sepia(1) brightness(1.8); }
+.closing-brand {
+  font-family: var(--fc); font-size: 1.5rem;
+  font-weight: 600; letter-spacing: .12em;
+  color: var(--gold);
+}
+.closing-tag {
+  font-family: var(--fd); font-size: .9rem;
+  font-style: italic; color: var(--parchment-dd);
+  opacity: .35; margin-top: .2rem;
+}
+.closing-note {
+  font-size: .65rem; color: var(--parchment-dd);
+  opacity: .2; margin-top: 1.5rem; line-height: 1.7;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .s-demo { flex-direction: column; }
+  .s-demo-text { flex: none; }
+  .s-demo-frame iframe { height: 420px; }
+  .cap-card { width: 340px; }
+  .s-install { flex-direction: column; }
+  .install-col { max-width: 100%; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .nav-dots { display: none; }
+}
+</style>
 </head>
 <body>
 
-<!-- SVG Definitions -->
-<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
-  <symbol id="i-brush" viewBox="0 0 24 24"><path d="M7 14c-1.66 0-3 1.34-3 3 0 1.31-1.16 2-2 2 .92 1.22 2.49 2 4 2 2.21 0 4-1.79 4-4 0-1.66-1.34-3-3-3zm13.71-9.37l-1.34-1.34a.996.996 0 0 0-1.41 0L9 12.25 11.75 15l8.96-8.96a.996.996 0 0 0 0-1.41z"/></symbol>
-  <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10a2.5 2.5 0 0 0 2.5-2.5c0-.61-.23-1.21-.64-1.67A1.49 1.49 0 0 1 15 16.5c0-.83.67-1.5 1.5-1.5H19c2.76 0 5-2.24 5-5C24 5.48 18.51 2 12 2zM6.5 13A1.5 1.5 0 1 1 8 11.5 1.5 1.5 0 0 1 6.5 13zM8 8.5A1.5 1.5 0 1 1 9.5 7 1.5 1.5 0 0 1 8 8.5zm4-2A1.5 1.5 0 1 1 13.5 5 1.5 1.5 0 0 1 12 6.5zm4 2A1.5 1.5 0 1 1 17.5 7 1.5 1.5 0 0 1 16 8.5z"/></symbol>
-  <symbol id="i-search" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol>
-  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></symbol>
-  <symbol id="i-people" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></symbol>
-  <symbol id="i-timeline" viewBox="0 0 24 24"><path d="M23 8c0 1.1-.9 2-2 2a1.7 1.7 0 0 1-.51-.07l-3.56 3.55c.05.16.07.34.07.52 0 1.1-.9 2-2 2s-2-.9-2-2c0-.18.02-.36.07-.52l-2.55-2.55c-.16.05-.34.07-.52.07s-.36-.02-.52-.07l-4.55 4.56c.05.16.07.33.07.51 0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2c.18 0 .35.02.51.07l4.56-4.55C8.02 9.36 8 9.18 8 9c0-1.1.9-2 2-2s2 .9 2 2c0 .18-.02.36-.07.52l2.55 2.55c.16-.05.34-.07.52-.07s.36.02.52.07l3.55-3.56A1.7 1.7 0 0 1 19 8c0-1.1.9-2 2-2s2 .9 2 2z"/></symbol>
-  <symbol id="i-diamond" viewBox="0 0 24 24"><path d="M12 2L2 12l10 10 10-10L12 2zm0 3l7 7-7 7-7-7 7-7z"/></symbol>
-</svg>
+<div class="stage">
 
-<!-- Navigation -->
-<nav class="nav" id="nav">
-  <div class="ctr">
-    <a href="#top" class="nav-brand">ArtSleuth</a>
-    <ul class="nav-links">
-      <li><a href="#demo">Demo</a></li>
-      <li><a href="#features">Capabilities</a></li>
-      <li><a href="#methodology">Methodology</a></li>
-      <li><a href="#architecture">Architecture</a></li>
-      <li><a href="#benchmarks">Results</a></li>
-      <li><a href="#install">Install</a></li>
-      <li><a href="#references">References</a></li>
-    </ul>
+  <!-- LAYER 0: Video backgrounds -->
+  <div class="layer-video">
+    <video class="bg-vid" id="vid-clouds"  src="assets/videos/hero-clouds.mp4"      autoplay muted loop playsinline></video>
+    <video class="bg-vid" id="vid-paint"   src="assets/videos/painting-reveal.mp4"   autoplay muted loop playsinline></video>
+    <video class="bg-vid" id="vid-dust"    src="assets/videos/particles.mp4"         autoplay muted loop playsinline></video>
   </div>
-</nav>
 
-<!-- Hero -->
-<section class="hero" id="top">
-  <div class="hero-frame-canvas" id="heroCanvas">
-    <img src="assets/frames/painting-reveal/frame_0001.webp" alt="" id="heroFrame">
+  <!-- LAYER 1: Atmosphere -->
+  <div class="layer-atmo">
+    <div class="atmo-cloud atmo-cloud-1" id="cloud1"></div>
+    <div class="atmo-cloud atmo-cloud-2" id="cloud2"></div>
+    <div class="atmo-map" id="atmoMap"></div>
+    <div class="atmo-compass" id="atmoCompass"><img src="assets/compass-rose.png" alt=""></div>
+    <div class="atmo-particles" id="atmoParticles"></div>
   </div>
-  <div class="hero-vignette"></div>
-  <div class="hero-texture"></div>
-  <div class="particles-container" id="heroParticles"></div>
-  <div class="hero-content">
-    <div class="hero-overline">Computational Art Analysis</div>
-    <h1>ArtSleuth</h1>
-    <p class="hero-subtitle">Where connoisseurship meets computation</p>
-    <p class="hero-desc">
-      A framework formalising what connoisseurs have done for centuries &mdash;
-      examining the physical evidence a painter leaves on canvas &mdash; using
-      self-supervised vision transformers, Bayesian inference, and cross-attention fusion.
-    </p>
-    <div class="hero-badges">
-      <span class="hero-badge">Python 3.10+</span>
-      <span class="hero-badge">PyTorch</span>
-      <span class="hero-badge">DINOv2 + CLIP</span>
-      <span class="hero-badge">Cross-Attention</span>
-      <span class="hero-badge">Gaussian Process</span>
-      <span class="hero-badge">Bayesian Mixture</span>
-      <span class="hero-badge">MCP Server</span>
-      <span class="hero-badge">MIT Licence</span>
-    </div>
-    <div class="hero-cta">
-      <a href="#demo" class="btn btn-primary">Try the Demo</a>
-      <a href="#install" class="btn btn-outline">Install Locally</a>
-    </div>
+
+  <!-- LAYER 2: Overlay -->
+  <div class="layer-overlay">
+    <div class="vignette"></div>
+    <div class="colour-grade" id="colourGrade"></div>
   </div>
-  <div class="hero-scroll-hint">Scroll to explore</div>
-</section>
 
-<!-- Cloud Transition: Hero → Demo -->
-<div class="cloud-divider">
-  <img src="assets/clouds-top.png" alt="" loading="lazy">
-  <div class="fade-top"></div>
-  <div class="fade-bottom"></div>
-</div>
+  <!-- LAYER 3: Content scenes -->
+  <div class="layer-content">
 
-<!-- Demo -->
-<section id="demo">
-  <div class="ctr">
-    <div class="section-header">
-      <div class="section-overline">Live Demo</div>
-      <h2>Analyse Any Painting</h2>
-      <p>Upload an artwork for style classification, artist attribution, forgery screening, workshop decomposition, and temporal dating</p>
+    <!-- Scene 0: Opening -->
+    <div class="scene s-opening" id="sc-opening" data-enter="0" data-exit="0.12" data-from="center">
+      <div class="overline">Computational Art Analysis</div>
+      <h1>ArtSleuth</h1>
+      <p class="subtitle">Where connoisseurship meets computation</p>
+      <p class="desc">A framework formalising what connoisseurs have done for centuries &mdash; examining the physical evidence a painter leaves on canvas &mdash; using self-supervised vision transformers, Bayesian inference, and cross-attention fusion.</p>
+      <div class="badges">
+        <span class="badge">Python 3.10+</span>
+        <span class="badge">PyTorch</span>
+        <span class="badge">DINOv2 + CLIP</span>
+        <span class="badge">Cross-Attention</span>
+        <span class="badge">Gaussian Process</span>
+        <span class="badge">Bayesian Mixture</span>
+        <span class="badge">MCP Server</span>
+        <span class="badge">MIT Licence</span>
+      </div>
+      <div class="scroll-hint">Scroll to explore</div>
     </div>
-    <div class="demo-container reveal">
-      <div class="demo-frame">
-        <span class="demo-ornament tl"></span>
-        <span class="demo-ornament tr"></span>
-        <span class="demo-ornament bl"></span>
-        <span class="demo-ornament br"></span>
+
+    <!-- Scene 1: Demo -->
+    <div class="scene s-demo" id="sc-demo" data-enter="0.12" data-exit="0.25" data-from="right">
+      <div class="s-demo-text" data-from="left">
+        <div class="label">Live Demo</div>
+        <h2>Analyse Any Painting</h2>
+        <p>Upload an artwork for style classification, artist attribution, forgery screening, workshop decomposition, and temporal dating. Running on HuggingFace Spaces.</p>
+      </div>
+      <div class="s-demo-frame">
         <iframe src="https://ladyfaye1998-artsleuth.hf.space" title="ArtSleuth Live Demo" loading="lazy"
                 allow="clipboard-write" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
       </div>
-      <p class="demo-note">Running on HuggingFace Spaces (CPU). First analysis may take a moment while models load.</p>
+      <div class="demo-note">CPU inference &mdash; first analysis may take a moment while models load</div>
     </div>
-  </div>
-</section>
 
-<!-- Features -->
-<section id="features">
-  <div class="ctr">
-    <div class="section-header">
-      <div class="section-overline">Capabilities</div>
-      <h2>Six Analytical Axes</h2>
-      <p>Each grounded in art-historical practice and modern computer vision</p>
-    </div>
-    <div class="features-grid">
-      <div class="feature-card reveal">
-        <div class="feature-icon"><svg><use href="#i-brush"/></svg></div>
+    <!-- Scene 2: Capabilities (6 cards, shown one at a time) -->
+    <div class="scene s-cap" id="sc-cap" data-enter="0.25" data-exit="0.42">
+      <div class="cap-header">
+        <div class="label">Capabilities</div>
+        <h2 style="color:var(--parchment)">Six Analytical Axes</h2>
+      </div>
+
+      <div class="cap-card cap-card-left" data-cap="0">
         <h3>Brushstroke Analysis</h3>
         <p>Structure-tensor analysis and coherence clustering reveal the characteristic facture of individual painters through patch-level DINOv2 embeddings.</p>
-        <div class="feature-tags"><span class="feature-tag">Structure Tensor</span><span class="feature-tag">DINOv2</span><span class="feature-tag">K-Means</span></div>
+        <div class="tags"><span class="tag">Structure Tensor</span><span class="tag">DINOv2</span><span class="tag">K-Means</span></div>
       </div>
-      <div class="feature-card reveal reveal-d1">
-        <div class="feature-icon"><svg><use href="#i-palette"/></svg></div>
+      <div class="cap-card cap-card-right" data-cap="1">
         <h3>Style Classification</h3>
         <p>Multi-axis classification along period, school, and genre using CLIP embeddings projected through independently trained linear heads.</p>
-        <div class="feature-tags"><span class="feature-tag">CLIP ViT-L/14</span><span class="feature-tag">Multi-Axis</span><span class="feature-tag">Calibrated</span></div>
+        <div class="tags"><span class="tag">CLIP ViT-L/14</span><span class="tag">Multi-Axis</span><span class="tag">Calibrated</span></div>
       </div>
-      <div class="feature-card reveal reveal-d2">
-        <div class="feature-icon"><svg><use href="#i-search"/></svg></div>
+      <div class="cap-card cap-card-left" data-cap="2">
         <h3>Artist Attribution</h3>
         <p>Cosine-similarity ranking against a reference gallery of authenticated works, with Bayesian confidence intervals and temporal cross-validation.</p>
-        <div class="feature-tags"><span class="feature-tag">Cosine Similarity</span><span class="feature-tag">Bayesian CI</span></div>
+        <div class="tags"><span class="tag">Cosine Similarity</span><span class="tag">Bayesian CI</span></div>
       </div>
-      <div class="feature-card reveal reveal-d3">
-        <div class="feature-icon"><svg><use href="#i-shield"/></svg></div>
+      <div class="cap-card cap-card-right" data-cap="3">
         <h3>Anomaly Screening</h3>
         <p>One-class anomaly detection via Mahalanobis distance with per-dimension z-scores, stress-tested against adversarial forgery simulations.</p>
-        <div class="feature-tags"><span class="feature-tag">Mahalanobis</span><span class="feature-tag">Adversarial</span><span class="feature-tag">Z-Score</span></div>
+        <div class="tags"><span class="tag">Mahalanobis</span><span class="tag">Adversarial</span><span class="tag">Z-Score</span></div>
       </div>
-      <div class="feature-card reveal reveal-d4">
-        <div class="feature-icon"><svg><use href="#i-people"/></svg></div>
+      <div class="cap-card cap-card-left" data-cap="4">
         <h3>Workshop Decomposition</h3>
         <p>Dirichlet Process Gaussian Mixture Models infer how many distinct hands contributed to a painting, without requiring the number as input.</p>
-        <div class="feature-tags"><span class="feature-tag">DPGMM</span><span class="feature-tag">Bayesian</span><span class="feature-tag">Non-parametric</span></div>
+        <div class="tags"><span class="tag">DPGMM</span><span class="tag">Bayesian</span><span class="tag">Non-parametric</span></div>
       </div>
-      <div class="feature-card reveal reveal-d5">
-        <div class="feature-icon"><svg><use href="#i-timeline"/></svg></div>
+      <div class="cap-card cap-card-right" data-cap="5">
         <h3>Temporal Dating</h3>
-        <p>Gaussian process regression over dated embeddings models an artist's stylistic evolution, estimating when an undated work was most likely produced.</p>
-        <div class="feature-tags"><span class="feature-tag">Gaussian Process</span><span class="feature-tag">Style Drift</span><span class="feature-tag">PCA</span></div>
+        <p>Gaussian process regression over dated embeddings models an artist&rsquo;s stylistic evolution, estimating when an undated work was most likely produced.</p>
+        <div class="tags"><span class="tag">Gaussian Process</span><span class="tag">Style Drift</span><span class="tag">PCA</span></div>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- Cloud Transition: Features → Methodology -->
-<div class="cloud-divider cloud-divider-inv">
-  <img src="assets/clouds-top.png" alt="" loading="lazy" style="transform:scaleX(-1)">
-  <div class="fade-top"></div>
-  <div class="fade-bottom"></div>
-</div>
+    <!-- Scene 3: Methodology (progressive blocks) -->
+    <div class="scene s-meth" id="sc-meth" data-enter="0.42" data-exit="0.68">
+      <div class="meth-panel" style="position:relative;">
 
-<!-- Methodology -->
-<section id="methodology" class="section-dark">
-  <div class="ctr">
-    <div class="section-header">
-      <div class="section-overline">Technical Documentation</div>
-      <h2>Methodology</h2>
-      <p>How ArtSleuth bridges art-historical connoisseurship and computational analysis</p>
-    </div>
-    <div class="meth-wrap reveal" style="color:var(--parchment-dd)">
+        <div class="meth-block" data-meth="0">
+          <div class="label">Methodology</div>
+          <h3>The Morellian Tradition</h3>
+          <p class="dropcap">In the 1870s, Giovanni Morelli proposed that attribution should focus on incidental details &mdash; the shape of fingernails, the curl of earlobes, the rendering of drapery folds. These peripheral passages, executed habitually and without deliberation, reveal the artist&rsquo;s hand more reliably than any consciously composed focal passage.</p>
+          <p>ArtSleuth formalises the Morellian intuition as a <strong>feature-extraction problem</strong>: the &ldquo;incidental details&rdquo; correspond to the low-level textural and structural features that self-supervised vision transformers encode.</p>
+        </div>
 
-      <h3 style="color:var(--parchment);border-bottom-color:var(--gold)">The Morellian Tradition</h3>
-      <p class="meth-dropcap">In the 1870s, Giovanni Morelli proposed that attribution should focus on incidental details &mdash; the shape of fingernails, the curl of earlobes, the rendering of drapery folds. These peripheral passages, executed habitually and without deliberation, reveal the artist&rsquo;s hand more reliably than any consciously composed focal passage. Bernard Berenson refined this into a systematic method of connoisseurship, and subsequent scholars extended it to address workshop production.</p>
-      <p>ArtSleuth formalises the Morellian intuition as a <strong style="color:var(--parchment)">feature-extraction problem</strong>: the &ldquo;incidental details&rdquo; that Morelli identified correspond to the low-level textural and structural features that self-supervised vision transformers encode.</p>
+        <div class="meth-block" data-meth="1">
+          <div class="label">Dual Backbone</div>
+          <h3>DINOv2 &amp; CLIP</h3>
+          <p><strong>DINOv2</strong> learns visual representations without labelled data via self-distillation. The resulting feature space encodes texture, directionality, and granularity &mdash; the physical surface qualities that connoisseurs evaluate.</p>
+          <p style="margin-top:.6rem"><strong>CLIP</strong> encodes images and text in a shared embedding space. Critical for style classification, where categories like &ldquo;Baroque&rdquo; are culturally constructed labels &mdash; not purely visual properties.</p>
+        </div>
 
-      <h3 style="color:var(--parchment);border-bottom-color:var(--gold)">Dual Backbone Design</h3>
-      <h4 style="color:var(--parchment-d)">DINOv2 &mdash; Texture &amp; Structure</h4>
-      <p><strong style="color:var(--parchment)">DINOv2</strong> (Oquab et al., 2024) learns visual representations without labelled data via self-distillation. The resulting feature space encodes texture, directionality, and granularity &mdash; the physical surface qualities that connoisseurs evaluate. This is the &ldquo;hand of the artist&rdquo; backbone.</p>
-      <h4 style="color:var(--parchment-d)">CLIP &mdash; Semantic Context</h4>
-      <p><strong style="color:var(--parchment)">CLIP</strong> (Radford et al., 2021) encodes images and text in a shared embedding space. This is critical for style classification, where categories like &ldquo;Baroque&rdquo; or &ldquo;Impressionism&rdquo; are culturally constructed labels &mdash; not purely visual properties. CLIP&rsquo;s linguistic grounding captures the semantic associations that define these categories.</p>
+        <div class="meth-block" data-meth="2">
+          <div class="label">Pipeline</div>
+          <h3>Preprocessing &amp; Patch Extraction</h3>
+          <p>Standard vision-transformer preprocessing: resize, centre-crop, and ImageNet normalisation. Optional art-specific corrections: <strong>varnish correction</strong>, <strong>craquelure suppression</strong>, and <strong>canvas texture normalisation</strong>.</p>
+          <p style="margin-top:.6rem">The painting is divided into local patches using <strong>Grid</strong>, <strong>Salient</strong>, or <strong>Adaptive</strong> strategies (default: grid + saliency-weighted oversampling).</p>
+        </div>
 
-      <h3 style="color:var(--parchment);border-bottom-color:var(--gold)">Pipeline Stages</h3>
+        <div class="meth-block" data-meth="3">
+          <div class="label">Pipeline</div>
+          <h3>Brushstroke &amp; Style</h3>
+          <p>For each patch, the 2&times;2 structure tensor is computed. Eigenvalues yield orientation, coherence, and energy. DINOv2 patch embeddings are clustered (k-means) to reveal homogeneous brushwork regions.</p>
+          <div class="math">Coherence = (&lambda;<sub>1</sub> &minus; &lambda;<sub>2</sub>) / (&lambda;<sub>1</sub> + &lambda;<sub>2</sub>)&emsp; Energy = &radic;(&lambda;<sub>1</sub> + &lambda;<sub>2</sub>)</div>
+          <p>Full-image CLIP embeddings are projected through three independent linear heads (period, school, genre), producing calibrated probability distributions.</p>
+        </div>
 
-      <h4 style="color:var(--parchment-d)">1. Preprocessing</h4>
-      <p>Standard vision-transformer preprocessing: resize, centre-crop, and ImageNet normalisation. Three optional art-specific corrective transforms are available but <strong style="color:var(--parchment)">not applied on the default inference path</strong>:</p>
-      <ul>
-        <li><strong style="color:var(--parchment)">Varnish correction</strong> &mdash; attenuates warm amber shift from aged surface coatings</li>
-        <li><strong style="color:var(--parchment)">Craquelure suppression</strong> &mdash; selective median filtering for age-induced crack patterns</li>
-        <li><strong style="color:var(--parchment)">Canvas texture normalisation</strong> &mdash; frequency-domain filtering for periodic weave patterns</li>
-      </ul>
+        <div class="meth-block" data-meth="4">
+          <div class="label">Pipeline</div>
+          <h3>Attribution &amp; Forgery Detection</h3>
+          <p>The fused embedding (CLIP style + mean DINOv2 patch) is compared against a reference gallery using temperature-scaled cosine similarity. Confidence intervals via normal approximation.</p>
+          <p style="margin-top:.6rem">A one-class anomaly detector evaluates Mahalanobis distance from the reference distribution, normalised to a 0&ndash;1 anomaly score via sigmoid transform.</p>
+          <div class="math">D<sub>M</sub>(x) = &radic;( (x &minus; &mu;)<sup>T</sup> &Sigma;<sup>&minus;1</sup> (x &minus; &mu;) )</div>
+        </div>
 
-      <h4 style="color:var(--parchment-d)">2. Patch Extraction</h4>
-      <p>The painting is divided into local patches using one of three strategies: <strong style="color:var(--parchment)">Grid</strong> (uniform tiling), <strong style="color:var(--parchment)">Salient</strong> (high-gradient-energy regions), or <strong style="color:var(--parchment)">Adaptive</strong> (default: grid + saliency-weighted oversampling).</p>
+        <div class="meth-block" data-meth="5">
+          <div class="label">Pipeline</div>
+          <h3>Fusion, Temporal Drift &amp; Workshop</h3>
+          <p>Style-guided cross-attention lets CLIP embeddings (queries) attend over DINOv2 patch tokens (keys/values). 8 heads, 512 internal dim, learned temperature. Used during end-to-end training.</p>
+          <p style="margin-top:.6rem">GP with RBF + White noise kernel models temporal style drift. Bayesian Gaussian mixture with Dirichlet process prior infers the number of hands in workshop paintings.</p>
+        </div>
 
-      <h4 style="color:var(--parchment-d)">3. Brushstroke Analysis</h4>
-      <p>For each patch, the 2&times;2 structure tensor is computed from the greyscale gradient field. The eigenvalues yield orientation, coherence, and energy. Patch embeddings from DINOv2 are clustered (k-means) to reveal regions of homogeneous brushwork.</p>
-      <div class="math-block" style="background:rgba(244,234,213,.04);border-color:rgba(201,168,76,.15);border-left-color:var(--gold);color:var(--parchment)">
-        J = [ &langle;g<sub>x</sub>&sup2;&rangle;&ensp;&langle;g<sub>x</sub>g<sub>y</sub>&rangle; / &langle;g<sub>x</sub>g<sub>y</sub>&rangle;&ensp;&langle;g<sub>y</sub>&sup2;&rangle; ]<br>
-        Coherence = (&lambda;<sub>1</sub> &minus; &lambda;<sub>2</sub>) / (&lambda;<sub>1</sub> + &lambda;<sub>2</sub>)&emsp;
-        Energy = &radic;(&lambda;<sub>1</sub> + &lambda;<sub>2</sub>)
+        <div class="meth-block" data-meth="6">
+          <div class="label">Caveats</div>
+          <h3>Limitations</h3>
+          <ul>
+            <li><strong>Training data bias</strong>: Pre-trained backbones encode biases from predominantly Western photographic training data.</li>
+            <li><strong>Probabilistic, not definitive</strong>: All outputs are statistical estimates informing expert judgement.</li>
+            <li><strong>Reference corpus dependency</strong>: Attribution and forgery detection quality scales with reference gallery size.</li>
+          </ul>
+        </div>
       </div>
-
-      <h4 style="color:var(--parchment-d)">4. Style Classification</h4>
-      <p>The full image is encoded via CLIP, and the embedding is projected through three independent linear heads (period, school, genre), producing calibrated probability distributions over the respective taxonomies.</p>
-
-      <h4 style="color:var(--parchment-d)">5. Attribution</h4>
-      <p>The query painting&rsquo;s fused embedding (CLIP style + mean DINOv2 patch) is compared against a reference gallery using temperature-scaled cosine similarity. Confidence intervals are derived via the normal approximation to the binomial proportion.</p>
-
-      <h4 style="color:var(--parchment-d)">6. Forgery Detection</h4>
-      <p>A one-class anomaly detector evaluates the Mahalanobis distance of the query embedding from the reference distribution, normalised to a 0&ndash;1 anomaly score via sigmoid transform. Per-dimension z-scores identify which embedding dimensions contribute most.</p>
-      <div class="math-block" style="background:rgba(244,234,213,.04);border-color:rgba(201,168,76,.15);border-left-color:var(--gold);color:var(--parchment)">
-        D<sub>M</sub>(x) = &radic;( (x &minus; &mu;)<sup>T</sup> &Sigma;<sup>&minus;1</sup> (x &minus; &mu;) )
-      </div>
-
-      <h4 style="color:var(--parchment-d)">7. Cross-Attention Fusion</h4>
-      <p>For benchmark fine-tuning, a style-guided cross-attention module lets CLIP embeddings (queries) attend over DINOv2 patch tokens (keys/values). Multi-head attention (8 heads, 512 internal dim) with learned temperature. This is used during end-to-end training but is <strong style="color:var(--parchment)">not</strong> part of the default inference path.</p>
-
-      <h4 style="color:var(--parchment-d)">8. Temporal Style Drift</h4>
-      <p>For artists with time-stamped reference works: PCA-reduce embeddings (up to 20 components), fit a GP with RBF + White noise kernel over normalised years, search the artist&rsquo;s active period for the year where the GP-predicted embedding is closest to the query, and compute a plausibility score with 95% confidence band.</p>
-
-      <h4 style="color:var(--parchment-d)">9. Workshop Decomposition</h4>
-      <p>Rather than flat k-means (fixed cluster count), ArtSleuth uses a variational Bayesian Gaussian mixture model with Dirichlet process prior, allowing the model to <em style="color:var(--parchment-d)">infer</em> the number of hands. Components capturing fewer than 5% of patches are pruned. Each assignment carries a posterior probability, enabling soft boundaries.</p>
-
-      <h4 style="color:var(--parchment-d)">10. Adversarial Robustness</h4>
-      <p>A robustness testing framework simulates four forgery techniques: artificial aging (varnish + craquelure), style transfer perturbation, material anachronism injection, and composite forgery. The evaluator sweeps severity levels and reports per-technique detection rates.</p>
-
-      <h3 style="color:var(--parchment);border-bottom-color:var(--gold)">Limitations</h3>
-      <ul>
-        <li><strong style="color:var(--parchment)">Training data bias</strong>: Pre-trained backbones encode biases from predominantly Western photographic training data.</li>
-        <li><strong style="color:var(--parchment)">Probabilistic, not definitive</strong>: All outputs are statistical estimates informing expert judgement.</li>
-        <li><strong style="color:var(--parchment)">Reference corpus dependency</strong>: Attribution and forgery detection quality scales with reference gallery size.</li>
-      </ul>
     </div>
-  </div>
-</section>
 
-<!-- Cloud Transition: Methodology → Architecture -->
-<div class="cloud-divider">
-  <img src="assets/clouds-top.png" alt="" loading="lazy" style="transform:scaleY(-1)">
-  <div class="fade-top" style="background:linear-gradient(to bottom, var(--ink), transparent)"></div>
-  <div class="fade-bottom" style="background:linear-gradient(to top, var(--parchment-d), transparent)"></div>
-</div>
-
-<!-- Architecture -->
-<section id="architecture" style="background:var(--parchment-d)">
-  <div class="ctr">
-    <div class="section-header">
-      <div class="section-overline">System Design</div>
-      <h2>Architecture</h2>
-      <p>Dual backbones, cross-attention fusion, and six analytical heads</p>
-    </div>
-    <div class="arch-container">
-      <div class="arch-diagram reveal">
+    <!-- Scene 4: Architecture + Benchmarks -->
+    <div class="scene s-data" id="sc-data" data-enter="0.68" data-exit="0.80" data-from="center">
+      <div class="data-panel">
+        <h2>Architecture &amp; Results</h2>
         <div class="arch-flow">
           <div class="arch-node an-input">Artwork Input</div>
           <div class="arch-arrow">&darr;</div>
@@ -993,28 +778,15 @@
           <div class="arch-arrow">&darr;</div>
           <div class="arch-node an-output">Unified Report</div>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- Benchmarks -->
-<section id="benchmarks" class="section-dark">
-  <div class="ctr">
-    <div class="section-header">
-      <div class="section-overline">Empirical Evaluation</div>
-      <h2>Benchmark Results</h2>
-      <p>WikiArt (81,444 images) and 126-artist forgery validation</p>
-    </div>
-    <div class="bench-container">
-      <div class="stats-grid">
-        <div class="stat-card reveal"><div class="stat-value">72.7%</div><div class="stat-label">Style Accuracy</div></div>
-        <div class="stat-card reveal reveal-d1"><div class="stat-value">79.0%</div><div class="stat-label">Artist Top-1</div></div>
-        <div class="stat-card reveal reveal-d2"><div class="stat-value">96.9%</div><div class="stat-label">Artist Top-5</div></div>
-        <div class="stat-card reveal reveal-d3"><div class="stat-value">0.918</div><div class="stat-label">Median AUC</div></div>
-      </div>
-      <div class="bench-table-wrap reveal">
-        <table class="bench-table">
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-val" data-count="72.7">0</div><div class="stat-lbl">Style Acc %</div></div>
+          <div class="stat-box"><div class="stat-val" data-count="79.0">0</div><div class="stat-lbl">Artist Top-1 %</div></div>
+          <div class="stat-box"><div class="stat-val" data-count="96.9">0</div><div class="stat-lbl">Artist Top-5 %</div></div>
+          <div class="stat-box"><div class="stat-val" data-count="0.918">0</div><div class="stat-lbl">Median AUC</div></div>
+        </div>
+
+        <table class="bench-tbl">
           <thead><tr><th style="text-align:left">Backbone</th><th>Style</th><th>F1</th><th>Artist</th><th>Top-5</th><th>Genre</th></tr></thead>
           <tbody>
             <tr><td>DINOv2 ViT-B/14</td><td>57.5%</td><td>0.553</td><td>64.7%</td><td>90.9%</td><td>71.0%</td></tr>
@@ -1024,40 +796,15 @@
             <tr class="hl"><td>Fusion (end-to-end)</td><td>72.7%</td><td>&mdash;</td><td>79.0%</td><td>96.9%</td><td>76.6%</td></tr>
           </tbody>
         </table>
+        <p class="bench-note">WikiArt 81,444 images. Linear probes (rows 1-4), end-to-end heads (row 5). Macro-averaged. 126-artist forgery validation: mean AUC 0.958 (CLIP), 0.873 (DINOv2), 0.897 (Fused).</p>
       </div>
-      <p class="bench-note">Top four rows: linear probes. Bottom row: end-to-end heads. Fine-tuning: SupCon + CE, 3-block unfreeze, 5 epochs, Tesla P100. All numbers macro-averaged.</p>
-
-      <h3 class="bench-subtitle">Forgery Screening Validation</h3>
-      <div class="stats-grid">
-        <div class="stat-card reveal"><div class="stat-value">126</div><div class="stat-label">Artists Validated</div></div>
-        <div class="stat-card reveal reveal-d1"><div class="stat-value">0.958</div><div class="stat-label">Mean AUC (CLIP)</div></div>
-        <div class="stat-card reveal reveal-d2"><div class="stat-value">0.873</div><div class="stat-label">Mean AUC (DINOv2)</div></div>
-        <div class="stat-card reveal reveal-d3"><div class="stat-value">0.897</div><div class="stat-label">Mean AUC (Fused)</div></div>
-      </div>
-      <p class="bench-note">One-class anomaly detection per artist. ROC-AUC on held-out sets. Results vary by corpus size.</p>
     </div>
-  </div>
-</section>
 
-<!-- Cloud Transition: Benchmarks → Install -->
-<div class="cloud-divider">
-  <img src="assets/clouds-top.png" alt="" loading="lazy">
-  <div class="fade-top" style="background:linear-gradient(to bottom, var(--ink), transparent)"></div>
-  <div class="fade-bottom" style="background:linear-gradient(to top, var(--parchment-d), transparent)"></div>
-</div>
-
-<!-- Install & Usage -->
-<section id="install" style="background:var(--parchment-d)">
-  <div class="ctr">
-    <div class="section-header">
-      <div class="section-overline">Get Started</div>
-      <h2>Installation &amp; Usage</h2>
-      <p>From pip install to first analysis in under a minute</p>
-    </div>
-    <div class="install-grid">
-      <div>
+    <!-- Scene 5: Install -->
+    <div class="scene s-install" id="sc-install" data-enter="0.80" data-exit="0.90">
+      <div class="install-col" data-from="left">
         <h3>Command Line</h3>
-        <div class="code-block reveal">
+        <div class="code-block">
           <button class="copy-btn" onclick="copyCode(this)">Copy</button>
           <span class="cmt"># Install</span><br>
           pip install artsleuth<br><br>
@@ -1072,9 +819,9 @@
           artsleuth compare a.jpg b.jpg
         </div>
       </div>
-      <div>
+      <div class="install-col" data-from="right">
         <h3>Python API</h3>
-        <div class="code-block reveal reveal-d2">
+        <div class="code-block">
           <button class="copy-btn" onclick="copyCode(this)">Copy</button>
           <span class="cmt"># Full pipeline</span><br>
           <span class="kw">from</span> artsleuth <span class="kw">import</span> analyse<br><br>
@@ -1092,190 +839,297 @@
         </div>
       </div>
     </div>
-    <div style="max-width:900px;margin:2rem auto 0;">
-      <h3 style="font-family:var(--fc);font-size:.9rem;font-weight:600;letter-spacing:.04em;color:var(--ink);margin-bottom:.8rem;">MCP Server (AI Agent Integration)</h3>
-      <div class="code-block reveal">
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-        <span class="cmt"># Start the Model Context Protocol server</span><br>
-        artsleuth mcp-server<br><br>
-        <span class="cmt"># In your MCP config (.cursor/mcp.json):</span><br>
-        {<br>
-        &nbsp;&nbsp;<span class="str">"mcpServers"</span>: {<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"artsleuth"</span>: {<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"command"</span>: <span class="str">"artsleuth"</span>,<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">"args"</span>: [<span class="str">"mcp-server"</span>]<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;}<br>
-        &nbsp;&nbsp;}<br>
-        }
+
+    <!-- Scene 6: References + Close -->
+    <div class="scene s-refs" id="sc-refs" data-enter="0.90" data-exit="1.0" data-from="center">
+      <div class="refs-panel">
+        <h2>References</h2>
+        <ol>
+          <li>Morelli, G. (1890). <em>Italian Painters: Critical Studies of Their Works</em>. John Murray.</li>
+          <li>Berenson, B. (1902). <em>The Study and Criticism of Italian Art</em>. George Bell &amp; Sons.</li>
+          <li>Ainsworth, M. W. (2005). From Connoisseurship to Technical Art History. <em>Getty Research Journal</em>, 159&ndash;176.</li>
+          <li>Lyu, S., Rockmore, D. &amp; Farid, H. (2004). A digital technique for art authentication. <em>PNAS</em>, 101(49). <a href="https://doi.org/10.1073/pnas.0406398101" target="_blank" rel="noopener">doi</a></li>
+          <li>Johnson, C. R. et al. (2008). Image processing for artist identification. <em>IEEE Signal Proc. Mag.</em>, 25(4). <a href="https://doi.org/10.1109/MSP.2008.923513" target="_blank" rel="noopener">doi</a></li>
+          <li>Saleh, B. &amp; Elgammal, A. (2016). Large-scale classification of fine-art paintings. <em>JOCCH</em>, 8(4). <a href="https://doi.org/10.1145/2801634" target="_blank" rel="noopener">doi</a></li>
+          <li>Vaswani, A. et al. (2017). Attention is all you need. <em>NeurIPS</em>. <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">arXiv</a></li>
+          <li>Caron, M. et al. (2021). Emerging properties in self-supervised vision transformers. <em>ICCV</em>. <a href="https://arxiv.org/abs/2104.14294" target="_blank" rel="noopener">arXiv</a></li>
+          <li>Radford, A. et al. (2021). Learning transferable visual models from natural language supervision. <em>ICML</em>. <a href="https://arxiv.org/abs/2103.00020" target="_blank" rel="noopener">arXiv</a></li>
+          <li>Blei, D. M. &amp; Jordan, M. I. (2006). Variational inference for Dirichlet process mixtures. <em>Bayesian Analysis</em>, 1(1). <a href="https://doi.org/10.1214/06-BA104" target="_blank" rel="noopener">doi</a></li>
+          <li>Rasmussen, C. E. &amp; Williams, C. K. I. (2006). <em>Gaussian Processes for Machine Learning</em>. MIT Press.</li>
+          <li>Oquab, M. et al. (2024). DINOv2: Learning robust visual features without supervision. <em>TMLR</em>. <a href="https://arxiv.org/abs/2304.07193" target="_blank" rel="noopener">arXiv</a></li>
+          <li>Jose, J. et al. (2025). DINOv2 meets text. <em>CVPR</em>. <a href="https://arxiv.org/abs/2501.00564" target="_blank" rel="noopener">arXiv</a></li>
+          <li>Anonymous (2025). PATCH: heterogeneity of artistic practice in historical paintings. <a href="https://arxiv.org/abs/2502.01912" target="_blank" rel="noopener">arXiv</a></li>
+          <li>W&ouml;lfflin, H. (1915). <em>Principles of Art History</em>.</li>
+        </ol>
+      </div>
+      <div class="closing">
+        <div class="closing-compass"><img src="assets/compass-rose.png" alt=""></div>
+        <div class="closing-brand">ArtSleuth</div>
+        <div class="closing-tag">Computational Art Analysis Framework</div>
+        <div class="closing-note">All results are probabilistic and should be reviewed by qualified art historians.<br>MIT Licence.</div>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- References -->
-<section id="references">
-  <div class="ctr">
-    <div class="section-header">
-      <div class="section-overline">Academic Context</div>
-      <h2>References</h2>
-      <p>Building on decades of computational art analysis, self-supervised vision, and Bayesian inference</p>
-    </div>
-    <div class="ref-container reveal">
-      <ol>
-        <li>Morelli, G. (1890). <em>Italian Painters: Critical Studies of Their Works</em>. John Murray.</li>
-        <li>Berenson, B. (1902). <em>The Study and Criticism of Italian Art</em>. George Bell &amp; Sons.</li>
-        <li>Ainsworth, M. W. (2005). From Connoisseurship to Technical Art History. <em>Getty Research Journal</em>, 159&ndash;176.</li>
-        <li>Lyu, S., Rockmore, D. &amp; Farid, H. (2004). A digital technique for art authentication. <em>PNAS</em>, 101(49). <a href="https://doi.org/10.1073/pnas.0406398101" target="_blank" rel="noopener">doi</a></li>
-        <li>Johnson, C. R. et al. (2008). Image processing for artist identification. <em>IEEE Signal Proc. Mag.</em>, 25(4). <a href="https://doi.org/10.1109/MSP.2008.923513" target="_blank" rel="noopener">doi</a></li>
-        <li>Saleh, B. &amp; Elgammal, A. (2016). Large-scale classification of fine-art paintings. <em>JOCCH</em>, 8(4). <a href="https://doi.org/10.1145/2801634" target="_blank" rel="noopener">doi</a></li>
-        <li>Sch&ouml;lkopf, B. et al. (2001). Estimating the support of a high-dimensional distribution. <em>Neural Computation</em>, 13(7). <a href="https://doi.org/10.1162/089976601750264965" target="_blank" rel="noopener">doi</a></li>
-        <li>Vaswani, A. et al. (2017). Attention is all you need. <em>NeurIPS</em>. <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">arXiv</a></li>
-        <li>Selvaraju, R. R. et al. (2017). Grad-CAM: Visual explanations from deep networks. <em>ICCV</em>. <a href="https://doi.org/10.1109/ICCV.2017.74" target="_blank" rel="noopener">doi</a></li>
-        <li>Caron, M. et al. (2021). Emerging properties in self-supervised vision transformers. <em>ICCV</em>. <a href="https://arxiv.org/abs/2104.14294" target="_blank" rel="noopener">arXiv</a></li>
-        <li>Radford, A. et al. (2021). Learning transferable visual models from natural language supervision. <em>ICML</em>. <a href="https://arxiv.org/abs/2103.00020" target="_blank" rel="noopener">arXiv</a></li>
-        <li>Blei, D. M. &amp; Jordan, M. I. (2006). Variational inference for Dirichlet process mixtures. <em>Bayesian Analysis</em>, 1(1). <a href="https://doi.org/10.1214/06-BA104" target="_blank" rel="noopener">doi</a></li>
-        <li>Rasmussen, C. E. &amp; Williams, C. K. I. (2006). <em>Gaussian Processes for Machine Learning</em>. MIT Press.</li>
-        <li>Oquab, M. et al. (2024). DINOv2: Learning robust visual features without supervision. <em>TMLR</em>. <a href="https://arxiv.org/abs/2304.07193" target="_blank" rel="noopener">arXiv</a></li>
-        <li>Jose, J. et al. (2025). DINOv2 meets text: a unified framework for image- and pixel-level vision-language alignment. <em>CVPR</em>. <a href="https://arxiv.org/abs/2501.00564" target="_blank" rel="noopener">arXiv</a></li>
-        <li>Anonymous (2025). PATCH: a deep learning method to assess heterogeneity of artistic practice in historical paintings. <a href="https://arxiv.org/abs/2502.01912" target="_blank" rel="noopener">arXiv</a></li>
-        <li>Wynne, F. (2006). <em>I Was Vermeer</em>. Bloomsbury.</li>
-        <li>W&ouml;lfflin, H. (1915). <em>Principles of Art History</em>.</li>
-      </ol>
-    </div>
-  </div>
-</section>
+  </div><!-- /layer-content -->
+</div><!-- /stage -->
 
-<!-- Footer -->
-<footer class="footer">
-  <div class="ctr">
-    <div class="footer-compass"><img src="assets/compass-rose.png" alt=""></div>
-    <div class="footer-brand">ArtSleuth</div>
-    <div class="footer-tagline">Computational Art Analysis Framework</div>
-    <div class="footer-note">
-      All results are probabilistic and should be reviewed by qualified art historians.<br>
-      Built at the intersection of art history and computer science. MIT Licence.
-    </div>
-  </div>
-</footer>
+<!-- Navigation dots -->
+<nav class="nav-dots" id="navDots">
+  <div class="nav-dot active" data-target="0"><span class="nav-label">Opening</span></div>
+  <div class="nav-dot" data-target="0.12"><span class="nav-label">Demo</span></div>
+  <div class="nav-dot" data-target="0.25"><span class="nav-label">Capabilities</span></div>
+  <div class="nav-dot" data-target="0.42"><span class="nav-label">Methodology</span></div>
+  <div class="nav-dot" data-target="0.68"><span class="nav-label">Results</span></div>
+  <div class="nav-dot" data-target="0.80"><span class="nav-label">Install</span></div>
+  <div class="nav-dot" data-target="0.90"><span class="nav-label">References</span></div>
+</nav>
 
 <script>
 (function() {
-  /* ── Navigation scroll effect ── */
-  var nav = document.getElementById('nav');
-  window.addEventListener('scroll', function() {
-    nav.classList.toggle('scrolled', window.scrollY > 50);
-  });
+  'use strict';
 
-  /* ── Intersection Observer for reveal animations ── */
-  var observer = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-
-  document.querySelectorAll('.reveal').forEach(function(el) {
-    observer.observe(el);
-  });
-
-  /* ── Hero scroll-driven frame animation ── */
-  var heroFrame = document.getElementById('heroFrame');
-  var TOTAL_FRAMES = 96;
-  var FRAME_PATH = 'assets/frames/painting-reveal/frame_';
-  var frameCache = [];
-  var currentFrame = 0;
-
-  function padFrame(n) {
-    return ('0000' + n).slice(-4);
-  }
-
-  for (var i = 1; i <= TOTAL_FRAMES; i++) {
-    var img = new Image();
-    img.src = FRAME_PATH + padFrame(i) + '.webp';
-    frameCache.push(img);
-  }
-
-  var heroSection = document.querySelector('.hero');
-
-  function updateHeroFrame() {
-    var rect = heroSection.getBoundingClientRect();
-    var heroH = heroSection.offsetHeight;
-    var scrolled = -rect.top;
-    var progress = Math.max(0, Math.min(1, scrolled / (heroH * 0.8)));
-    var frameIndex = Math.min(TOTAL_FRAMES - 1, Math.floor(progress * TOTAL_FRAMES));
-
-    if (frameIndex !== currentFrame && frameCache[frameIndex] && frameCache[frameIndex].complete) {
-      currentFrame = frameIndex;
-      heroFrame.src = frameCache[frameIndex].src;
-    }
-  }
-
-  /* ── Cloud parallax ── */
-  var cloudDividers = document.querySelectorAll('.cloud-divider img');
-
-  function updateParallax() {
-    cloudDividers.forEach(function(img) {
-      var rect = img.parentElement.getBoundingClientRect();
-      var winH = window.innerHeight;
-      if (rect.top < winH && rect.bottom > 0) {
-        var progress = (winH - rect.top) / (winH + rect.height);
-        var offset = (progress - 0.5) * 40;
-        img.style.transform = (img.style.transform.indexOf('scaleX') > -1 ? 'scaleX(-1) ' :
-                               img.style.transform.indexOf('scaleY') > -1 ? 'scaleY(-1) ' : '') +
-                              'translateY(' + offset + 'px)';
-      }
-    });
-  }
-
-  /* ── Throttled scroll handler ── */
+  /* ── Constants ── */
+  var MAX_SCROLL = document.body.scrollHeight - window.innerHeight;
+  var progress = 0;
   var ticking = false;
+
+  /* ── Elements ── */
+  var vidClouds = document.getElementById('vid-clouds');
+  var vidPaint  = document.getElementById('vid-paint');
+  var vidDust   = document.getElementById('vid-dust');
+  var cloud1    = document.getElementById('cloud1');
+  var cloud2    = document.getElementById('cloud2');
+  var atmoMap   = document.getElementById('atmoMap');
+  var compass   = document.getElementById('atmoCompass');
+  var colGrade  = document.getElementById('colourGrade');
+  var dots      = document.querySelectorAll('.nav-dot');
+
+  /* ── Scenes ── */
+  var scenes = document.querySelectorAll('.scene[data-enter]');
+
+  /* ── Capability cards ── */
+  var capCards = document.querySelectorAll('.cap-card');
+  var CAP_COUNT = capCards.length;
+
+  /* ── Methodology blocks ── */
+  var methBlocks = document.querySelectorAll('.meth-block');
+  var METH_COUNT = methBlocks.length;
+
+  /* ── Stat counters ── */
+  var statVals = document.querySelectorAll('.stat-val[data-count]');
+  var statsAnimated = false;
+
+  /* ── Install columns ── */
+  var installCols = document.querySelectorAll('.s-install .install-col');
+
+  /* ── Particles ── */
+  var particlesEl = document.getElementById('atmoParticles');
+  for (var j = 0; j < 25; j++) {
+    var dot = document.createElement('div');
+    dot.className = 'atmo-particle';
+    var sz = 2 + Math.random() * 3;
+    var op = 0.05 + Math.random() * 0.12;
+    dot.style.cssText =
+      'width:' + sz + 'px;height:' + sz + 'px;' +
+      'left:' + Math.random() * 100 + '%;top:' + Math.random() * 100 + '%;' +
+      '--dur:' + (5 + Math.random() * 7) + 's;--op:' + op + ';' +
+      '--dx:' + (Math.random() * 40 - 20) + 'px;--dy:' + (Math.random() * 30 - 15) + 'px;' +
+      'animation-delay:' + (Math.random() * 6) + 's;';
+    particlesEl.appendChild(dot);
+  }
+
+  /* ── Helper: ramp ── */
+  function ramp(val, lo, hi) {
+    if (val <= lo) return 0;
+    if (val >= hi) return 1;
+    return (val - lo) / (hi - lo);
+  }
+
+  /* ── Helper: bell (fade in then out) ── */
+  function bell(p, enter, exit) {
+    var span = exit - enter;
+    var fadeIn  = span * 0.15;
+    var fadeOut = span * 0.15;
+    if (p < enter || p > exit) return 0;
+    if (p < enter + fadeIn)  return ramp(p, enter, enter + fadeIn);
+    if (p > exit  - fadeOut) return 1 - ramp(p, exit - fadeOut, exit);
+    return 1;
+  }
+
+  /* ── Easing ── */
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+  /* ── Main update ── */
+  function update() {
+    MAX_SCROLL = document.body.scrollHeight - window.innerHeight;
+    progress = window.scrollY / MAX_SCROLL;
+    if (progress < 0) progress = 0;
+    if (progress > 1) progress = 1;
+
+    /* ── Video crossfades ── */
+    vidClouds.style.opacity = 1 - ramp(progress, 0.12, 0.20);
+    vidPaint.style.opacity  = ramp(progress, 0.10, 0.18) * (1 - ramp(progress, 0.40, 0.50));
+    vidDust.style.opacity   = ramp(progress, 0.38, 0.50) * (1 - ramp(progress, 0.96, 1.0));
+
+    /* subtle zoom on painting-reveal */
+    var paintScale = 1 + ramp(progress, 0.12, 0.40) * 0.08;
+    vidPaint.style.transform = 'scale(' + paintScale + ')';
+
+    /* ── Atmosphere ── */
+    var drift1 = progress * -500;
+    var drift2 = progress * -300;
+    cloud1.style.transform = 'translateX(' + drift1 + 'px)';
+    cloud2.style.transform = 'scaleX(-1) translateX(' + drift2 + 'px)';
+
+    var mapOp = bell(progress, 0.25, 0.50) * 0.06;
+    atmoMap.style.opacity = mapOp;
+    atmoMap.style.transform = 'translateX(' + (progress * 200) + 'px)';
+
+    compass.style.transform = 'rotate(' + (progress * 200) + 'deg)';
+    compass.style.opacity = 0.06 + bell(progress, 0.85, 1.0) * 0.25;
+
+    /* ── Colour grade: darken at end ── */
+    var endDark = ramp(progress, 0.95, 1.0) * 0.6;
+    colGrade.style.background = 'rgba(26,23,20,' + endDark + ')';
+
+    /* ── Content scenes ── */
+    scenes.forEach(function(scene) {
+      var enter = parseFloat(scene.dataset.enter);
+      var exit  = parseFloat(scene.dataset.exit);
+      var from  = scene.dataset.from || 'center';
+      var vis   = bell(progress, enter, exit);
+
+      scene.style.opacity = vis;
+      scene.classList.toggle('active', vis > 0.05);
+
+      var slideOffset = (1 - easeOut(Math.min(1, vis * 3))) * 100;
+      if (from === 'left')   scene.style.transform = 'translateX(' + (-slideOffset) + 'px)';
+      else if (from === 'right') scene.style.transform = 'translateX(' + slideOffset + 'px)';
+      else scene.style.transform = 'scale(' + (0.95 + vis * 0.05) + ')';
+    });
+
+    /* ── Capability cards: one at a time ── */
+    var capScene = document.getElementById('sc-cap');
+    var capEnter = 0.25, capExit = 0.42;
+    var capVis = bell(progress, capEnter, capExit);
+    capScene.style.opacity = capVis > 0.01 ? 1 : 0;
+    capScene.classList.toggle('active', capVis > 0.01);
+
+    if (capVis > 0.01) {
+      var capSpan = capExit - capEnter;
+      var capLocalProgress = ramp(progress, capEnter, capExit);
+      var cardSlice = 1 / CAP_COUNT;
+
+      capCards.forEach(function(card, i) {
+        var cardStart = i * cardSlice;
+        var cardEnd = cardStart + cardSlice;
+        var cardVis = bell(capLocalProgress, cardStart, cardEnd);
+        card.style.opacity = cardVis;
+
+        var isLeft = card.classList.contains('cap-card-left');
+        var offset = (1 - easeOut(Math.min(1, cardVis * 2.5))) * 120;
+        card.style.transform = 'translate(' + (isLeft ? -offset : offset) + 'px, -50%)';
+      });
+    } else {
+      capCards.forEach(function(card) { card.style.opacity = 0; });
+    }
+
+    /* ── Methodology blocks: one at a time ── */
+    var methScene = document.getElementById('sc-meth');
+    var methEnter = 0.42, methExit = 0.68;
+    var methVis = bell(progress, methEnter, methExit);
+    methScene.style.opacity = methVis > 0.01 ? 1 : 0;
+    methScene.classList.toggle('active', methVis > 0.01);
+
+    if (methVis > 0.01) {
+      var methLocal = ramp(progress, methEnter, methExit);
+      var methSlice = 1 / METH_COUNT;
+
+      methBlocks.forEach(function(block, i) {
+        var bStart = i * methSlice;
+        var bEnd = bStart + methSlice;
+        var bVis = bell(methLocal, bStart, bEnd);
+        block.style.opacity = bVis;
+        block.style.transform = 'translateY(' + ((1 - easeOut(Math.min(1, bVis * 2.5))) * 30) + 'px)';
+      });
+    } else {
+      methBlocks.forEach(function(b) { b.style.opacity = 0; });
+    }
+
+    /* ── Install columns: slide from sides ── */
+    var installScene = document.getElementById('sc-install');
+    var instEnter = 0.80, instExit = 0.90;
+    var instVis = bell(progress, instEnter, instExit);
+    installScene.style.opacity = instVis > 0.01 ? 1 : 0;
+    installScene.classList.toggle('active', instVis > 0.01);
+
+    if (instVis > 0.01) {
+      installCols.forEach(function(col) {
+        var from = col.dataset.from;
+        var offset = (1 - easeOut(Math.min(1, instVis * 2.5))) * 120;
+        col.style.transform = 'translateX(' + (from === 'left' ? -offset : offset) + 'px)';
+        col.style.opacity = instVis;
+      });
+    }
+
+    /* ── Stat counter animation ── */
+    var dataVis = bell(progress, 0.68, 0.80);
+    if (dataVis > 0.3 && !statsAnimated) {
+      statsAnimated = true;
+      statVals.forEach(function(el) {
+        var target = parseFloat(el.dataset.count);
+        var isPercent = target > 1;
+        var duration = 1200;
+        var start = performance.now();
+        (function animate(now) {
+          var elapsed = now - start;
+          var t = Math.min(1, elapsed / duration);
+          t = 1 - Math.pow(1 - t, 3);
+          var val = t * target;
+          el.textContent = isPercent ? val.toFixed(1) + '%' : val.toFixed(3);
+          if (t < 1) requestAnimationFrame(animate);
+        })(performance.now());
+      });
+    }
+    if (dataVis < 0.1) statsAnimated = false;
+
+    /* ── Nav dots ── */
+    var sceneBounds = [0, 0.12, 0.25, 0.42, 0.68, 0.80, 0.90];
+    var activeIdx = 0;
+    for (var k = sceneBounds.length - 1; k >= 0; k--) {
+      if (progress >= sceneBounds[k] - 0.02) { activeIdx = k; break; }
+    }
+    dots.forEach(function(d, idx) {
+      d.classList.toggle('active', idx === activeIdx);
+    });
+  }
+
+  /* ── Scroll listener ── */
   window.addEventListener('scroll', function() {
     if (!ticking) {
-      requestAnimationFrame(function() {
-        updateHeroFrame();
-        updateParallax();
-        ticking = false;
-      });
+      requestAnimationFrame(function() { update(); ticking = false; });
       ticking = true;
     }
   });
 
-  /* ── Hero particles ── */
-  var particlesEl = document.getElementById('heroParticles');
-  var goldShades = ['rgba(201,168,76,', 'rgba(212,149,106,', 'rgba(232,220,200,'];
-  for (var j = 0; j < 30; j++) {
-    var dot = document.createElement('div');
-    dot.className = 'particle';
-    var shade = goldShades[j % 3];
-    var size = 2 + Math.random() * 3;
-    var opacity = 0.06 + Math.random() * 0.15;
-    dot.style.cssText =
-      'width:' + size + 'px;height:' + size + 'px;' +
-      'left:' + Math.random() * 100 + '%;top:' + Math.random() * 100 + '%;' +
-      'background:' + shade + opacity + ');' +
-      'box-shadow:0 0 ' + (size * 3) + 'px ' + shade + (opacity * 0.5) + ');' +
-      '--dur:' + (4 + Math.random() * 6) + 's;--op:' + opacity + ';' +
-      'animation-delay:' + (Math.random() * 5) + 's;';
-    particlesEl.appendChild(dot);
-  }
-
-  /* ── Smooth anchor scrolling ── */
-  document.querySelectorAll('a[href^="#"]').forEach(function(a) {
-    a.addEventListener('click', function(e) {
-      var target = document.querySelector(this.getAttribute('href'));
-      if (target) {
-        e.preventDefault();
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+  /* ── Nav dot clicks ── */
+  dots.forEach(function(d) {
+    d.addEventListener('click', function() {
+      var target = parseFloat(this.dataset.target);
+      var scrollTo = target * (document.body.scrollHeight - window.innerHeight);
+      window.scrollTo({ top: scrollTo, behavior: 'smooth' });
     });
   });
+
+  /* ── Initial update ── */
+  update();
+
+  /* ── Recalculate on resize ── */
+  window.addEventListener('resize', function() { MAX_SCROLL = document.body.scrollHeight - window.innerHeight; update(); });
 })();
 
 function copyCode(btn) {
-  var text = btn.parentElement.innerText
-    .replace('Copy', '').replace('Copied!', '').trim();
+  var text = btn.parentElement.innerText.replace('Copy','').replace('Copied!','').trim();
   navigator.clipboard.writeText(text).then(function() {
     btn.textContent = 'Copied!';
     setTimeout(function() { btn.textContent = 'Copy'; }, 1500);
