@@ -1,67 +1,71 @@
-"""
-ArtSleuth web demo.
+"""ArtSleuth web demo — dark gallery edition.
 
 Interactive art analysis powered by vision transformers. Upload a
 painting and get brushstroke analysis, style classification, artist
-attribution, forgery screening, and workshop decomposition — all
-with publication-quality visualisations.
+attribution, forgery screening, and workshop decomposition.
 """
-
 from __future__ import annotations
 
 import html as html_module
 import tempfile
-from pathlib import Path
 
 import gradio as gr
 import numpy as np
 
-from web.theme import HTML_ELEM_CLASSES, HTML_LIGHT_PANEL, HTML_TEXT_MUTED
+from web.theme import HTML_ELEM_CLASSES
 
+
+# ── Callout helpers ─────────────────────────────────────────────────
 
 def _error_html(message: str) -> str:
-    """Wrap an error message in styled HTML.
-
-    Uses ``artsleuth-msg--error`` so ``CUSTOM_CSS`` can override Gradio
-    ``.prose`` colours (inline styles alone are not reliable on Spaces).
-    """
     safe = html_module.escape(str(message))
-    return (
-        '<div class="artsleuth-msg--error">'
-        f"<strong>Error:</strong> {safe}</div>"
-    )
+    return f'<div class="as-msg as-msg--error"><strong>Error:</strong> {safe}</div>'
 
 
 def _info_html(message: str) -> str:
-    """Wrap an informational message in styled HTML."""
     safe = html_module.escape(str(message))
-    return f'<div class="artsleuth-msg--info">{safe}</div>'
+    return f'<div class="as-msg as-msg--info">{safe}</div>'
 
 
 def _save_pil_to_temp(image) -> str:
-    """Persist a PIL image to a temporary PNG and return the path."""
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
         image.save(tmp, format="PNG")
         return tmp.name
 
 
+# ── Card wrapper used for inline results ────────────────────────────
+
+def _card(title: str, body: str) -> str:
+    return (
+        '<div class="as-card">'
+        f"<h3>{html_module.escape(title)}</h3>"
+        f"{body}"
+        "</div>"
+    )
+
+
+def _bar(label: str, value: float, color: str = "#d4a843") -> str:
+    pct = min(max(value * 100, 0), 100)
+    return (
+        '<div class="as-bar-wrap">'
+        '<div class="as-bar-top">'
+        f"<span>{html_module.escape(label)}</span>"
+        f'<span class="as-pct">{pct:.1f}%</span>'
+        "</div>"
+        '<div class="as-bar-track">'
+        f'<div class="as-bar-fill" style="width:{pct:.1f}%;background:{color};"></div>'
+        "</div></div>"
+    )
+
+
 # ── UI builder ──────────────────────────────────────────────────────
 
-
 def create_app() -> gr.Blocks:
-    """Build the ArtSleuth Gradio application.
-
-    Returns
-    -------
-    gr.Blocks
-        Fully wired Gradio Blocks application ready to ``.launch()``.
-    """
     from web.theme import artsleuth_theme, CUSTOM_CSS, HEADER_HTML, FOOTER_HTML
 
-    # ── handler: Analyse ────────────────────────────────────────────
+    # ── handler: Analyse ────────────────────────────────────────
 
     def _handle_analyse(image, reference_artist: str):
-        """Run the full analysis pipeline on a single artwork."""
         try:
             from artsleuth.config import AnalysisConfig
             from artsleuth.core.pipeline import run_pipeline
@@ -80,9 +84,7 @@ def create_app() -> gr.Blocks:
             ref = reference_artist.strip() or None
 
             config = AnalysisConfig()
-            result = run_pipeline(
-                path, config=config, reference_artist=ref,
-            )
+            result = run_pipeline(path, config=config, reference_artist=ref)
 
             style_html = format_style_report(result.style)
 
@@ -95,17 +97,13 @@ def create_app() -> gr.Blocks:
                 artist_top = []
             artist_html = _format_artist_estimation(artist_top)
 
-            attribution_html = format_attribution_report(
-                result.attribution,
-            )
+            attribution_html = format_attribution_report(result.attribution)
 
-            forgery_html = ""
             if result.forgery is not None:
                 forgery_html = format_forgery_gauge(result.forgery)
             else:
                 forgery_html = _info_html(
-                    "Provide a reference artist to enable "
-                    "forgery screening."
+                    "Provide a reference artist to enable forgery screening."
                 )
 
             heatmap_image = None
@@ -116,121 +114,81 @@ def create_app() -> gr.Blocks:
             except Exception:
                 pass
 
-            return (
-                style_html,
-                artist_html,
-                attribution_html,
-                forgery_html,
-                heatmap_image,
-            )
+            return style_html, artist_html, attribution_html, forgery_html, heatmap_image
         except Exception as exc:
             err = _error_html(str(exc))
             return err, err, err, err, None
 
-    # ── handler: Compare ────────────────────────────────────────────
+    # ── handler: Compare ────────────────────────────────────────
 
     def _handle_compare(image_a, image_b):
-        """Classify both images and compute cosine similarity."""
         try:
             from artsleuth.config import AnalysisConfig
             from artsleuth.core.style import StyleClassifier
 
             if image_a is None or image_b is None:
-                msg = _info_html(
-                    "Upload two artworks to compare."
-                )
+                msg = _info_html("Upload two artworks to compare.")
                 return msg, msg
 
             config = AnalysisConfig()
             classifier = StyleClassifier(config)
-
             report_a = classifier.classify(image_a)
             report_b = classifier.classify(image_b)
 
-            emb_a = report_a.embedding
-            emb_b = report_b.embedding
-            dot = float(np.dot(emb_a, emb_b))
-            norm = (
-                float(np.linalg.norm(emb_a))
-                * float(np.linalg.norm(emb_b))
-                + 1e-12
+            emb_a, emb_b = report_a.embedding, report_b.embedding
+            similarity = float(np.dot(emb_a, emb_b)) / (
+                float(np.linalg.norm(emb_a)) * float(np.linalg.norm(emb_b)) + 1e-12
             )
-            similarity = dot / norm
 
             if similarity > 0.85:
-                interp = (
-                    "Very high embedding similarity — the works share "
-                    "strong stylistic features. This does not confirm "
-                    "shared authorship on its own."
-                )
+                interp = "Very high — strong shared stylistic features."
             elif similarity > 0.65:
-                interp = (
-                    "Moderate similarity — some shared stylistic "
-                    "traits, but distinct in other respects."
-                )
+                interp = "Moderate — some shared traits, distinct in other respects."
             elif similarity > 0.40:
-                interp = (
-                    "Low similarity — different stylistic profiles "
-                    "with some overlapping features."
-                )
+                interp = "Low — different profiles with some overlap."
             else:
-                interp = "Minimal similarity — markedly different stylistic profiles."
+                interp = "Minimal — markedly different styles."
 
-            sim_html = (
-                f'<div style="{HTML_LIGHT_PANEL}text-align:center;">'
-                "<div style=\"font-family:'Cormorant Garamond',Georgia,serif;"
-                'font-size:3.2rem;font-weight:700;'
-                f'color:#0f1f35">{similarity:.1%}</div>'
-                '<div style="font-size:0.72rem;letter-spacing:0.1em;'
-                'text-transform:uppercase;color:#b8922e;font-weight:600;'
-                'margin-top:0.2rem">Embedding Similarity</div>'
-                f'<div style="font-size:0.92rem;color:{HTML_TEXT_MUTED};'
-                'margin-top:0.8rem;font-weight:400;max-width:500px;'
-                f'margin-left:auto;margin-right:auto">{interp}</div></div>'
-            )
+            sim_html = _card("Embedding Similarity", (
+                '<div style="text-align:center;padding:1rem 0;">'
+                '<div style="font-family:\'Playfair Display\',serif;'
+                f'font-size:3.2rem;font-weight:700;color:#faf9f6;">{similarity:.1%}</div>'
+                '<div style="font-size:0.7rem;letter-spacing:0.1em;'
+                'text-transform:uppercase;color:#d4a843;font-weight:600;'
+                'margin-top:0.2rem;">Cosine Similarity</div>'
+                f'<div style="font-size:0.88rem;color:#a8a29e;'
+                f'margin-top:0.8rem;max-width:420px;margin-left:auto;'
+                f'margin-right:auto;">{interp}</div></div>'
+            ))
 
-            def _axis_row(label, pred_a, pred_b):
+            def _row(label, pa, pb):
                 return (
-                    f"<tr><td><strong>{label}</strong></td>"
-                    f"<td>{pred_a.label} ({pred_a.confidence:.0%})</td>"
-                    f"<td>{pred_b.label} ({pred_b.confidence:.0%})</td>"
+                    f"<tr><td style='padding:6px 10px;font-weight:500;'>"
+                    f"<strong>{label}</strong></td>"
+                    f"<td style='padding:6px 10px;'>{pa.label} ({pa.confidence:.0%})</td>"
+                    f"<td style='padding:6px 10px;'>{pb.label} ({pb.confidence:.0%})</td>"
                     "</tr>"
                 )
 
-            comparison_html = (
-                f'<div style="{HTML_LIGHT_PANEL}margin-top:0.5rem;">'
-                '<table style="width:100%;border-collapse:collapse;'
-                "font-family:'Inter',sans-serif;"
-                'font-size:0.88rem;color:#0f1f35">'
-                '<thead><tr style="border-bottom:2px solid #c9a84c">'
-                '<th style="padding:0.6rem 1rem;text-align:left;'
-                'font-weight:600;letter-spacing:0.04em">Axis</th>'
-                '<th style="padding:0.6rem 1rem;font-weight:600">Artwork A</th>'
-                '<th style="padding:0.6rem 1rem;font-weight:600">Artwork B</th>'
-                "</tr></thead><tbody>"
-                + _axis_row(
-                    "Period", report_a.period, report_b.period,
-                )
-                + _axis_row(
-                    "School", report_a.school, report_b.school,
-                )
-                + _axis_row(
-                    "Genre",
-                    report_a.technique,
-                    report_b.technique,
-                )
-                + "</tbody></table></div>"
-            )
-
-            return sim_html, comparison_html
+            table_html = _card("Style Comparison", (
+                '<table style="width:100%;border-collapse:collapse;font-size:0.88rem;">'
+                '<thead><tr style="border-bottom:1px solid rgba(212,168,67,0.2);">'
+                '<th style="padding:6px 10px;text-align:left;">Axis</th>'
+                '<th style="padding:6px 10px;">Artwork A</th>'
+                '<th style="padding:6px 10px;">Artwork B</th></tr></thead><tbody>'
+                + _row("Period", report_a.period, report_b.period)
+                + _row("School", report_a.school, report_b.school)
+                + _row("Genre", report_a.technique, report_b.technique)
+                + "</tbody></table>"
+            ))
+            return sim_html, table_html
         except Exception as exc:
             err = _error_html(str(exc))
             return err, err
 
-    # ── handler: Workshop ───────────────────────────────────────────
+    # ── handler: Workshop ───────────────────────────────────────
 
     def _handle_workshop(image, max_hands: int):
-        """Run brushstroke analysis + workshop decomposition."""
         try:
             from artsleuth.config import AnalysisConfig
             from artsleuth.core.brushstroke import BrushstrokeAnalyzer
@@ -238,57 +196,32 @@ def create_app() -> gr.Blocks:
             from web.components import format_workshop_report
 
             if image is None:
-                msg = _info_html("Upload an artwork to decompose.")
-                return msg, None
+                return _info_html("Upload an artwork to decompose."), None
 
-            config = AnalysisConfig(
-                workshop_max_hands=int(max_hands),
-            )
+            config = AnalysisConfig(workshop_max_hands=int(max_hands))
             analyzer = BrushstrokeAnalyzer(config)
             brushstroke_report = analyzer.analyze(image)
 
             if not brushstroke_report.descriptors:
-                return (
-                    _info_html(
-                        "No brushstroke patches extracted. "
-                        "Try a higher-resolution image."
-                    ),
-                    None,
-                )
+                return _info_html("No brushstroke patches extracted. Try higher resolution."), None
 
-            embeddings = np.stack(
-                [d.embedding for d in brushstroke_report.descriptors]
-            )
-            bboxes = [
-                d.bbox for d in brushstroke_report.descriptors
-            ]
-            coherences = np.array(
-                [d.coherence for d in brushstroke_report.descriptors]
-            )
-            energies = np.array(
-                [d.energy for d in brushstroke_report.descriptors]
-            )
+            embeddings = np.stack([d.embedding for d in brushstroke_report.descriptors])
+            bboxes = [d.bbox for d in brushstroke_report.descriptors]
+            coherences = np.array([d.coherence for d in brushstroke_report.descriptors])
+            energies = np.array([d.energy for d in brushstroke_report.descriptors])
 
-            decomposer = WorkshopDecomposition(
-                max_hands=int(max_hands),
-            )
+            decomposer = WorkshopDecomposition(max_hands=int(max_hands))
             workshop_report = decomposer.decompose(
-                embeddings,
-                bboxes,
-                image.size,
-                coherences=coherences,
-                energies=energies,
+                embeddings, bboxes, image.size,
+                coherences=coherences, energies=energies,
             )
 
             report_html = format_workshop_report(workshop_report)
             hand_map_image = None
             if workshop_report.hand_map is not None:
-                from PIL import Image as PILImage
-
                 unique_ids = np.unique(workshop_report.hand_map)
                 valid_ids = unique_ids[unique_ids >= 0]
-                n_hands = len(valid_ids)
-                palette = _hand_map_palette(n_hands)
+                palette = _hand_map_palette(len(valid_ids))
 
                 h, w = workshop_report.hand_map.shape
                 canvas = np.zeros((h, w, 3), dtype=np.uint8)
@@ -298,10 +231,7 @@ def create_app() -> gr.Blocks:
 
                 orig = np.array(image.convert("RGB"))
                 if orig.shape[:2] == (h, w):
-                    blended = (
-                        0.6 * orig.astype(np.float32)
-                        + 0.4 * canvas.astype(np.float32)
-                    )
+                    blended = (0.6 * orig.astype(np.float32) + 0.4 * canvas.astype(np.float32))
                     hand_map_image = blended.astype(np.uint8)
                 else:
                     hand_map_image = canvas
@@ -310,17 +240,13 @@ def create_app() -> gr.Blocks:
         except Exception as exc:
             return _error_html(str(exc)), None
 
-    # ── handler: Timeline ───────────────────────────────────────────
+    # ── handler: Timeline ───────────────────────────────────────
 
     def _handle_timeline(image, artist_name: str):
-        """Run style classification + temporal estimation."""
         try:
             from artsleuth.config import AnalysisConfig
             from artsleuth.core.style import StyleClassifier
-            from artsleuth.core.temporal import (
-                TemporalRegistry,
-                estimate_date_from_style,
-            )
+            from artsleuth.core.temporal import TemporalRegistry, estimate_date_from_style
 
             if image is None:
                 return _info_html("Upload an artwork to estimate its date.")
@@ -334,202 +260,122 @@ def create_app() -> gr.Blocks:
 
             if artist_name.strip():
                 registry = TemporalRegistry()
-                prediction = registry.predict(
-                    artist_name.strip(), style_report.embedding,
-                )
+                prediction = registry.predict(artist_name.strip(), style_report.embedding)
                 if prediction is not None:
                     method = f"temporal model for {artist_name.strip()}"
 
             if prediction is None:
-                prediction = estimate_date_from_style(
-                    style_report.period.top_k,
-                )
-                method = (
-                    f"style classification ({style_report.period.label})"
-                )
+                prediction = estimate_date_from_style(style_report.period.top_k)
+                method = f"style classification ({style_report.period.label})"
 
             lo, hi = prediction.confidence_band
             score_cls = (
-                "artsleuth-score-good" if prediction.temporal_score > 0.7
-                else "artsleuth-score-mid" if prediction.temporal_score > 0.4
-                else "artsleuth-score-bad"
+                "as-score-good" if prediction.temporal_score > 0.7
+                else "as-score-mid" if prediction.temporal_score > 0.4
+                else "as-score-bad"
             )
             method_safe = html_module.escape(method)
-            return (
-                '<div class="artsleuth-date-panel">'
-                f'<div class="artsleuth-date-figure">c.\u2009'
-                f"{prediction.estimated_year:.0f}</div>"
-                '<div class="artsleuth-gold-label">Estimated Date</div>'
-                '<div style="display:flex;justify-content:center;'
-                'gap:2rem;margin-top:1.2rem;flex-wrap:wrap">'
+
+            return _card("Temporal Estimation", (
+                '<div class="as-date">'
+                f'<div class="as-date__year">c.\u2009{prediction.estimated_year:.0f}</div>'
+                '<div class="as-date__label">Estimated Date</div>'
+                '<div class="as-date__stats">'
                 '<div style="text-align:center">'
-                '<div class="artsleuth-muted">95% Band</div>'
-                '<div class="artsleuth-date-sub">'
-                f"{lo:.0f}\u2013{hi:.0f}</div>"
+                '<div class="as-date__stat-label">95% Band</div>'
+                f'<div class="as-date__stat-value">{lo:.0f}\u2013{hi:.0f}</div>'
                 "</div>"
                 '<div style="text-align:center">'
-                '<div class="artsleuth-muted">Plausibility</div>'
-                f'<div class="artsleuth-date-sub {score_cls}">'
+                '<div class="as-date__stat-label">Plausibility</div>'
+                f'<div class="as-date__stat-value {score_cls}">'
                 f"{prediction.temporal_score:.0%}</div>"
                 "</div>"
                 '<div style="text-align:center">'
-                '<div class="artsleuth-muted">Drift / Decade</div>'
-                f'<div class="artsleuth-date-sub">'
-                f"{prediction.drift_rate:.3f}</div>"
+                '<div class="as-date__stat-label">Drift / Decade</div>'
+                f'<div class="as-date__stat-value">{prediction.drift_rate:.3f}</div>'
                 "</div></div>"
-                f'<div class="artsleuth-date-foot">Based on {method_safe}</div>'
+                f'<div class="as-date__foot">Based on {method_safe}</div>'
                 "</div>"
-            )
+            ))
         except Exception as exc:
             return _error_html(str(exc))
 
-    # ── layout ──────────────────────────────────────────────────────
+    # ── layout ──────────────────────────────────────────────────
 
-    with gr.Blocks(
-        theme=artsleuth_theme(),
-        css=CUSTOM_CSS,
-    ) as app:
+    with gr.Blocks(theme=artsleuth_theme(), css=CUSTOM_CSS) as app:
         gr.HTML(HEADER_HTML)
 
         with gr.Tabs():
-            # ── Tab 1: Analyse ──────────────────────────────────
             with gr.Tab("Analyse"):
                 with gr.Row():
                     with gr.Column(scale=1):
-                        analyse_image = gr.Image(
-                            type="pil", label="Upload Artwork",
-                        )
+                        analyse_image = gr.Image(type="pil", label="Upload Artwork")
                         analyse_ref = gr.Textbox(
                             label="Reference Artist (optional)",
                             placeholder="e.g. Rembrandt",
                         )
-                        analyse_btn = gr.Button(
-                            "Analyse", variant="primary",
-                        )
+                        analyse_btn = gr.Button("Analyse", variant="primary")
                     with gr.Column(scale=2):
-                        analyse_style = gr.HTML(
-                            label="Style Report",
-                            elem_classes=HTML_ELEM_CLASSES,
-                        )
-                        analyse_artist = gr.HTML(
-                            label="Artist Estimation",
-                            elem_classes=HTML_ELEM_CLASSES,
-                        )
-                        analyse_attr = gr.HTML(
-                            label="Attribution Report",
-                            elem_classes=HTML_ELEM_CLASSES,
-                        )
-                        analyse_forgery = gr.HTML(
-                            label="Forgery Screening",
-                            elem_classes=HTML_ELEM_CLASSES,
-                        )
-                        analyse_heatmap = gr.Image(
-                            label="Saliency Heatmap",
-                        )
+                        analyse_style = gr.HTML(label="Style", elem_classes=HTML_ELEM_CLASSES)
+                        analyse_artist = gr.HTML(label="Artist", elem_classes=HTML_ELEM_CLASSES)
+                        analyse_attr = gr.HTML(label="Attribution", elem_classes=HTML_ELEM_CLASSES)
+                        analyse_forgery = gr.HTML(label="Forgery", elem_classes=HTML_ELEM_CLASSES)
+                        analyse_heatmap = gr.Image(label="Saliency Heatmap")
 
                 analyse_btn.click(
                     fn=_handle_analyse,
                     inputs=[analyse_image, analyse_ref],
-                    outputs=[
-                        analyse_style,
-                        analyse_artist,
-                        analyse_attr,
-                        analyse_forgery,
-                        analyse_heatmap,
-                    ],
+                    outputs=[analyse_style, analyse_artist, analyse_attr,
+                             analyse_forgery, analyse_heatmap],
                 )
 
-            # ── Tab 2: Compare ──────────────────────────────────
             with gr.Tab("Compare"):
                 with gr.Row():
-                    compare_a = gr.Image(
-                        type="pil", label="Artwork A",
-                    )
-                    compare_b = gr.Image(
-                        type="pil", label="Artwork B",
-                    )
-                compare_btn = gr.Button(
-                    "Compare", variant="primary",
-                )
-                compare_sim = gr.HTML(
-                    label="Similarity",
-                    elem_classes=HTML_ELEM_CLASSES,
-                )
-                compare_axes = gr.HTML(
-                    label="Style Comparison",
-                    elem_classes=HTML_ELEM_CLASSES,
-                )
-
+                    compare_a = gr.Image(type="pil", label="Artwork A")
+                    compare_b = gr.Image(type="pil", label="Artwork B")
+                compare_btn = gr.Button("Compare", variant="primary")
+                compare_sim = gr.HTML(label="Similarity", elem_classes=HTML_ELEM_CLASSES)
+                compare_axes = gr.HTML(label="Comparison", elem_classes=HTML_ELEM_CLASSES)
                 compare_btn.click(
                     fn=_handle_compare,
                     inputs=[compare_a, compare_b],
                     outputs=[compare_sim, compare_axes],
                 )
 
-            # ── Tab 3: Workshop ─────────────────────────────────
             with gr.Tab("Workshop"):
                 with gr.Row():
                     with gr.Column(scale=1):
-                        ws_image = gr.Image(
-                            type="pil", label="Upload Artwork",
-                        )
-                        ws_hands = gr.Slider(
-                            minimum=2,
-                            maximum=8,
-                            value=6,
-                            step=1,
-                            label="Max Hands",
-                        )
-                        ws_btn = gr.Button(
-                            "Decompose", variant="primary",
-                        )
+                        ws_image = gr.Image(type="pil", label="Upload Artwork")
+                        ws_hands = gr.Slider(minimum=2, maximum=8, value=6, step=1, label="Max Hands")
+                        ws_btn = gr.Button("Decompose", variant="primary")
                     with gr.Column(scale=2):
-                        ws_report = gr.HTML(
-                            label="Workshop Report",
-                            elem_classes=HTML_ELEM_CLASSES,
-                        )
-                        ws_map = gr.Image(
-                            label="Hand Map Overlay",
-                        )
-
+                        ws_report = gr.HTML(label="Report", elem_classes=HTML_ELEM_CLASSES)
+                        ws_map = gr.Image(label="Hand Map Overlay")
                 ws_btn.click(
                     fn=_handle_workshop,
                     inputs=[ws_image, ws_hands],
                     outputs=[ws_report, ws_map],
                 )
 
-            # ── Tab 4: Estimate Date ────────────────────────────
             with gr.Tab("Estimate Date"):
                 with gr.Row():
                     with gr.Column(scale=1):
-                        tl_image = gr.Image(
-                            type="pil", label="Upload Artwork",
-                        )
+                        tl_image = gr.Image(type="pil", label="Upload Artwork")
                         tl_artist = gr.Textbox(
                             label="Artist Name (optional)",
                             placeholder="e.g. Artemisia Gentileschi",
                         )
-                        tl_btn = gr.Button(
-                            "Estimate Date", variant="primary",
-                        )
+                        tl_btn = gr.Button("Estimate Date", variant="primary")
                     with gr.Column(scale=2):
-                        tl_result = gr.HTML(
-                            label="Temporal Prediction",
-                            elem_classes=HTML_ELEM_CLASSES,
-                        )
-
+                        tl_result = gr.HTML(label="Prediction", elem_classes=HTML_ELEM_CLASSES)
                 tl_btn.click(
                     fn=_handle_timeline,
                     inputs=[tl_image, tl_artist],
                     outputs=[tl_result],
                 )
 
-            # ── Tab 5: Benchmark ────────────────────────────────
             with gr.Tab("Benchmark"):
-                gr.HTML(
-                    _build_benchmark_table(),
-                    elem_classes=HTML_ELEM_CLASSES,
-                )
+                gr.HTML(_build_benchmark_table(), elem_classes=HTML_ELEM_CLASSES)
                 gr.Markdown(_benchmark_methodology())
 
         gr.HTML(FOOTER_HTML)
@@ -539,165 +385,97 @@ def create_app() -> gr.Blocks:
 
 # ── helpers ─────────────────────────────────────────────────────────
 
-
 def _format_artist_estimation(candidates: list[tuple[str, float]]) -> str:
-    """Render zero-shot artist candidates as HTML.
-
-    *candidates* is a list of ``(artist_name, probability)`` tuples.
-    """
     if not candidates:
         return _info_html("Could not estimate artist for this image.")
 
     top_name, top_conf = candidates[0]
-    bars = ""
-    for name, conf in candidates:
-        pct = min(max(conf * 100, 0), 100)
-        bars += (
-            f'<div style="margin:6px 0;font-family:\'Inter\',sans-serif;">'
-            f'<div style="display:flex;justify-content:space-between;'
-            f'font-size:0.84rem;color:#0f1f35;font-weight:500;margin-bottom:3px;">'
-            f'<span>{name}</span>'
-            f'<span style="font-weight:600;">{pct:.1f}%</span></div>'
-            f'<div style="background:#e8e0d4;border-radius:6px;height:8px;'
-            f'overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,0.06);">'
-            f'<div style="width:{pct:.1f}%;height:100%;'
-            f'background:linear-gradient(90deg,#0f1f35,#0f1f35dd);'
-            f'border-radius:6px;transition:width 0.5s;"></div></div></div>'
-        )
-
-    return (
-        f'<div style="{HTML_LIGHT_PANEL}margin:0.75rem 0;'
-        "font-family:'Inter',sans-serif;\">"
-        "<h3 style=\"margin:0 0 0.8rem;color:#0f1f35;"
-        "font-family:'Cormorant Garamond',Georgia,serif;font-size:1.15rem;"
-        'font-weight:600;letter-spacing:0.02em;'
-        'border-bottom:2px solid #c9a84c;padding-bottom:0.4rem;">'
-        'Artist Estimation</h3>'
-        f'<div style="font-size:0.9rem;color:#0f1f35;margin-bottom:0.6rem;">'
-        f'<strong>Most likely:</strong> {top_name} ({top_conf:.0%})</div>'
-        f'{bars}'
-        f'<div style="font-size:0.75rem;color:{HTML_TEXT_MUTED};margin-top:0.6rem;'
-        'font-style:italic;font-weight:400;">'
-        'CLIP zero-shot estimation. '
-        'For definitive attribution, consult a qualified art historian.</div>'
-        '</div>'
+    bars = "".join(
+        _bar(name, conf, "#d4a843") for name, conf in candidates
     )
+    return _card("Artist Estimation", (
+        '<div style="font-size:0.92rem;margin-bottom:0.6rem;">'
+        f"<strong>Most likely:</strong> {html_module.escape(top_name)} ({top_conf:.0%})"
+        "</div>"
+        f"{bars}"
+        '<div style="font-size:0.74rem;color:#78716c;margin-top:0.6rem;font-style:italic;">'
+        "CLIP zero-shot estimation. "
+        "For definitive attribution, consult a qualified art historian."
+        "</div>"
+    ))
 
 
 def _hand_map_palette(n: int) -> list[list[int]]:
-    """Return *n* visually distinct RGB colours for hand-map overlays."""
     base = [
-        [212, 137, 154],  # rose
-        [157, 192, 216],  # blue
-        [212, 175, 55],   # gold
-        [124, 45, 18],    # umber
-        [74, 144, 120],   # sage
-        [180, 120, 200],  # lavender
-        [220, 170, 120],  # sand
-        [100, 100, 180],  # slate
+        [212, 168, 67], [240, 118, 138], [104, 181, 213],
+        [74, 222, 128], [167, 139, 250], [251, 191, 36],
+        [220, 170, 120], [100, 200, 180],
     ]
     return base[:max(n, 1)]
 
 
 def _build_benchmark_table() -> str:
-    """Return an HTML table with WikiArt benchmark numbers."""
-    row = (
-        '<tr style="border-bottom:{border};transition:background 0.2s" '
-        'onmouseover="this.style.background=\'rgba(201,168,76,0.04)\'" '
-        'onmouseout="this.style.background=\'transparent\'">'
-        '<td style="padding:0.6rem 1rem;text-align:left;{extra}">{name}</td>'
-        '<td style="padding:0.6rem 0.8rem;text-align:center;{extra}">{style}</td>'
-        '<td style="padding:0.6rem 0.8rem;text-align:center;{extra}">{f1}</td>'
-        '<td style="padding:0.6rem 0.8rem;text-align:center;{extra}">{artist}</td>'
-        '<td style="padding:0.6rem 0.8rem;text-align:center;{extra}">{top5}</td>'
-        '<td style="padding:0.6rem 0.8rem;text-align:center;{extra}">{genre}</td></tr>'
+    def _row(name, style, f1, artist, top5, genre, highlight=False):
+        cls = ' style="color:#d4a843;font-weight:600;"' if highlight else ""
+        return (
+            f"<tr{cls}>"
+            f'<td style="padding:0.5rem 0.8rem;">{name}</td>'
+            f'<td style="padding:0.5rem 0.8rem;text-align:center;">{style}</td>'
+            f'<td style="padding:0.5rem 0.8rem;text-align:center;">{f1}</td>'
+            f'<td style="padding:0.5rem 0.8rem;text-align:center;">{artist}</td>'
+            f'<td style="padding:0.5rem 0.8rem;text-align:center;">{top5}</td>'
+            f'<td style="padding:0.5rem 0.8rem;text-align:center;">{genre}</td>'
+            "</tr>"
+        )
+
+    rows = (
+        _row("DINOv2 &middot; ViT-B/14", "57.5%", "0.553", "64.7%", "90.9%", "71.0%")
+        + _row("CLIP &middot; ViT-L/14", "67.1%", "0.656", "74.6%", "95.9%", "75.0%")
+        + _row("Fusion &middot; frozen", "65.0%", "0.633", "71.0%", "94.2%", "74.2%")
+        + _row("Fusion &middot; fine-tuned", "71.6%", "0.703", "77.8%", "96.2%", "75.1%")
+        + _row("Fusion &middot; end-to-end", "72.7%", "&mdash;", "79.0%", "96.9%", "76.6%",
+               highlight=True)
     )
-    thin = "1px solid rgba(127,179,211,0.15)"
-    thick = "2px solid #c9a84c"
-    rows = [
-        row.format(border=thin, extra="", name="DINOv2 &middot; ViT-B/14",
-                   style="57.5%", f1="0.553", artist="64.7%",
-                   top5="90.9%", genre="71.0%"),
-        row.format(border=thin, extra="", name="CLIP &middot; ViT-L/14",
-                   style="67.1%", f1="0.656", artist="74.6%",
-                   top5="95.9%", genre="75.0%"),
-        row.format(border=thin, extra="", name="Fusion &middot; frozen",
-                   style="65.0%", f1="0.633", artist="71.0%",
-                   top5="94.2%", genre="74.2%"),
-        row.format(border=thin, extra="", name="Fusion &middot; fine-tuned",
-                   style="71.6%", f1="0.703", artist="77.8%",
-                   top5="96.2%", genre="75.1%"),
-        row.format(border=thick,
-                   extra="font-weight:700;color:#c9a84c;background:rgba(201,168,76,0.06)",
-                   name="Fusion &middot; end-to-end", style="72.7%",
-                   f1="&mdash;", artist="79.0%", top5="96.9%", genre="76.6%"),
-    ]
-    return (
-        f'<div style="{HTML_LIGHT_PANEL}margin:1rem 0;'
-        "font-family:'Inter',sans-serif;\">"
-        '<div style="text-align:center;margin-bottom:1.5rem">'
-        "<h3 style=\"font-family:'Cormorant Garamond',Georgia,serif;"
-        'color:#0f1f35;margin:0 0 0.3rem;font-size:1.4rem;font-weight:600">'
-        'WikiArt Benchmark</h3>'
-        f'<div style="font-size:0.78rem;color:{HTML_TEXT_MUTED};font-weight:400">'
-        '81,444 images &middot; 27 styles &middot; 129 artists &middot; 11 genres</div>'
-        '</div>'
-        '<table style="width:100%;border-collapse:collapse;'
-        'font-size:0.85rem;color:#0f1f35">'
-        '<thead><tr style="border-bottom:2px solid #0f1f35">'
-        '<th style="padding:0.6rem 1rem;text-align:left;font-weight:600;'
-        'font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;'
-        'color:#0f1f35">Backbone</th>'
-        '<th style="padding:0.6rem 0.8rem;text-align:center;font-weight:600;'
-        'font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;'
-        'color:#0f1f35">Style</th>'
-        '<th style="padding:0.6rem 0.8rem;text-align:center;font-weight:600;'
-        'font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;'
-        'color:#0f1f35">F1</th>'
-        '<th style="padding:0.6rem 0.8rem;text-align:center;font-weight:600;'
-        'font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;'
-        'color:#0f1f35">Artist</th>'
-        '<th style="padding:0.6rem 0.8rem;text-align:center;font-weight:600;'
-        'font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;'
-        'color:#0f1f35">Top-5</th>'
-        '<th style="padding:0.6rem 0.8rem;text-align:center;font-weight:600;'
-        'font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;'
-        'color:#0f1f35">Genre</th></tr></thead><tbody>'
-        + "".join(rows)
-        + '</tbody></table>'
-        f'<p style="color:{HTML_TEXT_MUTED};font-size:0.75rem;margin-top:1rem;'
-        'text-align:center;font-weight:400">'
-        'Top four rows: linear probes. Bottom row: end-to-end heads. '
-        'Fine-tuning: SupCon + CE, 3-block unfreeze, cosine annealing, '
-        '5 epochs, Tesla P100. All numbers macro-averaged.</p></div>'
-    )
+
+    return _card("WikiArt Benchmark", (
+        '<div style="text-align:center;margin-bottom:1rem;">'
+        '<div style="font-size:0.76rem;color:#78716c;">'
+        "81,444 images &middot; 27 styles &middot; 129 artists &middot; 11 genres"
+        "</div></div>"
+        '<table style="width:100%;border-collapse:collapse;font-size:0.84rem;">'
+        '<thead><tr>'
+        '<th style="padding:0.5rem 0.8rem;text-align:left;">Backbone</th>'
+        '<th style="padding:0.5rem 0.8rem;text-align:center;">Style</th>'
+        '<th style="padding:0.5rem 0.8rem;text-align:center;">F1</th>'
+        '<th style="padding:0.5rem 0.8rem;text-align:center;">Artist</th>'
+        '<th style="padding:0.5rem 0.8rem;text-align:center;">Top-5</th>'
+        '<th style="padding:0.5rem 0.8rem;text-align:center;">Genre</th>'
+        "</tr></thead><tbody>"
+        + rows
+        + "</tbody></table>"
+        '<div style="font-size:0.72rem;color:#57534e;margin-top:0.8rem;text-align:center;">'
+        "Linear probes (top 4), end-to-end heads (bottom). "
+        "SupCon + CE, cosine annealing, 5 epochs, Tesla P100. Macro-averaged."
+        "</div>"
+    ))
 
 
 def _benchmark_methodology() -> str:
-    """Return Markdown text explaining the benchmark methodology."""
     return (
         "### Methodology\n\n"
-        "All models are evaluated on the full **WikiArt** dataset "
-        "(81 444 images, 80/20 split, 27 styles, 129 artists, 11 genres). "
+        "All models evaluated on the full **WikiArt** dataset "
+        "(81,444 images, 80/20 split, 27 styles, 129 artists, 11 genres). "
         "Style and genre accuracy use single-label top-1 matching; "
         "artist accuracy reports both top-1 and top-5.\n\n"
         "**ArtSleuth Fusion** combines DINOv2 ViT-B/14 texture features "
         "with CLIP ViT-L/14 semantic embeddings via a learnable "
         "cross-attention fusion head.\n\n"
-        "The **fine-tuned** variant partially unfreezes the last 3 "
-        "transformer blocks of each backbone and trains with a multi-task "
-        "objective (cross-entropy + supervised contrastive loss, "
-        "weight 0.2). The **e2e** row reports the jointly trained "
-        "classification heads directly, without a separate linear probe.\n\n"
         "Training uses AdamW with cosine annealing (backbone lr=1e-5, "
         "head lr=5e-4), mixed precision, gradient accumulation (effective "
         "batch 64), for 5 epochs on a Tesla P100.\n\n"
-        "*All numbers are macro-averaged across classes to avoid "
-        "inflating scores on over-represented styles.*"
+        "*All numbers are macro-averaged across classes.*"
     )
 
-
-# ── entry point ─────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     app = create_app()

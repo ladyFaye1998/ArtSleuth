@@ -1,8 +1,8 @@
 """Reusable UI component builders for the ArtSleuth Gradio app.
 
-Every ``build_*`` / ``format_*`` function returns a self-contained HTML
-string that uses inline styles drawn from the ArtSleuth palette so it
-renders correctly inside a ``gr.HTML`` component.
+Every ``format_*`` function returns a self-contained HTML string that
+uses CSS classes defined in ``web/theme.py`` CUSTOM_CSS so it renders
+correctly inside Gradio's dark-mode ``.prose`` wrapper.
 """
 from __future__ import annotations
 
@@ -13,506 +13,242 @@ if TYPE_CHECKING:
     from artsleuth.core.attribution import AttributionReport
     from artsleuth.core.forgery import ForgeryReport
     from artsleuth.core.style import StyleReport
-    from artsleuth.core.temporal import TemporalPrediction
     from artsleuth.core.workshop import WorkshopReport
 
-# ---------------------------------------------------------------------------
-# Palette constants (kept in sync with theme.py)
-# ---------------------------------------------------------------------------
+# Bar accent colours per axis
+_CLR_GOLD = "#d4a843"
+_CLR_BLUE = "#68b5d5"
+_CLR_ROSE = "#f0768a"
+_CLR_GREEN = "#4ade80"
+_CLR_PURPLE = "#a78bfa"
+_CLR_AMBER = "#fbbf24"
 
-_NAVY = "#0f1f35"
-_NAVY_MID = "#162d4a"
-_BLUE = "#7fb3d3"
-_ROSE = "#c27889"
-_GOLD = "#c9a84c"
-_CREAM = "#f4efe8"
-_CREAM_DARK = "#e8e0d4"
-_TEXT_LIGHT = "#ddd8d0"
-_WHITE = "#ffffff"
-# Dark enough for WCAG contrast on cream / white cards (HF dark chrome safe).
-_MUTED = "#3d3834"
-_FONT = "'Inter', -apple-system, sans-serif"
-_FONT_DISPLAY = "'Cormorant Garamond', Georgia, serif"
-
-# ---------------------------------------------------------------------------
-# Shared helpers
-# ---------------------------------------------------------------------------
+_HAND_COLORS = [_CLR_GOLD, _CLR_ROSE, _CLR_BLUE, _CLR_GREEN, _CLR_PURPLE, _CLR_AMBER]
 
 
 def _esc(text: str) -> str:
-    """HTML-escape user-supplied text."""
     return _html.escape(str(text))
 
 
 def _pct(value: float) -> str:
-    """Format a 0-1 float as a percentage string."""
     return f"{value * 100:.1f}%"
 
 
-def _bar_html(
-    label: str,
-    value: float,
-    bar_color: str = _BLUE,
-    max_width: str = "100%",
-) -> str:
-    """Render a single labelled horizontal confidence bar."""
+def _bar(label: str, value: float, color: str = _CLR_GOLD) -> str:
     pct = min(max(value * 100, 0), 100)
     return (
-        f'<div style="margin:6px 0;font-family:{_FONT};">'
-        f'  <div style="display:flex;justify-content:space-between;'
-        f'    font-size:0.84rem;color:{_NAVY};font-weight:500;'
-        f'    margin-bottom:3px;">'
-        f"    <span>{_esc(label)}</span>"
-        f'    <span style="font-weight:600;">{pct:.1f}%</span>'
-        f"  </div>"
-        f'  <div style="background:{_CREAM_DARK};border-radius:6px;'
-        f'    height:8px;width:{max_width};overflow:hidden;'
-        f'    box-shadow:inset 0 1px 3px rgba(0,0,0,0.06);">'
-        f'    <div style="width:{pct:.1f}%;height:100%;'
-        f"      background:linear-gradient(90deg,{bar_color},{bar_color}dd);"
-        f"      border-radius:6px;"
-        f'      transition:width 0.5s cubic-bezier(0.4,0,0.2,1);"></div>'
-        f"  </div>"
-        f"</div>"
+        '<div class="as-bar-wrap">'
+        '<div class="as-bar-top">'
+        f"<span>{_esc(label)}</span>"
+        f'<span class="as-pct">{pct:.1f}%</span>'
+        "</div>"
+        '<div class="as-bar-track">'
+        f'<div class="as-bar-fill" style="width:{pct:.1f}%;background:{color};"></div>'
+        "</div></div>"
     )
 
 
-def _section(title: str, body: str) -> str:
-    """Wrap *body* in a titled card section."""
+def _card(title: str, body: str) -> str:
     return (
-        f'<div style="background:{_WHITE};'
-        f'  border:1px solid rgba(127,179,211,0.18);'
-        f'  border-radius:10px;padding:1.2rem 1.4rem;margin:0.75rem 0;'
-        f'  font-family:{_FONT};'
-        f'  box-shadow:0 2px 12px rgba(15,31,53,0.05);">'
-        f'  <h3 style="margin:0 0 0.8rem;color:{_NAVY};'
-        f'    font-family:{_FONT_DISPLAY};font-size:1.15rem;'
-        f'    font-weight:600;letter-spacing:0.02em;'
-        f'    border-bottom:2px solid {_GOLD};'
-        f'    padding-bottom:0.4rem;">{_esc(title)}</h3>'
-        f"  {body}"
-        f"</div>"
+        '<div class="as-card">'
+        f"<h3>{_esc(title)}</h3>"
+        f"{body}"
+        "</div>"
     )
 
 
-def _badge(text: str, bg: str = _ROSE, fg: str = _WHITE) -> str:
-    """Small inline badge."""
+def _badge(text: str, bg: str = _CLR_ROSE, fg: str = "#0c0a09") -> str:
     return (
-        f'<span style="display:inline-block;background:{bg};'
-        f"  color:{fg};font-size:0.7rem;padding:3px 10px;"
-        f"  border-radius:12px;font-weight:600;"
-        f'  letter-spacing:0.04em;text-transform:uppercase;">'
-        f"  {_esc(text)}"
-        f"</span>"
+        f'<span class="as-badge" style="background:{bg};color:{fg};">'
+        f"{_esc(text)}</span>"
     )
 
 
-# ---------------------------------------------------------------------------
-# Public API — layout builders
-# ---------------------------------------------------------------------------
+# ── Public API ──────────────────────────────────────────────────────
 
 
 def build_header() -> str:
-    """Return HTML for the ArtSleuth app header banner."""
     from web.theme import HEADER_HTML
-
     return HEADER_HTML
 
 
 def build_footer() -> str:
-    """Return HTML for the ArtSleuth footer."""
     from web.theme import FOOTER_HTML
-
     return FOOTER_HTML
 
 
-# ---------------------------------------------------------------------------
-# Public API — report formatters
-# ---------------------------------------------------------------------------
-
-
 def format_style_report(style_report: StyleReport) -> str:
-    """Render a :class:`StyleReport` as rich HTML with coloured bars.
-
-    Parameters
-    ----------
-    style_report:
-        Output of :meth:`StyleClassifier.classify`.
-
-    Returns
-    -------
-    str
-        Self-contained HTML fragment.
-    """
     axes = [
-        ("Period", style_report.period, _NAVY),
-        ("School", style_report.school, _BLUE),
-        ("Genre", style_report.technique, _ROSE),
+        ("Period", style_report.period, _CLR_GOLD),
+        ("School", style_report.school, _CLR_BLUE),
+        ("Genre", style_report.technique, _CLR_ROSE),
     ]
-
     parts: list[str] = []
     for axis_name, pred, color in axes:
-        bars = "".join(
-            _bar_html(label, conf, bar_color=color)
-            for label, conf in pred.top_k
-        )
-        parts.append(_section(
-            f"{axis_name}: {_esc(pred.label)} "
-            f"({_pct(pred.confidence)})",
+        bars = "".join(_bar(label, conf, color) for label, conf in pred.top_k)
+        parts.append(_card(
+            f"{axis_name}: {_esc(pred.label)} ({_pct(pred.confidence)})",
             bars,
         ))
-
-    from web.theme import HTML_LIGHT_PANEL
-
-    return (
-        f'<div style="{HTML_LIGHT_PANEL}font-family:{_FONT};">'
-        + "".join(parts)
-        + "</div>"
-    )
+    return "".join(parts)
 
 
-def format_attribution_report(
-    attribution_report: AttributionReport,
-) -> str:
-    """Render an :class:`AttributionReport` as HTML.
-
-    Shows ranked candidates with confidence bars, credible-interval
-    annotations, and a multi-hand warning badge when applicable.
-
-    Parameters
-    ----------
-    attribution_report:
-        Output of :meth:`AttributionAnalyzer.attribute`.
-
-    Returns
-    -------
-    str
-        Self-contained HTML fragment.
-    """
+def format_attribution_report(attribution_report: AttributionReport) -> str:
     rows: list[str] = []
-    for rank, cand in enumerate(
-        attribution_report.candidates, start=1
-    ):
+    for rank, cand in enumerate(attribution_report.candidates, start=1):
         lo, hi = cand.confidence_interval
-        ci_text = f"95% CI: [{lo:.2f}, {hi:.2f}]"
-        features = ", ".join(cand.supporting_features) or "—"
-        bar = _bar_html(
-            f"#{rank} {cand.artist}",
-            cand.score,
-            bar_color=_NAVY if rank == 1 else _BLUE,
+        bar = _bar(
+            f"#{rank} {cand.artist}", cand.score,
+            _CLR_GOLD if rank == 1 else _CLR_BLUE,
         )
+        features = ", ".join(cand.supporting_features) or "\u2014"
         rows.append(
             f"{bar}"
-            f'<div style="font-size:0.8rem;color:{_MUTED};'
-            f'  margin:-2px 0 8px 4px;">'
-            f"  {_esc(ci_text)} &middot; {_esc(features)}"
-            f"</div>"
+            f'<div style="font-size:0.78rem;color:#78716c;margin:-2px 0 10px 4px;">'
+            f"  95% CI: [{lo:.2f}, {hi:.2f}] &middot; {_esc(features)}"
+            "</div>"
         )
 
     header_extra = ""
     if attribution_report.multi_hand_flag:
-        header_extra = (
-            f" {_badge('MULTI-HAND', bg=_GOLD, fg=_NAVY)}"
-        )
+        header_extra = f" {_badge('MULTI-HAND', bg=_CLR_AMBER, fg='#0c0a09')}"
 
-    body = "".join(rows)
     consensus = (
-        f'<div style="font-size:0.9rem;color:{_NAVY};'
-        f'  margin-bottom:0.6rem;">'
-        f"  <strong>Consensus:</strong> "
-        f"  {_esc(attribution_report.consensus_artist)}"
-        f"  ({_pct(attribution_report.consensus_confidence)})"
-        f"  {header_extra}"
-        f"</div>"
+        '<div style="font-size:0.92rem;margin-bottom:0.8rem;">'
+        f"<strong>Consensus:</strong> "
+        f"{_esc(attribution_report.consensus_artist)} "
+        f"({_pct(attribution_report.consensus_confidence)}) "
+        f"{header_extra}"
+        "</div>"
     )
-
-    return _section("Attribution Candidates", consensus + body)
+    return _card("Attribution Candidates", consensus + "".join(rows))
 
 
 def format_forgery_gauge(forgery_report: ForgeryReport) -> str:
-    """Render a circular gauge for the forgery anomaly score.
-
-    The ring colour shifts green -> yellow -> red based on score.
-
-    Parameters
-    ----------
-    forgery_report:
-        Output of :meth:`ForgeryDetector.detect`.
-
-    Returns
-    -------
-    str
-        Self-contained HTML fragment.
-    """
     score = forgery_report.anomaly_score
-    score_pct = score * 100
+    pct = score * 100
 
     if score < 0.4:
-        ring_color = "#4caf50"
-        verdict = "LOW RISK"
+        ring_color, verdict = _CLR_GREEN, "LOW RISK"
     elif score < 0.7:
-        ring_color = "#ff9800"
-        verdict = "MODERATE"
+        ring_color, verdict = _CLR_AMBER, "MODERATE"
     else:
-        ring_color = "#f44336"
-        verdict = "HIGH RISK"
+        ring_color, verdict = "#f87171", "HIGH RISK"
 
-    flag_badge = ""
-    if forgery_report.is_flagged:
-        flag_badge = _badge("FLAGGED", bg="#f44336")
+    flag = _badge("FLAGGED", bg="#f87171") if forgery_report.is_flagged else ""
+
+    gauge = (
+        '<div style="text-align:center;">'
+        f'<div style="width:140px;height:140px;border-radius:50%;margin:0 auto;'
+        f"background:conic-gradient({ring_color} 0deg {pct*3.6:.1f}deg, "
+        f'rgba(255,255,255,0.06) {pct*3.6:.1f}deg 360deg);'
+        f'box-shadow:0 0 30px rgba(0,0,0,0.3);">'
+        '<div style="width:104px;height:104px;border-radius:50%;'
+        f"background:#1c1917;position:relative;top:18px;left:18px;"
+        f'display:flex;align-items:center;justify-content:center;flex-direction:column;">'
+        f'<span style="font-family:\'Playfair Display\',serif;font-size:1.8rem;'
+        f'font-weight:700;color:#faf9f6;">{score:.2f}</span>'
+        f'<span style="font-size:0.62rem;color:{ring_color};text-transform:uppercase;'
+        f'letter-spacing:0.08em;font-weight:600;">{verdict}</span>'
+        "</div></div>"
+        f'<div style="margin-top:0.6rem;">{flag}</div>'
+        f'<div style="font-size:0.78rem;color:#78716c;margin-top:0.3rem;">'
+        f"Reference: {_esc(forgery_report.reference_artist)}</div>"
+        "</div>"
+    )
 
     indicator_rows = ""
     for ind in forgery_report.indicators:
-        z_color = (
-            "#f44336" if ind.z_score > 3.0
-            else "#ff9800" if ind.z_score > 2.0
-            else "#4caf50"
-        )
+        z_clr = "#f87171" if ind.z_score > 3 else _CLR_AMBER if ind.z_score > 2 else _CLR_GREEN
         indicator_rows += (
-            f'<tr style="font-size:0.85rem;">'
-            f'  <td style="padding:4px 8px;border-bottom:'
-            f'    1px solid {_BLUE};">'
-            f"    {_esc(ind.feature_name)}</td>"
-            f'  <td style="padding:4px 8px;border-bottom:'
-            f'    1px solid {_BLUE};color:{z_color};'
-            f'    font-weight:600;">'
-            f"    z\u202f=\u202f{ind.z_score:.1f}</td>"
-            f'  <td style="padding:4px 8px;border-bottom:'
-            f'    1px solid {_BLUE};color:{_MUTED};'
-            f'    font-size:0.82rem;">'
-            f"    {_esc(ind.description)}</td>"
-            f"</tr>"
+            f'<tr><td style="padding:5px 8px;">{_esc(ind.feature_name)}</td>'
+            f'<td style="padding:5px 8px;color:{z_clr};font-weight:600;">'
+            f"z\u202f=\u202f{ind.z_score:.1f}</td>"
+            f'<td style="padding:5px 8px;color:#78716c;font-size:0.8rem;">'
+            f"{_esc(ind.description)}</td></tr>"
         )
 
-    gauge_html = (
-        f'<div style="text-align:center;font-family:{_FONT};">'
-        f'  <div style="width:160px;height:160px;'
-        f"    border-radius:50%;margin:0 auto;"
-        f"    background:conic-gradient("
-        f"      {ring_color} 0deg {score_pct * 3.6:.1f}deg,"
-        f"      {_CREAM_DARK} {score_pct * 3.6:.1f}deg 360deg"
-        f"    );"
-        f'    box-shadow:0 4px 20px rgba(15,31,53,0.1);">'
-        f'    <div style="width:120px;height:120px;'
-        f"      border-radius:50%;background:{_WHITE};"
-        f"      position:relative;top:20px;left:20px;"
-        f"      display:flex;align-items:center;"
-        f"      justify-content:center;flex-direction:column;"
-        f'      box-shadow:inset 0 2px 8px rgba(0,0,0,0.04);">'
-        f'      <span style="font-family:{_FONT_DISPLAY};'
-        f"        font-size:2rem;font-weight:700;"
-        f'        color:{_NAVY};">{score:.2f}</span>'
-        f'      <span style="font-size:0.68rem;color:{_MUTED};'
-        f"        text-transform:uppercase;letter-spacing:0.08em;"
-        f'        font-weight:600;">'
-        f"        {verdict}</span>"
-        f"    </div>"
-        f"  </div>"
-        f'  <div style="margin-top:0.6rem;">{flag_badge}</div>'
-        f'  <div style="font-size:0.82rem;color:{_MUTED};'
-        f'    margin-top:0.3rem;font-weight:300;">'
-        f"    Reference: {_esc(forgery_report.reference_artist)}"
-        f"  </div>"
-        f"</div>"
-    )
-
-    table_html = ""
-    if forgery_report.indicators:
-        table_html = (
-            f'<table style="width:100%;border-collapse:collapse;'
-            f'  margin-top:0.8rem;font-family:{_FONT};">'
-            f'  <tr style="background:{_NAVY};color:{_CREAM};">'
-            f'    <th style="padding:6px 8px;text-align:left;">'
-            f"      Feature</th>"
-            f'    <th style="padding:6px 8px;text-align:left;">'
-            f"      Z-Score</th>"
-            f'    <th style="padding:6px 8px;text-align:left;">'
-            f"      Detail</th>"
-            f"  </tr>"
-            f"  {indicator_rows}"
-            f"</table>"
+    table = ""
+    if indicator_rows:
+        table = (
+            '<table style="width:100%;border-collapse:collapse;margin-top:1rem;'
+            'font-size:0.84rem;">'
+            '<tr style="border-bottom:1px solid rgba(212,168,67,0.15);">'
+            '<th style="text-align:left;padding:5px 8px;">Feature</th>'
+            '<th style="text-align:left;padding:5px 8px;">Z-Score</th>'
+            '<th style="text-align:left;padding:5px 8px;">Detail</th></tr>'
+            f"{indicator_rows}</table>"
         )
 
-    return _section(
-        "Forgery Screening",
-        gauge_html + table_html,
-    )
+    return _card("Forgery Screening", gauge + table)
 
 
-def format_workshop_report(
-    workshop_report: WorkshopReport,
-) -> str:
-    """Render a :class:`WorkshopReport` as HTML.
-
-    Parameters
-    ----------
-    workshop_report:
-        Output of :meth:`WorkshopDecomposition.decompose`.
-
-    Returns
-    -------
-    str
-        Self-contained HTML fragment with per-hand statistics.
-    """
-    workshop_badge = ""
+def format_workshop_report(workshop_report: WorkshopReport) -> str:
+    ws_badge = ""
     if workshop_report.is_workshop:
-        workshop_badge = _badge(
-            "WORKSHOP PRODUCTION", bg=_GOLD, fg=_NAVY,
-        )
+        ws_badge = _badge("WORKSHOP PRODUCTION", bg=_CLR_AMBER, fg="#0c0a09")
 
     summary = (
-        f'<div style="font-size:0.9rem;color:{_NAVY};'
-        f'  margin-bottom:0.6rem;font-family:{_FONT};">'
-        f"  <strong>Detected hands:</strong> "
-        f"  {workshop_report.num_hands} {workshop_badge}"
-        f"</div>"
+        '<div style="font-size:0.92rem;margin-bottom:0.8rem;">'
+        f"<strong>Detected hands:</strong> {workshop_report.num_hands} {ws_badge}"
+        "</div>"
     )
-
-    hand_colors = [_NAVY, _ROSE, _GOLD, _BLUE, "#8e6bb0", "#5fa0be"]
 
     cards: list[str] = []
     for idx, hand in enumerate(workshop_report.assignments):
-        color = hand_colors[idx % len(hand_colors)]
-        readable_label = hand.label.replace("_", " ").title()
-        extent_bar = _bar_html(
-            "Spatial extent", hand.spatial_extent, bar_color=color,
-        )
-        conf_bar = _bar_html(
-            "Confidence", hand.confidence, bar_color=color,
-        )
-
+        color = _HAND_COLORS[idx % len(_HAND_COLORS)]
+        label = hand.label.replace("_", " ").title()
+        extent = _bar("Spatial extent", hand.spatial_extent, color)
+        conf = _bar("Confidence", hand.confidence, color)
         stats = (
-            f'<div style="display:grid;'
-            f"  grid-template-columns:1fr 1fr;gap:4px 16px;"
-            f'  font-size:0.84rem;color:{_MUTED};margin-top:6px;">'
-            f"  <span>Patches: {hand.patch_count}</span>"
-            f"  <span>Coherence: {hand.mean_coherence:.3f}</span>"
-            f"  <span>Energy: {hand.mean_energy:.3f}</span>"
-            f"  <span>Hand ID: {hand.hand_id}</span>"
-            f"</div>"
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;'
+            'font-size:0.82rem;color:#78716c;margin-top:6px;">'
+            f"<span>Patches: {hand.patch_count}</span>"
+            f"<span>Coherence: {hand.mean_coherence:.3f}</span>"
+            f"<span>Energy: {hand.mean_energy:.3f}</span>"
+            f"<span>Hand ID: {hand.hand_id}</span>"
+            "</div>"
         )
-
         cards.append(
-            f'<div style="border-left:4px solid {color};'
-            f"  padding:0.5rem 0.75rem;margin:0.5rem 0;"
-            f'  background:{_CREAM};border-radius:0 4px 4px 0;">'
-            f'  <div style="font-weight:600;color:{_NAVY};'
-            f'    font-size:0.95rem;">'
-            f"    {_esc(readable_label)}"
-            f"  </div>"
-            f"  {extent_bar}{conf_bar}{stats}"
-            f"</div>"
+            f'<div style="border-left:3px solid {color};'
+            f"padding:0.5rem 0.75rem;margin:0.5rem 0;"
+            f'background:rgba(255,255,255,0.02);border-radius:0 8px 8px 0;">'
+            f'<div style="font-weight:600;color:#e7e5e4;font-size:0.95rem;">'
+            f"{_esc(label)}</div>"
+            f"{extent}{conf}{stats}"
+            "</div>"
         )
 
-    return _section(
-        "Workshop Decomposition",
-        summary + "".join(cards),
-    )
+    return _card("Workshop Decomposition", summary + "".join(cards))
 
 
-def format_temporal_prediction(
-    temporal_prediction: TemporalPrediction,
-) -> str:
-    """Render a :class:`TemporalPrediction` as HTML with a timeline.
-
-    Parameters
-    ----------
-    temporal_prediction:
-        Output of :meth:`TemporalStyleModel.predict`.
-
-    Returns
-    -------
-    str
-        Self-contained HTML fragment.
-    """
+def format_temporal_prediction(temporal_prediction) -> str:
     year = temporal_prediction.estimated_year
     lo, hi = temporal_prediction.confidence_band
     score = temporal_prediction.temporal_score
     drift = temporal_prediction.drift_rate
 
-    year_display = str(round(year))
-    lo_display = str(round(lo))
-    hi_display = str(round(hi))
-
-    score_color = (
-        "#4caf50" if score > 0.7
-        else "#ff9800" if score > 0.4
-        else "#f44336"
+    score_cls = (
+        "as-score-good" if score > 0.7
+        else "as-score-mid" if score > 0.4
+        else "as-score-bad"
     )
 
-    span = max(hi - lo, 1.0)
-    marker_pct = min(
-        max((year - lo) / span * 100, 2), 98,
-    )
-
-    timeline_html = (
-        f'<div style="position:relative;height:40px;'
-        f"  margin:1rem 0 0.5rem;background:linear-gradient("
-        f"  to right, {_BLUE}33, {_NAVY}33);"
-        f'  border-radius:4px;font-family:{_FONT};">'
-        # Marker
-        f'  <div style="position:absolute;'
-        f"    left:{marker_pct:.1f}%;top:-6px;"
-        f"    transform:translateX(-50%);"
-        f'    text-align:center;">'
-        f'    <div style="width:3px;height:52px;'
-        f'      background:{_GOLD};margin:0 auto;"></div>'
-        f'    <span style="font-size:0.82rem;font-weight:700;'
-        f'      color:{_NAVY};">{year_display}</span>'
-        f"  </div>"
-        # Left label
-        f'  <span style="position:absolute;left:4px;bottom:-18px;'
-        f'    font-size:0.72rem;color:{_MUTED};">'
-        f"    {lo_display}</span>"
-        # Right label
-        f'  <span style="position:absolute;right:4px;bottom:-18px;'
-        f'    font-size:0.72rem;color:{_MUTED};">'
-        f"    {hi_display}</span>"
-        f"</div>"
-    )
-
-    stats_html = (
-        f'<div style="display:grid;'
-        f"  grid-template-columns:1fr 1fr;gap:8px;"
-        f"  margin-top:1.5rem;font-size:0.88rem;"
-        f'  font-family:{_FONT};">'
-        # Estimated year
-        f'  <div style="background:{_CREAM};padding:0.6rem;'
-        f'    border-radius:4px;text-align:center;">'
-        f'    <div style="font-size:0.72rem;color:{_MUTED};'
-        f'      text-transform:uppercase;">Estimated Year</div>'
-        f'    <div style="font-size:1.3rem;font-weight:700;'
-        f'      color:{_NAVY};">c.\u2009{year_display}</div>'
-        f"  </div>"
-        # Temporal plausibility
-        f'  <div style="background:{_CREAM};padding:0.6rem;'
-        f'    border-radius:4px;text-align:center;">'
-        f'    <div style="font-size:0.72rem;color:{_MUTED};'
-        f'      text-transform:uppercase;">Plausibility</div>'
-        f'    <div style="font-size:1.3rem;font-weight:700;'
-        f'      color:{score_color};">{score:.2f}</div>'
-        f"  </div>"
-        # Confidence band
-        f'  <div style="background:{_CREAM};padding:0.6rem;'
-        f'    border-radius:4px;text-align:center;">'
-        f'    <div style="font-size:0.72rem;color:{_MUTED};'
-        f'      text-transform:uppercase;">95% Band</div>'
-        f'    <div style="font-size:1rem;font-weight:600;'
-        f'      color:{_NAVY};">'
-        f"      {lo_display}\u2009\u2013\u2009{hi_display}</div>"
-        f"  </div>"
-        # Drift rate
-        f'  <div style="background:{_CREAM};padding:0.6rem;'
-        f'    border-radius:4px;text-align:center;">'
-        f'    <div style="font-size:0.72rem;color:{_MUTED};'
-        f'      text-transform:uppercase;">Drift / Decade</div>'
-        f'    <div style="font-size:1rem;font-weight:600;'
-        f'      color:{_NAVY};">{drift:.3f}</div>'
-        f"  </div>"
-        f"</div>"
-    )
-
-    return _section(
-        "Temporal Analysis",
-        timeline_html + stats_html,
-    )
+    return _card("Temporal Analysis", (
+        '<div class="as-date">'
+        f'<div class="as-date__year">c.\u2009{year:.0f}</div>'
+        '<div class="as-date__label">Estimated Date</div>'
+        '<div class="as-date__stats">'
+        '<div style="text-align:center">'
+        '<div class="as-date__stat-label">95% Band</div>'
+        f'<div class="as-date__stat-value">{lo:.0f}\u2013{hi:.0f}</div>'
+        "</div>"
+        '<div style="text-align:center">'
+        '<div class="as-date__stat-label">Plausibility</div>'
+        f'<div class="as-date__stat-value {score_cls}">{score:.0%}</div>'
+        "</div>"
+        '<div style="text-align:center">'
+        '<div class="as-date__stat-label">Drift / Decade</div>'
+        f'<div class="as-date__stat-value">{drift:.3f}</div>'
+        "</div></div></div>"
+    ))
