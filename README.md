@@ -6,16 +6,16 @@
 
 <br><br>
 
-[![Python](https://img.shields.io/badge/Python-3.10+-9DC0D8?style=for-the-badge&labelColor=1A2E48&logo=python&logoColor=9DC0D8)](https://www.python.org/)&nbsp;
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-9DC0D8?style=for-the-badge&labelColor=1A2E48&logo=pytorch&logoColor=9DC0D8)](https://pytorch.org/)&nbsp;
-[![HuggingFace](https://img.shields.io/badge/HuggingFace-Weights-9DC0D8?style=for-the-badge&labelColor=1A2E48&logo=huggingface&logoColor=9DC0D8)](https://huggingface.co/ladyFaye1998/artsleuth-weights)&nbsp;
-[![Demo](https://img.shields.io/badge/Demo-Live_on_Spaces-d4af37?style=for-the-badge&labelColor=1A2E48&logo=huggingface&logoColor=d4af37)](https://huggingface.co/spaces/ladyFaye1998/ArtSleuth)&nbsp;
-[![MCP](https://img.shields.io/badge/MCP-Server-9DC0D8?style=for-the-badge&labelColor=1A2E48)](https://modelcontextprotocol.io/)&nbsp;
-[![License](https://img.shields.io/badge/License-MIT-9DC0D8?style=for-the-badge&labelColor=1A2E48)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.10+-e8e0d4?style=for-the-badge&labelColor=1a1714&logo=python&logoColor=c9a84c)](https://www.python.org/)&nbsp;
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-e8e0d4?style=for-the-badge&labelColor=1a1714&logo=pytorch&logoColor=c9a84c)](https://pytorch.org/)&nbsp;
+[![HuggingFace](https://img.shields.io/badge/HuggingFace-Weights-e8e0d4?style=for-the-badge&labelColor=1a1714&logo=huggingface&logoColor=c9a84c)](https://huggingface.co/ladyFaye1998/artsleuth-weights)&nbsp;
+[![Demo](https://img.shields.io/badge/Demo-Live_on_Spaces-c9a84c?style=for-the-badge&labelColor=1a1714&logo=huggingface&logoColor=c9a84c)](https://huggingface.co/spaces/ladyFaye1998/ArtSleuth)&nbsp;
+[![MCP](https://img.shields.io/badge/MCP-Server-e8e0d4?style=for-the-badge&labelColor=1a1714)](https://modelcontextprotocol.io/)&nbsp;
+[![License](https://img.shields.io/badge/License-MIT-e8e0d4?style=for-the-badge&labelColor=1a1714)](LICENSE)
 
 <br>
 
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Lora&weight=500&size=22&pause=2800&color=9DC0D8&center=true&vCenter=true&width=680&lines=Brushstroke+analysis+%C2%B7+Style+attribution+%C2%B7+Anomaly+screening;Dual-backbone+feature+fusion+%C2%B7+Temporal+drift+modelling;Where+connoisseurship+meets+computation)](https://github.com/ladyFaye1998/ArtSleuth)
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Lora&weight=500&size=22&pause=2800&color=C9A84C&center=true&vCenter=true&width=680&lines=Brushstroke+analysis+%C2%B7+Style+attribution+%C2%B7+Anomaly+screening;Dual-backbone+feature+fusion+%C2%B7+Temporal+drift+modelling;Where+connoisseurship+meets+computation)](https://github.com/ladyFaye1998/ArtSleuth)
 
 <br>
 
@@ -37,14 +37,14 @@ Brushstroke directionality, impasto relief, palette temperature, the habitual ge
 
 | | Capability | Method |
 |:---:|:---|:---|
-| ![Brushstroke](https://img.shields.io/badge/-Brushstroke_Analysis-1A2E48?style=flat-square) | Stroke orientation, coherence, energy, curvature with patch-level clustering | Structure tensor on image gradients + DINOv2 patch embeddings |
-| ![Style](https://img.shields.io/badge/-Style_Classification-1A2E48?style=flat-square) | Period, school, and genre prediction | CLIP embeddings through learned linear heads (period and genre pretrained; school randomly initialised) |
-| ![Attribution](https://img.shields.io/badge/-Artist_Attribution-1A2E48?style=flat-square) | Embedding-space comparison with temporal plausibility scoring | Cosine similarity with GP-based date estimation |
-| ![Workshop](https://img.shields.io/badge/-Workshop_Decomposition-1A2E48?style=flat-square) | Bayesian inference of distinct hands in collaborative paintings | Dirichlet process Gaussian mixture model |
-| ![Forgery](https://img.shields.io/badge/-Anomaly_Screening-1A2E48?style=flat-square) | One-class anomaly scoring with adversarial robustness testing | Mahalanobis distance plus historical forgery simulation |
-| ![Fusion](https://img.shields.io/badge/-Dual--Backbone_Fusion-1A2E48?style=flat-square) | Complementary features from two vision transformers | Concatenation at inference; cross-attention available for training |
-| ![Temporal](https://img.shields.io/badge/-Temporal_Drift-1A2E48?style=flat-square) | Models how an artist's style evolves over decades | Gaussian process regression in embedding space (requires user-supplied dated references) |
-| ![Explainability](https://img.shields.io/badge/-Explainability-1A2E48?style=flat-square) | Visual heatmaps highlighting regions the model considers salient | Gradient-based saliency maps |
+| ![Brushstroke](https://img.shields.io/badge/-Brushstroke_Analysis-1a1714?style=flat-square&labelColor=1a1714) | Stroke orientation, coherence, energy, curvature with patch-level clustering | Structure tensor on image gradients + DINOv2 patch embeddings |
+| ![Style](https://img.shields.io/badge/-Style_Classification-1a1714?style=flat-square&labelColor=1a1714) | Period, school, and genre prediction | CLIP embeddings through learned linear heads (period and genre pretrained; school randomly initialised) |
+| ![Attribution](https://img.shields.io/badge/-Artist_Attribution-1a1714?style=flat-square&labelColor=1a1714) | Embedding-space comparison with temporal plausibility scoring | Cosine similarity with GP-based date estimation |
+| ![Workshop](https://img.shields.io/badge/-Workshop_Decomposition-1a1714?style=flat-square&labelColor=1a1714) | Bayesian inference of distinct hands in collaborative paintings | Dirichlet process Gaussian mixture model |
+| ![Forgery](https://img.shields.io/badge/-Anomaly_Screening-1a1714?style=flat-square&labelColor=1a1714) | One-class anomaly scoring with adversarial robustness testing | Mahalanobis distance plus historical forgery simulation |
+| ![Fusion](https://img.shields.io/badge/-Dual--Backbone_Fusion-1a1714?style=flat-square&labelColor=1a1714) | Complementary features from two vision transformers | Concatenation at inference; cross-attention available for training |
+| ![Temporal](https://img.shields.io/badge/-Temporal_Drift-1a1714?style=flat-square&labelColor=1a1714) | Models how an artist's style evolves over decades | Gaussian process regression in embedding space (requires user-supplied dated references) |
+| ![Explainability](https://img.shields.io/badge/-Explainability-1a1714?style=flat-square&labelColor=1a1714) | Visual heatmaps highlighting regions the model considers salient | Gradient-based saliency maps |
 
 </div>
 
