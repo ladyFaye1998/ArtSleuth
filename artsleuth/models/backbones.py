@@ -150,18 +150,16 @@ class _DINOv2Wrapper(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         features = self.model(x)
+        if isinstance(features, torch.Tensor):
+            return features
         if hasattr(features, "last_hidden_state"):
             return features.last_hidden_state[:, 0, :]
         if isinstance(features, dict):
-            tok = features.get("x_norm_clstoken")
-            if tok is not None:
-                return tok
-            tok = features.get("cls_token")
-            if tok is not None:
-                return tok
-        if isinstance(features, torch.Tensor):
-            return features
-        return features.last_hidden_state[:, 0, :]
+            for key in ("x_norm_clstoken", "cls_token"):
+                val = features.get(key)
+                if val is not None and isinstance(val, torch.Tensor):
+                    return val
+        raise TypeError(f"Unexpected DINOv2 output: {type(features)}")
 
 
 class _CLIPVisualWrapper(nn.Module):
@@ -178,17 +176,21 @@ class _CLIPVisualWrapper(nn.Module):
 class _CLIPHFWrapper(nn.Module):
     """Wraps a HuggingFace ``CLIPModel`` to return projected image features.
 
-    Uses ``get_image_features`` which applies both the vision encoder and
-    the visual projection, matching the output space of OpenAI's
-    ``encode_image``.
+    Manually runs vision_model + visual_projection rather than relying
+    on ``get_image_features`` whose return type varies across
+    transformers versions.
     """
 
-    def __init__(self, model: nn.Module) -> None:
+    def __init__(self, clip_model: nn.Module) -> None:
         super().__init__()
-        self.model = model
+        self.vision_model = clip_model.vision_model
+        self.visual_projection = clip_model.visual_projection
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.model.get_image_features(pixel_values=x).float()
+        vision_out = self.vision_model(pixel_values=x)
+        pooled = vision_out[1] if not isinstance(vision_out, torch.Tensor) else vision_out
+        projected = self.visual_projection(pooled)
+        return projected.float()
 
 
 # --- Loader implementations ------------------------------------------------
