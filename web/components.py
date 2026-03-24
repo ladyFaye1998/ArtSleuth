@@ -1,8 +1,10 @@
 """Reusable UI component builders for the ArtSleuth Gradio app.
 
-Every ``format_*`` function returns a self-contained HTML string that
-uses CSS classes defined in ``web/theme.py`` CUSTOM_CSS so it renders
-correctly inside Gradio's dark-mode ``.prose`` wrapper.
+Every ``build_*`` / ``format_*`` function returns a self-contained HTML
+string that uses CSS classes defined in ``web.theme.CUSTOM_CSS``.
+No inline ``style="color:…"`` attributes — all colour and layout comes
+from ``.as-*`` classes so Gradio's ``.prose`` wrapper never fights the
+design.
 """
 from __future__ import annotations
 
@@ -13,242 +15,307 @@ if TYPE_CHECKING:
     from artsleuth.core.attribution import AttributionReport
     from artsleuth.core.forgery import ForgeryReport
     from artsleuth.core.style import StyleReport
+    from artsleuth.core.temporal import TemporalPrediction
     from artsleuth.core.workshop import WorkshopReport
 
-# Bar accent colours per axis
-_CLR_GOLD = "#d4a843"
-_CLR_BLUE = "#68b5d5"
-_CLR_ROSE = "#f0768a"
-_CLR_GREEN = "#4ade80"
-_CLR_PURPLE = "#a78bfa"
-_CLR_AMBER = "#fbbf24"
-
-_HAND_COLORS = [_CLR_GOLD, _CLR_ROSE, _CLR_BLUE, _CLR_GREEN, _CLR_PURPLE, _CLR_AMBER]
+# Bar-colour rotation (CSS class suffixes defined in CUSTOM_CSS)
+_BAR_VARIANTS = ("gold", "amber", "rose", "blue", "navy", "muted")
 
 
 def _esc(text: str) -> str:
+    """HTML-escape user-supplied text."""
     return _html.escape(str(text))
 
 
 def _pct(value: float) -> str:
+    """Format a 0-1 float as a percentage string."""
     return f"{value * 100:.1f}%"
 
 
-def _bar(label: str, value: float, color: str = _CLR_GOLD) -> str:
+# ---------------------------------------------------------------------------
+# Atomic elements
+# ---------------------------------------------------------------------------
+
+
+def _bar_html(
+    label: str,
+    value: float,
+    variant: str = "gold",
+) -> str:
+    """Horizontal confidence bar using ``.as-bar`` classes."""
     pct = min(max(value * 100, 0), 100)
     return (
-        '<div class="as-bar-wrap">'
-        '<div class="as-bar-top">'
-        f"<span>{_esc(label)}</span>"
-        f'<span class="as-pct">{pct:.1f}%</span>'
-        "</div>"
-        '<div class="as-bar-track">'
-        f'<div class="as-bar-fill" style="width:{pct:.1f}%;background:{color};"></div>'
-        "</div></div>"
+        f'<div class="as-bar as-bar--{variant}">'
+        f'  <div class="as-bar__header">'
+        f"    <span>{_esc(label)}</span>"
+        f'    <span class="as-bar__pct">{pct:.1f}%</span>'
+        f"  </div>"
+        f'  <div class="as-bar__track">'
+        f'    <div class="as-bar__fill" style="width:{pct:.1f}%"></div>'
+        f"  </div>"
+        f"</div>"
     )
 
 
 def _card(title: str, body: str) -> str:
+    """Wrap *body* in a titled ``.as-card``."""
     return (
-        '<div class="as-card">'
-        f"<h3>{_esc(title)}</h3>"
-        f"{body}"
-        "</div>"
+        f'<div class="as-card">'
+        f'  <h3 class="as-card__title">{_esc(title)}</h3>'
+        f"  {body}"
+        f"</div>"
     )
 
 
-def _badge(text: str, bg: str = _CLR_ROSE, fg: str = "#0c0a09") -> str:
+def _badge(text: str, variant: str = "gold") -> str:
+    """Inline badge — ``variant`` is gold | rose | red | muted."""
     return (
-        f'<span class="as-badge" style="background:{bg};color:{fg};">'
+        f'<span class="as-badge as-badge--{variant}">'
         f"{_esc(text)}</span>"
     )
 
 
-# ── Public API ──────────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Public API — layout builders
+# ---------------------------------------------------------------------------
 
 
 def build_header() -> str:
+    """Return HTML for the ArtSleuth app header banner."""
     from web.theme import HEADER_HTML
+
     return HEADER_HTML
 
 
 def build_footer() -> str:
+    """Return HTML for the ArtSleuth footer."""
     from web.theme import FOOTER_HTML
+
     return FOOTER_HTML
 
 
+# ---------------------------------------------------------------------------
+# Public API — report formatters
+# ---------------------------------------------------------------------------
+
+
 def format_style_report(style_report: StyleReport) -> str:
+    """Render a :class:`StyleReport` as rich HTML with coloured bars."""
     axes = [
-        ("Period", style_report.period, _CLR_GOLD),
-        ("School", style_report.school, _CLR_BLUE),
-        ("Genre", style_report.technique, _CLR_ROSE),
+        ("Period", style_report.period, "gold"),
+        ("School", style_report.school, "amber"),
+        ("Genre", style_report.technique, "rose"),
     ]
+
     parts: list[str] = []
-    for axis_name, pred, color in axes:
-        bars = "".join(_bar(label, conf, color) for label, conf in pred.top_k)
+    for axis_name, pred, variant in axes:
+        bars = "".join(
+            _bar_html(label, conf, variant=variant)
+            for label, conf in pred.top_k
+        )
         parts.append(_card(
             f"{axis_name}: {_esc(pred.label)} ({_pct(pred.confidence)})",
             bars,
         ))
-    return "".join(parts)
+
+    return '<div class="as-style-wrap">' + "".join(parts) + "</div>"
 
 
-def format_attribution_report(attribution_report: AttributionReport) -> str:
+def format_attribution_report(
+    attribution_report: AttributionReport,
+) -> str:
+    """Render an :class:`AttributionReport` as HTML."""
     rows: list[str] = []
-    for rank, cand in enumerate(attribution_report.candidates, start=1):
+    for rank, cand in enumerate(
+        attribution_report.candidates, start=1,
+    ):
         lo, hi = cand.confidence_interval
-        bar = _bar(
-            f"#{rank} {cand.artist}", cand.score,
-            _CLR_GOLD if rank == 1 else _CLR_BLUE,
-        )
+        ci_text = f"95% CI: [{lo:.2f}, {hi:.2f}]"
         features = ", ".join(cand.supporting_features) or "\u2014"
+        variant = "gold" if rank == 1 else "amber"
+        bar = _bar_html(
+            f"#{rank} {cand.artist}", cand.score, variant=variant,
+        )
         rows.append(
             f"{bar}"
-            f'<div style="font-size:0.78rem;color:#78716c;margin:-2px 0 10px 4px;">'
-            f"  95% CI: [{lo:.2f}, {hi:.2f}] &middot; {_esc(features)}"
-            "</div>"
+            f'<div class="as-ci">'
+            f"  {_esc(ci_text)} &middot; {_esc(features)}"
+            f"</div>"
         )
 
     header_extra = ""
     if attribution_report.multi_hand_flag:
-        header_extra = f" {_badge('MULTI-HAND', bg=_CLR_AMBER, fg='#0c0a09')}"
+        header_extra = f" {_badge('MULTI-HAND', 'rose')}"
 
+    body = "".join(rows)
     consensus = (
-        '<div style="font-size:0.92rem;margin-bottom:0.8rem;">'
-        f"<strong>Consensus:</strong> "
-        f"{_esc(attribution_report.consensus_artist)} "
-        f"({_pct(attribution_report.consensus_confidence)}) "
-        f"{header_extra}"
-        "</div>"
+        f'<div class="as-consensus">'
+        f"  <strong>Consensus:</strong> "
+        f"  {_esc(attribution_report.consensus_artist)}"
+        f"  ({_pct(attribution_report.consensus_confidence)})"
+        f"  {header_extra}"
+        f"</div>"
     )
-    return _card("Attribution Candidates", consensus + "".join(rows))
+
+    return _card("Attribution Candidates", consensus + body)
 
 
 def format_forgery_gauge(forgery_report: ForgeryReport) -> str:
+    """Render a circular gauge for the forgery anomaly score."""
     score = forgery_report.anomaly_score
-    pct = score * 100
+    score_pct = score * 100
 
     if score < 0.4:
-        ring_color, verdict = _CLR_GREEN, "LOW RISK"
+        ring_color = "var(--as-green)"
+        verdict = "LOW RISK"
     elif score < 0.7:
-        ring_color, verdict = _CLR_AMBER, "MODERATE"
+        ring_color = "var(--as-amber)"
+        verdict = "MODERATE"
     else:
-        ring_color, verdict = "#f87171", "HIGH RISK"
+        ring_color = "var(--as-red)"
+        verdict = "HIGH RISK"
 
-    flag = _badge("FLAGGED", bg="#f87171") if forgery_report.is_flagged else ""
-
-    gauge = (
-        '<div style="text-align:center;">'
-        f'<div style="width:140px;height:140px;border-radius:50%;margin:0 auto;'
-        f"background:conic-gradient({ring_color} 0deg {pct*3.6:.1f}deg, "
-        f'rgba(255,255,255,0.06) {pct*3.6:.1f}deg 360deg);'
-        f'box-shadow:0 0 30px rgba(0,0,0,0.3);">'
-        '<div style="width:104px;height:104px;border-radius:50%;'
-        f"background:#1c1917;position:relative;top:18px;left:18px;"
-        f'display:flex;align-items:center;justify-content:center;flex-direction:column;">'
-        f'<span style="font-family:\'Playfair Display\',serif;font-size:1.8rem;'
-        f'font-weight:700;color:#faf9f6;">{score:.2f}</span>'
-        f'<span style="font-size:0.62rem;color:{ring_color};text-transform:uppercase;'
-        f'letter-spacing:0.08em;font-weight:600;">{verdict}</span>'
-        "</div></div>"
-        f'<div style="margin-top:0.6rem;">{flag}</div>'
-        f'<div style="font-size:0.78rem;color:#78716c;margin-top:0.3rem;">'
-        f"Reference: {_esc(forgery_report.reference_artist)}</div>"
-        "</div>"
-    )
+    flag_badge = ""
+    if forgery_report.is_flagged:
+        flag_badge = _badge("FLAGGED", "red")
 
     indicator_rows = ""
     for ind in forgery_report.indicators:
-        z_clr = "#f87171" if ind.z_score > 3 else _CLR_AMBER if ind.z_score > 2 else _CLR_GREEN
+        if ind.z_score > 3.0:
+            z_cls = "as-date__stat-value--bad"
+        elif ind.z_score > 2.0:
+            z_cls = "as-date__stat-value--mid"
+        else:
+            z_cls = "as-date__stat-value--good"
         indicator_rows += (
-            f'<tr><td style="padding:5px 8px;">{_esc(ind.feature_name)}</td>'
-            f'<td style="padding:5px 8px;color:{z_clr};font-weight:600;">'
-            f"z\u202f=\u202f{ind.z_score:.1f}</td>"
-            f'<td style="padding:5px 8px;color:#78716c;font-size:0.8rem;">'
-            f"{_esc(ind.description)}</td></tr>"
+            f"<tr>"
+            f"  <td>{_esc(ind.feature_name)}</td>"
+            f'  <td class="{z_cls}" style="font-weight:600">'
+            f"    z\u202f=\u202f{ind.z_score:.1f}</td>"
+            f"  <td>{_esc(ind.description)}</td>"
+            f"</tr>"
         )
 
-    table = ""
-    if indicator_rows:
-        table = (
-            '<table style="width:100%;border-collapse:collapse;margin-top:1rem;'
-            'font-size:0.84rem;">'
-            '<tr style="border-bottom:1px solid rgba(212,168,67,0.15);">'
-            '<th style="text-align:left;padding:5px 8px;">Feature</th>'
-            '<th style="text-align:left;padding:5px 8px;">Z-Score</th>'
-            '<th style="text-align:left;padding:5px 8px;">Detail</th></tr>'
-            f"{indicator_rows}</table>"
+    gauge_html = (
+        f'<div class="as-gauge">'
+        f'  <div class="as-gauge__ring" style="background:conic-gradient('
+        f"    {ring_color} 0deg {score_pct * 3.6:.1f}deg,"
+        f"    var(--as-surface-raise) {score_pct * 3.6:.1f}deg 360deg"
+        f'  )">'
+        f'    <div class="as-gauge__inner">'
+        f'      <span class="as-gauge__score">{score:.2f}</span>'
+        f'      <span class="as-gauge__verdict">{verdict}</span>'
+        f"    </div>"
+        f"  </div>"
+        f'  <div style="margin-top:0.6rem">{flag_badge}</div>'
+        f'  <div class="as-gauge__ref">'
+        f"    Reference: {_esc(forgery_report.reference_artist)}"
+        f"  </div>"
+        f"</div>"
+    )
+
+    table_html = ""
+    if forgery_report.indicators:
+        table_html = (
+            f'<table class="as-table" style="margin-top:0.8rem">'
+            f"<thead><tr>"
+            f"  <th>Feature</th><th>Z-Score</th><th>Detail</th>"
+            f"</tr></thead><tbody>"
+            f"  {indicator_rows}"
+            f"</tbody></table>"
         )
 
-    return _card("Forgery Screening", gauge + table)
+    return _card("Forgery Screening", gauge_html + table_html)
 
 
-def format_workshop_report(workshop_report: WorkshopReport) -> str:
-    ws_badge = ""
+def format_workshop_report(
+    workshop_report: WorkshopReport,
+) -> str:
+    """Render a :class:`WorkshopReport` as HTML."""
+    workshop_badge = ""
     if workshop_report.is_workshop:
-        ws_badge = _badge("WORKSHOP PRODUCTION", bg=_CLR_AMBER, fg="#0c0a09")
+        workshop_badge = _badge("WORKSHOP PRODUCTION", "gold")
 
     summary = (
-        '<div style="font-size:0.92rem;margin-bottom:0.8rem;">'
-        f"<strong>Detected hands:</strong> {workshop_report.num_hands} {ws_badge}"
-        "</div>"
+        f'<div class="as-consensus">'
+        f"  <strong>Detected hands:</strong> "
+        f"  {workshop_report.num_hands} {workshop_badge}"
+        f"</div>"
     )
+
+    hand_variants = ("gold", "rose", "amber", "blue", "navy", "muted")
 
     cards: list[str] = []
     for idx, hand in enumerate(workshop_report.assignments):
-        color = _HAND_COLORS[idx % len(_HAND_COLORS)]
-        label = hand.label.replace("_", " ").title()
-        extent = _bar("Spatial extent", hand.spatial_extent, color)
-        conf = _bar("Confidence", hand.confidence, color)
-        stats = (
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;'
-            'font-size:0.82rem;color:#78716c;margin-top:6px;">'
-            f"<span>Patches: {hand.patch_count}</span>"
-            f"<span>Coherence: {hand.mean_coherence:.3f}</span>"
-            f"<span>Energy: {hand.mean_energy:.3f}</span>"
-            f"<span>Hand ID: {hand.hand_id}</span>"
-            "</div>"
+        variant = hand_variants[idx % len(hand_variants)]
+        readable_label = hand.label.replace("_", " ").title()
+        extent_bar = _bar_html(
+            "Spatial extent", hand.spatial_extent, variant=variant,
         )
+        conf_bar = _bar_html(
+            "Confidence", hand.confidence, variant=variant,
+        )
+
         cards.append(
-            f'<div style="border-left:3px solid {color};'
-            f"padding:0.5rem 0.75rem;margin:0.5rem 0;"
-            f'background:rgba(255,255,255,0.02);border-radius:0 8px 8px 0;">'
-            f'<div style="font-weight:600;color:#e7e5e4;font-size:0.95rem;">'
-            f"{_esc(label)}</div>"
-            f"{extent}{conf}{stats}"
-            "</div>"
+            f'<div class="as-hand">'
+            f'  <div class="as-hand__label">{_esc(readable_label)}</div>'
+            f"  {extent_bar}{conf_bar}"
+            f'  <div class="as-hand__stats">'
+            f"    <span>Patches: {hand.patch_count}</span>"
+            f"    <span>Coherence: {hand.mean_coherence:.3f}</span>"
+            f"    <span>Energy: {hand.mean_energy:.3f}</span>"
+            f"    <span>Hand ID: {hand.hand_id}</span>"
+            f"  </div>"
+            f"</div>"
         )
 
-    return _card("Workshop Decomposition", summary + "".join(cards))
+    return _card(
+        "Workshop Decomposition",
+        summary + "".join(cards),
+    )
 
 
-def format_temporal_prediction(temporal_prediction) -> str:
+def format_temporal_prediction(
+    temporal_prediction: TemporalPrediction,
+) -> str:
+    """Render a :class:`TemporalPrediction` as HTML."""
     year = temporal_prediction.estimated_year
     lo, hi = temporal_prediction.confidence_band
     score = temporal_prediction.temporal_score
     drift = temporal_prediction.drift_rate
 
+    year_display = str(round(year))
+    lo_display = str(round(lo))
+    hi_display = str(round(hi))
+
     score_cls = (
-        "as-score-good" if score > 0.7
-        else "as-score-mid" if score > 0.4
-        else "as-score-bad"
+        "as-date__stat-value--good" if score > 0.7
+        else "as-date__stat-value--mid" if score > 0.4
+        else "as-date__stat-value--bad"
     )
 
-    return _card("Temporal Analysis", (
-        '<div class="as-date">'
-        f'<div class="as-date__year">c.\u2009{year:.0f}</div>'
-        '<div class="as-date__label">Estimated Date</div>'
-        '<div class="as-date__stats">'
-        '<div style="text-align:center">'
-        '<div class="as-date__stat-label">95% Band</div>'
-        f'<div class="as-date__stat-value">{lo:.0f}\u2013{hi:.0f}</div>'
-        "</div>"
-        '<div style="text-align:center">'
-        '<div class="as-date__stat-label">Plausibility</div>'
-        f'<div class="as-date__stat-value {score_cls}">{score:.0%}</div>'
-        "</div>"
-        '<div style="text-align:center">'
-        '<div class="as-date__stat-label">Drift / Decade</div>'
-        f'<div class="as-date__stat-value">{drift:.3f}</div>'
-        "</div></div></div>"
-    ))
+    return (
+        f'<div class="as-card">'
+        f'  <h3 class="as-card__title">Temporal Analysis</h3>'
+        f'  <div class="as-date">'
+        f'    <div class="as-date__year">c.\u2009{year_display}</div>'
+        f'    <div class="as-date__label">Estimated Date</div>'
+        f'    <div class="as-date__stats">'
+        f"      <div>"
+        f'        <div class="as-date__stat-label">95% Band</div>'
+        f'        <div class="as-date__stat-value">'
+        f"          {lo_display}\u2009\u2013\u2009{hi_display}</div>"
+        f"      </div>"
+        f"      <div>"
+        f'        <div class="as-date__stat-label">Plausibility</div>'
+        f'        <div class="as-date__stat-value {score_cls}">'
+        f"          {score:.2f}</div>"
+        f"      </div>"
+        f"      <div>"
+        f'        <div class="as-date__stat-label">Drift / Decade</div>'
+        f'        <div class="as-date__stat-value">{drift:.3f}</div>'
+        f"      </div>"
+        f"    </div>"
+        f"  </div>"
+        f"</div>"
+    )

@@ -1,382 +1,641 @@
-"""Dark-first Gradio theme for ArtSleuth.
+"""Custom Gradio theme for ArtSleuth.
 
-Designed for HuggingFace Spaces where dark mode is the default.
-"Gallery at Night" aesthetic — dark surfaces, gold accent lighting,
-glass-morphism cards, warm ivory text.
+Dark-native warm editorial design — like a dimly lit museum gallery.
+Rich charcoal backgrounds, warm amber/gold accents, elegant serif
+display type, generous spacing, quiet confidence.
+
+All component HTML uses CSS classes defined in CUSTOM_CSS rather than
+inline ``style=`` attributes, so Gradio's ``.prose`` wrapper and
+dark-mode rendering never fight the design.
 """
 from __future__ import annotations
 
 import gradio as gr
 
-# ── Palette ─────────────────────────────────────────────────────────
-BG = "#0c0a09"
-SURFACE = "#1c1917"
-CARD = "#292524"
-BORDER = "rgba(212,168,67,0.18)"
-TEXT = "#faf9f6"
-TEXT_DIM = "#a8a29e"
-GOLD = "#d4a843"
-GOLD_BRIGHT = "#f0d060"
-ROSE = "#f0768a"
-BLUE = "#68b5d5"
-SUCCESS = "#4ade80"
-WARNING = "#fbbf24"
-DANGER = "#f87171"
+# ---------------------------------------------------------------------------
+# Design tokens  (referenced by CUSTOM_CSS as --as-* custom properties)
+# ---------------------------------------------------------------------------
 
-FONT_DISPLAY = "'Playfair Display', Georgia, serif"
-FONT_BODY = "'Inter', -apple-system, sans-serif"
+BG = "#1a1714"
+SURFACE = "#242019"
+SURFACE_RAISED = "#2e2923"
+BORDER = "rgba(201,168,76,0.12)"
+BORDER_STRONG = "rgba(201,168,76,0.25)"
 
-HTML_ELEM_CLASSES: list[str] = ["as-html"]
+TEXT = "#e8e0d4"
+TEXT_MUTED = "#a89f94"
+TEXT_DIM = "#6e655c"
+
+GOLD = "#c9a84c"
+GOLD_DIM = "#8a7434"
+AMBER = "#d4956a"
+ROSE = "#c27889"
+GREEN = "#7dab6c"
+RED = "#c2555a"
 
 
 def artsleuth_theme() -> gr.themes.Base:
-    """Build and return the dark ArtSleuth Gradio theme."""
+    """Build a warm-dark editorial Gradio theme."""
+    gold_hue = gr.themes.Color(
+        c50="#fdf8ec", c100="#f5e9c8", c200="#e9d49e",
+        c300="#d4b870", c400=GOLD, c500="#b8923a",
+        c600="#9a7a30", c700="#7c6226", c800="#5e4a1c",
+        c900="#403212", c950="#221a08",
+    )
+    warm_hue = gr.themes.Color(
+        c50="#fdf3ec", c100="#f5ddc8", c200="#e9c09e",
+        c300=AMBER, c400="#c07a4a", c500="#a8633a",
+        c600="#8a5030", c700="#6c3d26", c800="#4e2a1c",
+        c900="#301812", c950="#180c08",
+    )
+    stone_hue = gr.themes.Color(
+        c50=TEXT, c100="#d0c8bc", c200="#b8afa3",
+        c300=TEXT_MUTED, c400="#8a8078", c500="#6e655c",
+        c600="#524a42", c700="#3a3430", c800=SURFACE_RAISED,
+        c900=SURFACE, c950=BG,
+    )
+
     theme = gr.themes.Base(
-        primary_hue=gr.themes.Color(
-            c50="#fdf8ef", c100="#faefd3", c200="#f5dfa6",
-            c300="#eecb6d", c400=GOLD, c500="#b8922e",
-            c600="#967422", c700="#74581b", c800="#5c4517",
-            c900="#4d3a16", c950="#2c1f0a",
-        ),
-        secondary_hue=gr.themes.Color(
-            c50="#f0f9ff", c100="#e0f2fe", c200="#bae6fd",
-            c300="#7dd3fc", c400=BLUE, c500="#38a3c6",
-            c600="#2089a8", c700="#1a6d88", c800="#155a70",
-            c900="#12495d", c950="#0a2e3d",
-        ),
-        neutral_hue=gr.themes.Color(
-            c50=TEXT, c100="#f5f5f4", c200="#e7e5e4",
-            c300="#d6d3d1", c400=TEXT_DIM, c500="#78716c",
-            c600="#57534e", c700="#44403c", c800=CARD,
-            c900=SURFACE, c950=BG,
-        ),
-        font=[gr.themes.GoogleFont("Inter"), "-apple-system", "sans-serif"],
-        font_mono=[gr.themes.GoogleFont("Fira Code"), "Consolas", "monospace"],
+        primary_hue=gold_hue,
+        secondary_hue=warm_hue,
+        neutral_hue=stone_hue,
+        font=[
+            gr.themes.GoogleFont("Inter"),
+            "-apple-system",
+            "sans-serif",
+        ],
+        font_mono=[
+            gr.themes.GoogleFont("Fira Code"),
+            "Consolas",
+            "monospace",
+        ],
     ).set(
+        # -- Body --
         body_background_fill=BG,
         body_background_fill_dark=BG,
         body_text_color=TEXT,
         body_text_color_dark=TEXT,
-        button_primary_background_fill=GOLD,
-        button_primary_background_fill_hover="#c4a235",
-        button_primary_background_fill_dark=GOLD,
-        button_primary_background_fill_hover_dark="#c4a235",
-        button_primary_text_color="#0c0a09",
-        button_primary_text_color_dark="#0c0a09",
-        button_primary_border_color=GOLD,
-        button_primary_border_color_dark=GOLD,
-        button_secondary_background_fill="transparent",
-        button_secondary_background_fill_dark="transparent",
-        button_secondary_text_color=TEXT_DIM,
-        button_secondary_text_color_dark=TEXT_DIM,
-        button_secondary_border_color="rgba(168,162,158,0.3)",
-        block_title_text_color=TEXT,
-        block_title_text_color_dark=TEXT,
-        block_label_text_color=TEXT_DIM,
-        block_label_text_color_dark=TEXT_DIM,
+        body_text_color_subdued=TEXT_MUTED,
+        body_text_color_subdued_dark=TEXT_MUTED,
+
+        # -- Blocks / panels --
         block_background_fill=SURFACE,
         block_background_fill_dark=SURFACE,
         block_border_color=BORDER,
         block_border_color_dark=BORDER,
         block_border_width="1px",
-        block_shadow="0 4px 32px rgba(0,0,0,0.4)",
-        input_background_fill=CARD,
-        input_background_fill_dark=CARD,
-        input_border_color="rgba(168,162,158,0.2)",
-        input_border_color_dark="rgba(168,162,158,0.2)",
-        input_placeholder_color="#78716c",
+        block_label_text_color=TEXT_MUTED,
+        block_label_text_color_dark=TEXT_MUTED,
+        block_title_text_color=TEXT,
+        block_title_text_color_dark=TEXT,
+        block_shadow="0 2px 16px rgba(0,0,0,0.25)",
+        block_shadow_dark="0 2px 16px rgba(0,0,0,0.25)",
+        block_radius="10px",
+
+        # -- Inputs --
+        input_background_fill=SURFACE_RAISED,
+        input_background_fill_dark=SURFACE_RAISED,
+        input_border_color=BORDER_STRONG,
+        input_border_color_dark=BORDER_STRONG,
+        input_placeholder_color=TEXT_DIM,
+        input_placeholder_color_dark=TEXT_DIM,
+
+        # -- Primary button (gold) --
+        button_primary_background_fill=GOLD,
+        button_primary_background_fill_dark=GOLD,
+        button_primary_background_fill_hover="#b8923a",
+        button_primary_background_fill_hover_dark="#b8923a",
+        button_primary_text_color=BG,
+        button_primary_text_color_dark=BG,
+        button_primary_border_color=GOLD,
+        button_primary_border_color_dark=GOLD,
+
+        # -- Secondary button --
+        button_secondary_background_fill=SURFACE_RAISED,
+        button_secondary_background_fill_dark=SURFACE_RAISED,
+        button_secondary_text_color=TEXT,
+        button_secondary_text_color_dark=TEXT,
+        button_secondary_border_color=BORDER_STRONG,
+        button_secondary_border_color_dark=BORDER_STRONG,
+
+        # -- Accents --
         border_color_accent=GOLD,
+        border_color_accent_dark=GOLD,
         color_accent=GOLD,
-        link_text_color=ROSE,
-        link_text_color_hover=GOLD_BRIGHT,
-        shadow_spread="6px",
-        block_radius="14px",
-        table_border_color="rgba(168,162,158,0.15)",
+        color_accent_dark=GOLD,
+        link_text_color=AMBER,
+        link_text_color_dark=AMBER,
+        link_text_color_hover=GOLD,
+        link_text_color_hover_dark=GOLD,
+
+        # -- Tables --
+        table_border_color=BORDER,
+        table_border_color_dark=BORDER,
         table_even_background_fill=SURFACE,
-        table_odd_background_fill=CARD,
+        table_even_background_fill_dark=SURFACE,
+        table_odd_background_fill=SURFACE_RAISED,
+        table_odd_background_fill_dark=SURFACE_RAISED,
+
+        # -- Misc --
+        shadow_spread="4px",
+        checkbox_background_color=SURFACE_RAISED,
+        checkbox_background_color_dark=SURFACE_RAISED,
+        checkbox_border_color=BORDER_STRONG,
+        checkbox_border_color_dark=BORDER_STRONG,
+        checkbox_label_background_fill=SURFACE,
+        checkbox_label_background_fill_dark=SURFACE,
     )
     return theme
 
 
-# ── HTML fragments ──────────────────────────────────────────────────
+# ---------------------------------------------------------------------------
+# Header / Footer
+# ---------------------------------------------------------------------------
 
-HEADER_HTML = f"""
+HEADER_HTML = """\
 <div class="as-header">
-  <div class="as-header__glow"></div>
-  <h1>ArtSleuth</h1>
+  <h1 class="as-header__title">ArtSleuth</h1>
   <p class="as-header__sub">Computational Art Analysis Framework</p>
   <div class="as-header__rule"></div>
-  <p class="as-header__tagline">Vision transformers &middot; Brushstroke analysis &middot; Zero-shot attribution</p>
 </div>
 """
 
-FOOTER_HTML = """
+FOOTER_HTML = """\
 <div class="as-footer">
   <div class="as-footer__rule"></div>
-  <p>ArtSleuth &mdash; Research use only</p>
-  <p class="as-footer__disclaimer">
+  <p>ArtSleuth &mdash; Computational Art Analysis &bull; Research use only</p>
+  <p class="as-footer__sub">
     Results are probabilistic and should be reviewed by qualified art historians.
-    <br/>
+    &ensp;&middot;&ensp;
     <a href="https://github.com/ladyFaye1998/ArtSleuth" target="_blank">GitHub</a>
-    &ensp;&bull;&ensp;
+    &ensp;&middot;&ensp;
     <a href="https://huggingface.co/ladyFaye1998/artsleuth-weights" target="_blank">Weights</a>
   </p>
 </div>
 """
 
-# ── Master CSS ──────────────────────────────────────────────────────
 
-CUSTOM_CSS = (
-    "@import url('https://fonts.googleapis.com/css2?"
-    "family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400"
-    "&family=Inter:wght@300;400;500;600&display=swap');\n"
-    """
+# ---------------------------------------------------------------------------
+# CUSTOM_CSS — the single source of truth for all component styling
+# ---------------------------------------------------------------------------
 
-/* ── Global ─────────────────────────────────────────────── */
+CUSTOM_CSS = r"""
+/* ── Fonts ─────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+/* ── Design tokens as CSS custom properties ────────────────────────── */
+:root,
+.dark,
 .gradio-container {
-    font-family: 'Inter', -apple-system, sans-serif !important;
-    max-width: 1200px !important;
-    margin: 0 auto !important;
-    background: #0c0a09 !important;
-    color: #faf9f6 !important;
+    --as-bg:            #1a1714;
+    --as-surface:       #242019;
+    --as-surface-raise: #2e2923;
+    --as-border:        rgba(201,168,76,0.12);
+    --as-border-strong: rgba(201,168,76,0.25);
+    --as-text:          #e8e0d4;
+    --as-text-muted:    #a89f94;
+    --as-text-dim:      #6e655c;
+    --as-gold:          #c9a84c;
+    --as-gold-dim:      #8a7434;
+    --as-amber:         #d4956a;
+    --as-rose:          #c27889;
+    --as-green:         #7dab6c;
+    --as-red:           #c2555a;
+    --as-font:          'Inter', -apple-system, sans-serif;
+    --as-font-display:  'Cormorant Garamond', Georgia, serif;
 }
 
-/* Force dark everywhere — no light-mode leaks */
-.dark, :root {
-    --body-background-fill: #0c0a09 !important;
-    --body-text-color: #faf9f6 !important;
-    --block-background-fill: #1c1917 !important;
-    --block-border-color: rgba(212,168,67,0.18) !important;
-    --input-background-fill: #292524 !important;
+/* ── Container ─────────────────────────────────────────────────────── */
+.gradio-container {
+    font-family: var(--as-font) !important;
+    max-width: 1200px;
+    margin: 0 auto;
+    color: var(--as-text);
 }
 
-/* ── Header ─────────────────────────────────────────────── */
+/* Force dark prose in gr.HTML wrappers */
+.prose, .prose-sm,
+.prose *, .prose-sm * {
+    color: var(--as-text) !important;
+}
+
+/* ── Header ────────────────────────────────────────────────────────── */
 .as-header {
-    position: relative;
     text-align: center;
-    padding: 3rem 2rem 2.2rem;
-    border-radius: 18px;
-    margin-bottom: 1.2rem;
-    background: linear-gradient(160deg, #0c0a09 0%, #1a1510 40%, #1c1410 100%);
-    border: 1px solid rgba(212,168,67,0.15);
-    overflow: hidden;
+    padding: 2.8rem 1.5rem 2rem;
+    position: relative;
 }
-.as-header__glow {
-    position: absolute; inset: 0; pointer-events: none;
-    background:
-        radial-gradient(600px 300px at 30% 80%, rgba(212,168,67,0.07), transparent 70%),
-        radial-gradient(400px 250px at 70% 20%, rgba(240,118,138,0.04), transparent 70%);
-}
-.as-header h1 {
-    font-family: 'Playfair Display', Georgia, serif !important;
-    font-size: 3.2rem; font-weight: 700;
-    margin: 0; letter-spacing: 0.05em;
-    background: linear-gradient(135deg, #d4a843, #f0d060, #d4a843);
+.as-header__title {
+    font-family: var(--as-font-display);
+    font-size: 3.2rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 0.08em;
+    background: linear-gradient(135deg, #c9a84c 0%, #e6c96e 50%, #c9a84c 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    position: relative;
-    text-shadow: 0 0 60px rgba(212,168,67,0.2);
 }
 .as-header__sub {
-    font-size: 1rem; font-weight: 300;
-    color: #a8a29e; margin: 0.3rem 0 0;
-    font-style: italic; position: relative;
+    font-family: var(--as-font-display);
+    font-size: 1.05rem;
+    margin: 0.2rem 0 0;
+    color: var(--as-text-muted);
+    font-style: italic;
+    font-weight: 400;
 }
 .as-header__rule {
-    width: 80px; height: 1px; margin: 1rem auto 0.8rem;
-    background: linear-gradient(90deg, transparent, #d4a843, transparent);
-}
-.as-header__tagline {
-    font-size: 0.75rem; color: #78716c;
-    letter-spacing: 0.06em; text-transform: uppercase;
-    margin: 0; position: relative;
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--as-gold), transparent);
+    margin: 1.2rem auto 0;
 }
 
-/* ── Tabs ───────────────────────────────────────────────── */
-.tab-nav {
-    border-bottom: 1px solid rgba(212,168,67,0.12) !important;
-}
+/* ── Tabs ──────────────────────────────────────────────────────────── */
 .tab-nav button {
-    font-family: 'Inter', sans-serif !important;
+    font-family: var(--as-font) !important;
     font-weight: 500 !important;
     font-size: 0.82rem !important;
     letter-spacing: 0.06em !important;
-    text-transform: uppercase !important;
-    color: #78716c !important;
-    background: transparent !important;
-    border: none !important;
+    color: var(--as-text-muted) !important;
     border-bottom: 2px solid transparent !important;
-    padding: 0.8rem 1.2rem !important;
     transition: all 0.3s ease !important;
+    text-transform: uppercase !important;
+    background: transparent !important;
 }
 .tab-nav button:hover {
-    color: #d4a843 !important;
+    color: var(--as-text) !important;
+    border-bottom-color: var(--as-gold-dim) !important;
 }
 .tab-nav button.selected {
-    color: #faf9f6 !important;
-    border-bottom-color: #d4a843 !important;
+    color: var(--as-gold) !important;
+    border-bottom: 2px solid var(--as-gold) !important;
 }
 
-/* ── Buttons ────────────────────────────────────────────── */
+/* ── Primary button ────────────────────────────────────────────────── */
 button.primary {
-    background: linear-gradient(135deg, #d4a843 0%, #b8922e 100%) !important;
-    color: #0c0a09 !important;
+    background: linear-gradient(135deg, #c9a84c, #b8923a) !important;
+    color: var(--as-bg) !important;
     border: none !important;
     font-weight: 600 !important;
     letter-spacing: 0.04em !important;
-    border-radius: 10px !important;
-    padding: 0.7rem 2rem !important;
-    box-shadow: 0 0 24px rgba(212,168,67,0.15), 0 4px 12px rgba(0,0,0,0.3) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 20px rgba(201,168,76,0.2) !important;
     transition: all 0.3s ease !important;
 }
 button.primary:hover {
-    box-shadow: 0 0 40px rgba(212,168,67,0.3), 0 6px 20px rgba(0,0,0,0.4) !important;
+    box-shadow: 0 6px 28px rgba(201,168,76,0.35) !important;
     transform: translateY(-1px) !important;
 }
 
-/* ── Footer ─────────────────────────────────────────────── */
+/* ── Footer ────────────────────────────────────────────────────────── */
 .as-footer {
-    text-align: center; padding: 2rem 1rem; margin-top: 1.5rem;
-    color: #78716c; font-size: 0.8rem;
+    text-align: center;
+    padding: 1.5rem 1rem;
+    margin-top: 1.5rem;
+    color: var(--as-text-dim);
+    font-size: 0.82rem;
 }
 .as-footer__rule {
-    width: 60px; height: 1px; margin: 0 auto 1.2rem;
-    background: linear-gradient(90deg, transparent, rgba(212,168,67,0.3), transparent);
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--as-gold-dim), transparent);
+    margin: 0 auto 1rem;
 }
-.as-footer p { margin: 0.3rem 0; }
-.as-footer__disclaimer { font-size: 0.72rem; color: #57534e; }
-.as-footer a { color: #f0768a; text-decoration: none; transition: color 0.2s; }
-.as-footer a:hover { color: #d4a843; }
-
-/* ── gr.HTML result host ────────────────────────────────── */
-.as-html {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
+.as-footer__sub {
+    font-size: 0.75rem;
+    color: var(--as-text-dim);
+    margin-top: 0.3rem;
 }
-.as-html > .prose,
-.as-html > div > .prose {
-    color: #faf9f6 !important;
-    max-width: none !important;
+.as-footer a {
+    color: var(--as-amber);
+    text-decoration: none;
+    transition: color 0.2s;
 }
-.as-html .prose * {
-    color: inherit !important;
+.as-footer a:hover {
+    color: var(--as-gold);
 }
 
-/* ── Glass card used by components.py & app.py ──────────── */
+/* ══════════════════════════════════════════════════════════════════════
+   Component classes — used by web/components.py and web/app.py
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Card ──────────────────────────────────────────────────────────── */
 .as-card {
-    background: linear-gradient(180deg, rgba(28,25,23,0.92) 0%, rgba(28,25,23,0.98) 100%) !important;
-    border: 1px solid rgba(212,168,67,0.12) !important;
-    border-radius: 14px !important;
-    padding: 1.4rem 1.5rem !important;
-    margin: 0.6rem 0 !important;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03) !important;
-    color: #faf9f6 !important;
+    background: var(--as-surface);
+    border: 1px solid var(--as-border);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    margin: 0.6rem 0;
+    font-family: var(--as-font);
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
-.as-card h3 {
-    font-family: 'Playfair Display', Georgia, serif !important;
-    font-size: 1.1rem !important;
-    font-weight: 600 !important;
-    color: #d4a843 !important;
-    margin: 0 0 1rem !important;
-    padding-bottom: 0.5rem !important;
-    border-bottom: 1px solid rgba(212,168,67,0.15) !important;
-    letter-spacing: 0.03em !important;
+.as-card:hover {
+    border-color: var(--as-border-strong);
+    box-shadow: 0 0 24px rgba(201,168,76,0.04);
+}
+.as-card__title {
+    margin: 0 0 0.8rem;
+    color: var(--as-gold);
+    font-family: var(--as-font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    border-bottom: 1px solid var(--as-border-strong);
+    padding-bottom: 0.5rem;
 }
 
-/* ── Bars ───────────────────────────────────────────────── */
-.as-bar-wrap { margin: 8px 0; }
-.as-bar-top {
-    display: flex; justify-content: space-between;
-    font-size: 0.84rem; color: #e7e5e4; margin-bottom: 4px;
+/* ── Confidence bar ────────────────────────────────────────────────── */
+.as-bar {
+    margin: 5px 0;
+    font-family: var(--as-font);
 }
-.as-bar-top .as-pct { color: #d4a843; font-weight: 600; font-variant-numeric: tabular-nums; }
-.as-bar-track {
-    height: 6px; border-radius: 6px;
-    background: rgba(255,255,255,0.06);
+.as-bar__header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.84rem;
+    color: var(--as-text);
+    font-weight: 500;
+    margin-bottom: 3px;
+}
+.as-bar__pct {
+    font-weight: 600;
+    color: var(--as-text-muted);
+}
+.as-bar__track {
+    background: var(--as-surface-raise);
+    border-radius: 4px;
+    height: 6px;
     overflow: hidden;
 }
-.as-bar-fill {
-    height: 100%; border-radius: 6px;
+.as-bar__fill {
+    height: 100%;
+    border-radius: 4px;
     transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
 }
 
-/* ── Info / Error callouts ──────────────────────────────── */
-.as-msg {
-    border-radius: 12px !important;
-    padding: 1rem 1.2rem !important;
-    font-size: 0.88rem !important;
-    line-height: 1.5 !important;
-    margin: 0.4rem 0 !important;
+/* Bar colour variants */
+.as-bar--gold .as-bar__fill   { background: linear-gradient(90deg, #c9a84c, #d4b870); }
+.as-bar--amber .as-bar__fill  { background: linear-gradient(90deg, #d4956a, #e0ad82); }
+.as-bar--rose .as-bar__fill   { background: linear-gradient(90deg, #c27889, #d4929f); }
+.as-bar--blue .as-bar__fill   { background: linear-gradient(90deg, #7fb3d3, #9ec6df); }
+.as-bar--navy .as-bar__fill   { background: linear-gradient(90deg, #5a7da0, #7b9ab8); }
+.as-bar--muted .as-bar__fill  { background: linear-gradient(90deg, #6e655c, #8a8078); }
+
+/* ── Badge ─────────────────────────────────────────────────────────── */
+.as-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    vertical-align: middle;
 }
-.as-msg--info {
-    background: rgba(104,181,213,0.10) !important;
-    border: 1px solid rgba(104,181,213,0.25) !important;
-    color: #bae6fd !important;
+.as-badge--gold { background: var(--as-gold); color: var(--as-bg); }
+.as-badge--rose { background: var(--as-rose); color: #fff; }
+.as-badge--red  { background: var(--as-red);  color: #fff; }
+.as-badge--muted { background: var(--as-surface-raise); color: var(--as-text-muted); border: 1px solid var(--as-border-strong); }
+
+/* ── Callout (info / error) ────────────────────────────────────────── */
+.as-callout {
+    border-radius: 8px;
+    padding: 0.85rem 1.1rem;
+    margin: 0.4rem 0;
+    font-family: var(--as-font);
+    font-size: 0.88rem;
+    line-height: 1.5;
+    border-left: 3px solid;
 }
-.as-msg--error {
-    background: rgba(248,113,113,0.10) !important;
-    border: 1px solid rgba(248,113,113,0.25) !important;
-    color: #fca5a5 !important;
+.as-callout--info {
+    background: rgba(201,168,76,0.06);
+    border-left-color: var(--as-gold-dim);
+    color: var(--as-text-muted);
+}
+.as-callout--error {
+    background: rgba(194,85,90,0.08);
+    border-left-color: var(--as-red);
+    color: var(--as-rose);
 }
 
-/* ── Date panel ─────────────────────────────────────────── */
+/* ── Date panel (Estimate Date tab) ────────────────────────────────── */
 .as-date {
-    text-align: center; padding: 1.5rem;
+    text-align: center;
+    padding: 1.5rem 1rem;
 }
 .as-date__year {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 3.4rem; font-weight: 700;
-    color: #faf9f6; line-height: 1;
+    font-family: var(--as-font-display);
+    font-size: 3.4rem;
+    font-weight: 700;
+    color: var(--as-text);
+    line-height: 1.1;
 }
 .as-date__label {
-    font-size: 0.72rem; letter-spacing: 0.12em;
-    text-transform: uppercase; color: #d4a843;
-    font-weight: 600; margin-top: 0.3rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--as-gold);
+    font-weight: 600;
+    margin-top: 0.3rem;
 }
 .as-date__stats {
-    display: flex; justify-content: center; gap: 2.5rem;
-    margin-top: 1.4rem; flex-wrap: wrap;
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    margin-top: 1.4rem;
+    flex-wrap: wrap;
 }
 .as-date__stat-label {
-    font-size: 0.65rem; color: #78716c;
-    text-transform: uppercase; letter-spacing: 0.08em;
+    font-size: 0.65rem;
+    color: var(--as-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
 }
 .as-date__stat-value {
-    font-size: 1.15rem; font-weight: 600;
-    color: #e7e5e4; margin-top: 2px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--as-text);
+    margin-top: 2px;
 }
+.as-date__stat-value--good { color: var(--as-green); }
+.as-date__stat-value--mid  { color: var(--as-amber); }
+.as-date__stat-value--bad  { color: var(--as-red); }
+
 .as-date__foot {
-    font-size: 0.76rem; color: #78716c;
-    margin-top: 1.2rem; font-style: italic;
+    font-size: 0.78rem;
+    color: var(--as-text-dim);
+    margin-top: 1.2rem;
+    font-style: italic;
 }
-.as-score-good { color: #4ade80 !important; }
-.as-score-mid  { color: #fbbf24 !important; }
-.as-score-bad  { color: #f87171 !important; }
 
-/* ── Badge ──────────────────────────────────────────────── */
-.as-badge {
-    display: inline-block; font-size: 0.65rem;
-    padding: 3px 10px; border-radius: 20px;
-    font-weight: 600; letter-spacing: 0.05em;
+/* ── Similarity panel (Compare tab) ────────────────────────────────── */
+.as-sim {
+    text-align: center;
+    padding: 1.5rem 1rem;
+}
+.as-sim__value {
+    font-family: var(--as-font-display);
+    font-size: 3.2rem;
+    font-weight: 700;
+    color: var(--as-text);
+}
+.as-sim__label {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
+    color: var(--as-gold);
+    font-weight: 600;
+    margin-top: 0.2rem;
+}
+.as-sim__interp {
+    font-size: 0.9rem;
+    color: var(--as-text-muted);
+    margin-top: 0.8rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
 }
 
-/* ── Benchmark table ────────────────────────────────────── */
-table { font-size: 0.85rem !important; }
-table th {
-    background: #292524 !important;
-    color: #d4a843 !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.04em !important;
-    border-bottom: 1px solid rgba(212,168,67,0.2) !important;
+/* ── Data table ────────────────────────────────────────────────────── */
+.as-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--as-font);
+    font-size: 0.85rem;
+    color: var(--as-text);
 }
-table td {
-    color: #e7e5e4 !important;
-    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+.as-table thead th {
+    padding: 0.65rem 0.8rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--as-gold);
+    border-bottom: 1px solid var(--as-border-strong);
 }
-table tr:hover td { background: rgba(212,168,67,0.04) !important; }
+.as-table thead th:not(:first-child) {
+    text-align: center;
+}
+.as-table tbody td {
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--as-border);
+}
+.as-table tbody td:not(:first-child) {
+    text-align: center;
+}
+.as-table tbody tr {
+    transition: background 0.2s;
+}
+.as-table tbody tr:hover {
+    background: var(--as-surface-raise);
+}
+.as-table--highlight {
+    font-weight: 700;
+    color: var(--as-gold);
+}
+
+/* ── Gauge (forgery) ───────────────────────────────────────────────── */
+.as-gauge {
+    text-align: center;
+    font-family: var(--as-font);
+}
+.as-gauge__ring {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.as-gauge__inner {
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    background: var(--as-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.15);
+}
+.as-gauge__score {
+    font-family: var(--as-font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--as-text);
+}
+.as-gauge__verdict {
+    font-size: 0.62rem;
+    color: var(--as-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+}
+.as-gauge__ref {
+    font-size: 0.82rem;
+    color: var(--as-text-dim);
+    margin-top: 0.5rem;
+}
+
+/* ── Hand card (workshop) ──────────────────────────────────────────── */
+.as-hand {
+    border-left: 3px solid var(--as-gold);
+    padding: 0.6rem 0.85rem;
+    margin: 0.5rem 0;
+    background: var(--as-surface-raise);
+    border-radius: 0 6px 6px 0;
+}
+.as-hand__label {
+    font-weight: 600;
+    color: var(--as-text);
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+}
+.as-hand__stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px 16px;
+    font-size: 0.82rem;
+    color: var(--as-text-muted);
+    margin-top: 6px;
+}
+
+/* ── Misc ──────────────────────────────────────────────────────────── */
+.as-consensus {
+    font-size: 0.9rem;
+    color: var(--as-text);
+    margin-bottom: 0.6rem;
+}
+.as-ci {
+    font-size: 0.78rem;
+    color: var(--as-text-dim);
+    margin: -2px 0 8px 4px;
+}
+.as-note {
+    font-size: 0.75rem;
+    color: var(--as-text-dim);
+    margin-top: 0.6rem;
+    font-style: italic;
+}
+
+/* ── Benchmark wrapper ─────────────────────────────────────────────── */
+.as-bench {
+    text-align: center;
+    margin-bottom: 1.2rem;
+}
+.as-bench__title {
+    font-family: var(--as-font-display);
+    color: var(--as-gold);
+    margin: 0 0 0.3rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+.as-bench__sub {
+    font-size: 0.78rem;
+    color: var(--as-text-dim);
+}
 """
-)
