@@ -13,6 +13,14 @@ connection.  Heavier fusion (e.g. iterative cross-attention towers)
 showed diminishing returns in early experiments while increasing
 inference cost on high-resolution artwork images.
 
+.. note::
+
+    This module is available for training and research use but is
+    **not** part of the default inference pipeline.  The production
+    pipeline in ``core/pipeline.py`` uses simple embedding concatenation
+    instead.  The benchmark fine-tuning results (rows marked †) used
+    this fusion architecture during training.
+
 References
 ----------
 Vaswani, A. et al. (2017). Attention Is All You Need. *NeurIPS*.

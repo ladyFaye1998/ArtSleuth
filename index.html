@@ -765,11 +765,11 @@ body {
             <tr><td>DINOv2 ViT-B/14</td><td>57.5%</td><td>0.553</td><td>64.7%</td><td>90.9%</td><td>71.0%</td></tr>
             <tr><td>CLIP ViT-L/14</td><td>67.1%</td><td>0.656</td><td>74.6%</td><td>95.9%</td><td>75.0%</td></tr>
             <tr><td>Fusion (frozen)</td><td>65.0%</td><td>0.633</td><td>71.0%</td><td>94.2%</td><td>74.2%</td></tr>
-            <tr><td>Fusion (fine-tuned)</td><td>71.6%</td><td>0.703</td><td>77.8%</td><td>96.2%</td><td>75.1%</td></tr>
-            <tr class="hl"><td>Fusion (end-to-end)</td><td>72.7%</td><td>&mdash;</td><td>79.0%</td><td>96.9%</td><td>76.6%</td></tr>
+            <tr><td>Fusion (fine-tuned) &dagger;</td><td>71.6%</td><td>0.703</td><td>77.8%</td><td>96.2%</td><td>75.1%</td></tr>
+            <tr class="hl"><td>Fusion (end-to-end) &dagger;</td><td>72.7%</td><td>&mdash;</td><td>79.0%</td><td>96.9%</td><td>76.6%</td></tr>
           </tbody>
         </table>
-        <p class="bench-note">WikiArt 81,444 images. Macro-averaged. 126-artist forgery validation: mean AUC 0.958 (CLIP), 0.873 (DINOv2), 0.897 (Fused).</p>
+        <p class="bench-note">WikiArt 81,444 images. Macro-averaged. Top 3 rows reproducible via benchmarks/wikiart.py. &dagger; Separate training run; training code not included. 125-artist forgery validation: mean AUC 0.958 (CLIP), 0.873 (DINOv2), 0.897 (Fused).</p>
       </div>
     </div>
 

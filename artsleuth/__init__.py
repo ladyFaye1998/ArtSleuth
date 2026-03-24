@@ -21,7 +21,7 @@ Example
 
 from __future__ import annotations
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __author__ = "Danielle Lesin"
 
 from artsleuth.config import AnalysisConfig
@@ -47,6 +47,7 @@ __all__ = [
     "DualBackboneFusion",
     "StyleGuidedAttention",
     "analyze",
+    "analyse",
 ]
 
 
@@ -81,6 +82,8 @@ def analyze(
 
     return run_pipeline(image_path, config=config or AnalysisConfig())
 
+
+analyse = analyze
 
 # Deferred import to avoid circular references at module level.
 from artsleuth.core.pipeline import AnalysisResult as AnalysisResult  # noqa: E402

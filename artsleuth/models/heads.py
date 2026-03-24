@@ -5,6 +5,14 @@ Thin linear layers on top of the backbone — one per task, deliberately
 kept independent so fine-tuning the style head on a new corpus won't
 affect the brushstroke analysis.  The backbone does the heavy lifting;
 these project its embeddings into task-specific label spaces.
+
+.. note::
+
+    These heads are available for supervised training workflows but are
+    **not** used by the default inference pipeline.  The production
+    ``StyleClassifier`` uses CLIP zero-shot classification instead.
+    The pretrained ``.pt`` weights in ``models/weights/`` correspond
+    to these heads and were used in the benchmark fine-tuning runs.
 """
 
 from __future__ import annotations

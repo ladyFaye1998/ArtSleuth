@@ -5,7 +5,8 @@
     "protocol": "80/20 split, Mahalanobis one-class, equal genuine/impostor, Unknown Artist excluded",
     "mean_auc_dino": 0.867,
     "mean_auc_clip": 0.958,
-    "mean_auc_fused": 0.891
+    "mean_auc_fused": 0.891,
+    "_note": "per_artist below contains a representative subset of 38 artists (those with the most works). Summary means are computed over all 125 artists from the full evaluation run."
   },
   "per_artist": [
     {"artist": "vincent-van-gogh", "n_ref": 1511, "n_genuine": 378, "n_impostor": 378, "auc_dino": 0.7508, "auc_clip": 0.9378, "auc_fused": 0.8866},

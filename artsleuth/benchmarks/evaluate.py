@@ -151,18 +151,30 @@ def run_all_benchmarks(
     latex_path.write_text(table.to_latex(), encoding="utf-8")
     logger.info("LaTeX table saved to %s", latex_path)
 
-    # Save raw JSON
-    raw: list[dict[str, Any]] = []
+    # Save raw JSON in the same schema as benchmark_results.json
+    frozen_dict: dict[str, Any] = {}
     for r in table.rows:
-        raw.append({
-            "backbone": r.backbone,
-            "style_acc": r.style_acc,
-            "style_f1": r.style_f1,
-            "artist_acc": r.artist_acc,
-            "artist_top5": r.artist_top5,
-            "genre_acc": r.genre_acc,
-        })
+        frozen_dict[r.backbone] = {
+            "style": {
+                "accuracy": r.style_acc,
+                "macro_f1": r.style_f1,
+            },
+            "artist": {
+                "accuracy": r.artist_acc,
+                "top5_accuracy": r.artist_top5,
+            },
+            "genre": {
+                "accuracy": r.genre_acc,
+            },
+        }
+    results = {
+        "frozen": frozen_dict,
+        "_note_tuned": (
+            "Fine-tuned and e2e results require a separate training run "
+            "not included in this evaluation script."
+        ),
+    }
     json_path = output_dir / "comparison.json"
-    json_path.write_text(json.dumps(raw, indent=2), encoding="utf-8")
+    json_path.write_text(json.dumps(results, indent=2), encoding="utf-8")
 
     return table

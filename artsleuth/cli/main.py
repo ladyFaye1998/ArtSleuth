@@ -74,6 +74,17 @@ def analyze(
         console.print(f"\n[dim]Summary figure saved to {output}[/dim]")
 
 
+# British spelling alias
+@cli.command()
+@click.argument("image", type=click.Path(exists=True, path_type=Path))
+@click.option("--reference-artist", "-r", default=None, help="Artist name for forgery screening.")
+@click.option("--output", "-o", default=None, type=click.Path(path_type=Path), help="Save summary figure.")
+@click.option("--device", "-d", default=None, help="PyTorch device.")
+def analyse(image: Path, reference_artist: str | None, output: Path | None, device: str | None) -> None:
+    """Run the full analysis pipeline on an artwork (alias for analyze)."""
+    analyze.callback(image, reference_artist, output, device)  # type: ignore[union-attr]
+
+
 # --- Style ------------------------------------------------------------------
 
 

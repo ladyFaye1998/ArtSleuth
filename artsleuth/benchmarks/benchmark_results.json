@@ -41,7 +41,7 @@
         "top5_accuracy": 0.9664190558045307
       },
       "artist": {
-        "accuracy": 0.7102339001780342,
+        "accuracy": 0.7098412301573664,
         "macro_f1": 0.5427156131915017,
         "top5_accuracy": 0.9421081711584505
       },
@@ -52,6 +52,7 @@
       }
     }
   },
+  "_note_tuned": "The fine-tuned and end-to-end rows below were produced during a separate training run with partial backbone unfreezing and supervised contrastive loss. The training code is not included in this repository. These numbers are reported for context but cannot be reproduced from the provided evaluation scripts alone. Only the frozen linear-probe results above are reproducible via benchmarks/wikiart.py.",
   "tuned": {
     "Fusion (fine-tuned)": {
       "style": {

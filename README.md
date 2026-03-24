@@ -171,7 +171,7 @@ graph TD
 
 </div>
 
-<sub>Default backbone sizes: DINOv2 ViT-B/14 + CLIP ViT-L/14. Pretrained classification heads (style and genre) are included. Pass `--backbone-size small` for faster inference on constrained hardware, or `--backbone-size large` for the highest-quality embeddings.</sub>
+<sub>Default backbone sizes: DINOv2 ViT-B/14 + CLIP ViT-L/14. First run downloads ~1–2 GB of pretrained weights from HuggingFace Hub.</sub>
 
 <br>
 
@@ -190,20 +190,20 @@ Linear probe and end-to-end evaluation on the full [WikiArt](https://huggingface
 | DINOv2 · ViT-B/14 | 57.5 % | 0.553 | 64.7 % | 90.9 % | 71.0 % |
 | CLIP · ViT-L/14 | 67.1 % | 0.656 | 74.6 % | 95.9 % | 75.0 % |
 | Fusion · frozen | 65.0 % | 0.633 | 71.0 % | 94.2 % | 74.2 % |
-| Fusion · fine-tuned | 71.6 % | 0.703 | 77.8 % | 96.2 % | 75.1 % |
-| **Fusion · e2e** | **72.7 %** | — | **79.0 %** | **96.9 %** | **76.6 %** |
+| Fusion · fine-tuned † | 71.6 % | 0.703 | 77.8 % | 96.2 % | 75.1 % |
+| **Fusion · e2e †** | **72.7 %** | — | **79.0 %** | **96.9 %** | **76.6 %** |
 
 </div>
 
-<sub>Top four rows: logistic-regression linear probes (macro-averaged across 27 styles, 129 artists, 11 genres). Bottom row: end-to-end classification heads trained jointly with the fusion backbone. Fine-tuning partially unfreezes the last 3 transformer blocks of each backbone, uses multi-task CE + supervised contrastive loss, AdamW with cosine annealing, and mixed-precision training (5 epochs, effective batch 64). Reproducible via `benchmarks/` scripts in this repository.</sub>
+<sub>Top three rows: logistic-regression linear probes on frozen backbones (macro-averaged across 27 styles, 129 artists, 11 genres). Reproducible via `benchmarks/wikiart.py`. † Bottom two rows: separate training runs with partial backbone unfreezing (last 3 transformer blocks), multi-task CE + supervised contrastive loss, AdamW, mixed-precision (5 epochs, effective batch 64). Training code not included in this repository; these numbers are reported for context.</sub>
 
 <br>
 
-Reproduce locally:
+Reproduce the frozen linear-probe benchmarks:
 
 ```bash
 pip install artsleuth[benchmarks]
-artsleuth benchmark --device cuda --backbone-size base
+artsleuth benchmark --device cuda
 ```
 
 <br>
@@ -213,7 +213,7 @@ artsleuth benchmark --device cuda --backbone-size base
 
 <br>
 
-For each of 126 named artists (≥ 80 works, excluding the catch-all "Unknown Artist" category), we fit a Mahalanobis-distance reference model from 80 % of their authenticated WikiArt works, then test whether held-out genuine paintings score lower (closer to the reference distribution) than impostor paintings by other artists. ROC-AUC = 1.0 means perfect separation; 0.5 means chance.
+For each of 125 named artists (≥ 80 works, excluding the catch-all "Unknown Artist" category), we fit a Mahalanobis-distance reference model from 80 % of their authenticated WikiArt works, then test whether held-out genuine paintings score lower (closer to the reference distribution) than impostor paintings by other artists. ROC-AUC = 1.0 means perfect separation; 0.5 means chance.
 
 <div align="center">
 
@@ -221,8 +221,8 @@ For each of 126 named artists (≥ 80 works, excluding the catch-all "Unknown Ar
 |:---|:---:|:---:|:---:|
 | **Mean AUC** | 0.873 | 0.958 | 0.897 |
 | **Median AUC** | 0.895 | 0.970 | 0.918 |
-| AUC ≥ 0.95 | 28 / 126 artists | 81 / 126 artists | 36 / 126 artists |
-| AUC ≥ 0.90 | 62 / 126 artists | 113 / 126 artists | 75 / 126 artists |
+| AUC ≥ 0.95 | 28 / 125 artists | 81 / 125 artists | 36 / 125 artists |
+| AUC ≥ 0.90 | 62 / 125 artists | 113 / 125 artists | 75 / 125 artists |
 
 </div>
 
@@ -258,7 +258,7 @@ Top 15 and bottom 5 by fused AUC:
 
 </div>
 
-<sub>Mahalanobis-distance one-class classification on WikiArt (126 named artists, 80/20 split, equal genuine/impostor test sets, seed 42). Artists with distinctive visual signatures (El Greco, Fra Angelico, ukiyo-e prints) approach perfect separation; stylistically versatile artists (Dalí, Escher) are harder to model as a single distribution. Full per-artist results in `artsleuth/benchmarks/forgery_validation_results.json`.</sub>
+<sub>Mahalanobis-distance one-class classification on WikiArt (125 named artists, 80/20 split, equal genuine/impostor test sets, seed 42). Artists with distinctive visual signatures (El Greco, Fra Angelico, ukiyo-e prints) approach perfect separation; stylistically versatile artists (Dalí, Escher) are harder to model as a single distribution. Full per-artist results in `artsleuth/benchmarks/forgery_validation_results.json`.</sub>
 
 </details>
 
@@ -307,7 +307,7 @@ Automated art classification has a rich history, and ArtSleuth builds on the sho
 
 - **No standardised benchmark protocol.** &ensp;WikiArt classification has no single accepted evaluation protocol. Class counts, splits, and averaging methods vary between papers, which makes apples-to-apples comparison frustratingly difficult. Our numbers use macro-averaging, which is the most conservative choice (each of the 27 styles counts equally, regardless of how many images it contains). Papers that report micro-averaged or weighted scores will appear higher on the same data.
 
-- **Forgery detection validated on embeddings, not on physical forgeries.** &ensp;We validated the one-class anomaly detector (Mahalanobis distance) on WikiArt across 126 named artists with ≥ 80 works. Mean ROC-AUC: **0.958** (CLIP), **0.897** (fused DINOv2 + CLIP), **0.873** (DINOv2 alone). Median fused AUC is 0.918; three artists reach perfect 1.000. Full per-artist results are in `artsleuth/benchmarks/forgery_validation_results.json`. However, this evaluates embedding-space separation between *different* artists — it does not test against actual physical forgeries authenticated by conservators, which is a harder and more practically relevant problem.
+- **Forgery detection validated on embeddings, not on physical forgeries.** &ensp;We validated the one-class anomaly detector (Mahalanobis distance) on WikiArt across 125 named artists with ≥ 80 works. Mean ROC-AUC: **0.958** (CLIP), **0.897** (fused DINOv2 + CLIP), **0.873** (DINOv2 alone). Median fused AUC is 0.918; three artists reach perfect 1.000. Full per-artist results are in `artsleuth/benchmarks/forgery_validation_results.json`. However, this evaluates embedding-space separation between *different* artists — it does not test against actual physical forgeries authenticated by conservators, which is a harder and more practically relevant problem.
 
 - **Workshop decomposition is unsupervised.** &ensp;The Dirichlet-process model infers "hands" from embedding clusters, but there is no ground-truth labelled dataset of workshop paintings with per-region hand annotations to validate against. Art-historical validation by domain experts is still needed.
 
@@ -362,7 +362,7 @@ pip install artsleuth[web]
 artsleuth demo
 ```
 
-Or try the [live demo on HuggingFace Spaces](https://huggingface.co/spaces/ladyFaye1998/ArtSleuth) — no installation required. The [GitHub Pages landing page](https://ladyfaye1998.github.io/ArtSleuth/) provides an overview with a simulated walkthrough.
+Or try the [live demo on HuggingFace Spaces](https://huggingface.co/spaces/ladyFaye1998/ArtSleuth) — no installation required. The [GitHub Pages landing page](https://ladyfaye1998.github.io/ArtSleuth/) provides an immersive overview of the framework.
 
 <br>
 
