@@ -32,7 +32,7 @@
 
 html { overflow-y: scroll; }
 body {
-  height: 9000px;
+  height: 6000px;
   background: var(--ink);
   font-family: var(--fb);
   -webkit-font-smoothing: antialiased;
@@ -287,9 +287,9 @@ body {
 }
 
 /* ── Scene 2: Capabilities (positioned around viewport) ── */
-.s-cap { padding: 2rem; }
+.s-cap { padding: 2rem; flex-direction: column; align-items: center; }
 .s-cap .cap-header {
-  position: absolute; top: 8%; left: 50%; transform: translateX(-50%);
+  position: absolute; top: 8%; left: 0; right: 0;
   text-align: center;
 }
 .s-cap .cap-header .label {
@@ -481,19 +481,53 @@ body {
 .refs-panel a { font-size: .63rem; color: var(--warm-red); border-bottom: 1px dotted var(--warm-red); text-decoration: none; }
 .refs-panel a:hover { color: var(--gold-d); }
 
-.closing { text-align: center; }
-.closing-logo { margin: 0 auto 1rem; opacity: .35; }
-.closing-brand {
-  font-family: var(--fc); font-size: 1.4rem; font-weight: 600;
-  letter-spacing: .12em; color: var(--gold);
+.site-footer {
+  width: 100%; max-width: 720px;
+  padding: 1.5rem 2rem;
+  background: rgba(26,23,20,.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(201,168,76,.1);
+  border-bottom: none;
 }
-.closing-tag {
-  font-family: var(--fd); font-size: .88rem; font-style: italic;
-  color: var(--parchment-d); opacity: .5; margin-top: .2rem;
+.footer-top {
+  display: flex; align-items: center; justify-content: center;
+  gap: 1rem; margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(201,168,76,.08);
 }
-.closing-note {
-  font-size: .63rem; color: var(--parchment-d);
-  opacity: .3; margin-top: 1.5rem; line-height: 1.7;
+.footer-brand {
+  font-family: var(--fc); font-size: 1.1rem; font-weight: 600;
+  letter-spacing: .1em; color: var(--gold);
+}
+.footer-tag {
+  font-family: var(--fd); font-size: .78rem; font-style: italic;
+  color: var(--parchment-d); opacity: .6;
+}
+.footer-links {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: .6rem 1.5rem; margin-bottom: 1rem;
+}
+.footer-links a {
+  font-family: var(--fb); font-size: .62rem; font-weight: 500;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: rgba(244,234,213,.65); text-decoration: none;
+  display: flex; align-items: center; gap: .35rem;
+  transition: color .3s;
+}
+.footer-links a:hover { color: var(--gold); }
+.footer-links svg { width: 14px; height: 14px; flex-shrink: 0; }
+.footer-bottom {
+  text-align: center;
+  padding-top: .8rem;
+  border-top: 1px solid rgba(201,168,76,.06);
+}
+.footer-bottom p {
+  font-size: .56rem; color: var(--parchment-dd); opacity: .45;
+  line-height: 1.7;
+}
+.footer-bottom a {
+  color: var(--gold-d); text-decoration: none;
+  border-bottom: 1px dotted rgba(201,168,76,.3);
 }
 
 /* ── Responsive ── */
@@ -520,6 +554,8 @@ body {
   .s-install { flex-direction: column; align-items: center; }
   .install-col { max-width: 100%; }
   .refs-panel { padding: 1.2rem 1.5rem; }
+  .site-footer { padding: 1.2rem; }
+  .footer-links { gap: .4rem 1rem; }
   .nav-dots { display: none; }
   .scroll-indicator { bottom: 1rem; }
   .demo-note { font-size: .65rem; }
@@ -777,12 +813,45 @@ body {
           <li>Oquab, M. et al. (2024). DINOv2: Robust visual features without supervision. <em>TMLR</em>. <a href="https://arxiv.org/abs/2304.07193" target="_blank" rel="noopener">arXiv</a></li>
         </ol>
       </div>
-      <div class="closing">
-        <svg class="closing-logo" width="50" height="50" viewBox="0 0 60 60" style="color:var(--gold)"><use href="#logo-icon"/></svg>
-        <div class="closing-brand">ArtSleuth</div>
-        <div class="closing-tag">Computational Art Analysis Framework</div>
-        <div class="closing-note">All results are probabilistic and should be reviewed by qualified art historians. MIT Licence.</div>
-      </div>
+      <footer class="site-footer">
+        <div class="footer-top">
+          <svg width="30" height="30" viewBox="0 0 60 60" style="color:var(--gold)"><use href="#logo-icon"/></svg>
+          <div>
+            <div class="footer-brand">ArtSleuth</div>
+            <div class="footer-tag">Computational Art Analysis</div>
+          </div>
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/ladyFaye1998/ArtSleuth" target="_blank" rel="noopener">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            GitHub
+          </a>
+          <a href="https://huggingface.co/spaces/ladyFaye1998/ArtSleuth" target="_blank" rel="noopener">
+            <svg viewBox="0 0 120 120" fill="currentColor"><path d="M60 0C26.9 0 0 26.9 0 60s26.9 60 60 60 60-26.9 60-60S93.1 0 60 0zm-7.5 85c-5.5 0-10-4.5-10-10s4.5-10 10-10 10 4.5 10 10-4.5 10-10 10zm15 0c-5.5 0-10-4.5-10-10s4.5-10 10-10 10 4.5 10 10-4.5 10-10 10zM40 55c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm40 0c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/></svg>
+            HuggingFace Demo
+          </a>
+          <a href="https://huggingface.co/ladyFaye1998" target="_blank" rel="noopener">
+            <svg viewBox="0 0 120 120" fill="currentColor"><path d="M60 0C26.9 0 0 26.9 0 60s26.9 60 60 60 60-26.9 60-60S93.1 0 60 0zm-7.5 85c-5.5 0-10-4.5-10-10s4.5-10 10-10 10 4.5 10 10-4.5 10-10 10zm15 0c-5.5 0-10-4.5-10-10s4.5-10 10-10 10 4.5 10 10-4.5 10-10 10zM40 55c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm40 0c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/></svg>
+            Model Weights
+          </a>
+          <a href="https://pypi.org/project/artsleuth/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.2 1.6c.5-.3 1.1-.3 1.6 0l5 3c.5.3.8.8.8 1.4v4c0 .6-.3 1.1-.8 1.4l-5 3c-.5.3-1.1.3-1.6 0l-5-3C.7 11.1.4 10.6.4 10V6c0-.6.3-1.1.8-1.4l5-3z"/></svg>
+            PyPI
+          </a>
+          <a href="https://github.com/ladyFaye1998/ArtSleuth/blob/main/LICENSE" target="_blank" rel="noopener">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 100 16A8 8 0 008 0zm3.7 6.3l-4 4a1 1 0 01-1.4 0l-2-2a1 1 0 011.4-1.4L7 8.2l3.3-3.3a1 1 0 011.4 1.4z"/></svg>
+            MIT Licence
+          </a>
+          <a href="https://github.com/ladyFaye1998/ArtSleuth/issues" target="_blank" rel="noopener">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM0 8a8 8 0 1116 0A8 8 0 010 8zm9-3a1 1 0 11-2 0 1 1 0 012 0zM7 7a1 1 0 012 0v4a1 1 0 01-2 0V7z"/></svg>
+            Issues
+          </a>
+        </div>
+        <div class="footer-bottom">
+          <p>All results are probabilistic and should be reviewed by qualified art historians.<br>
+          &copy; 2025 <a href="https://github.com/ladyFaye1998" target="_blank" rel="noopener">ladyFaye1998</a> &middot; Released under the <a href="https://github.com/ladyFaye1998/ArtSleuth/blob/main/LICENSE" target="_blank" rel="noopener">MIT Licence</a></p>
+        </div>
+      </footer>
     </div>
 
   </div>
