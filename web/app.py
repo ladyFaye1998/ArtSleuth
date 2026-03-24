@@ -4,7 +4,7 @@ ArtSleuth web demo.
 Interactive art analysis powered by vision transformers. Upload a
 painting and get brushstroke analysis, style classification, artist
 attribution, forgery screening, and workshop decomposition — all
-with publication-quality visualizations.
+with publication-quality visualisations.
 """
 
 from __future__ import annotations
@@ -58,13 +58,14 @@ def create_app() -> gr.Blocks:
     """
     from web.theme import artsleuth_theme, CUSTOM_CSS, HEADER_HTML, FOOTER_HTML
 
-    # ── handler: Analyze ────────────────────────────────────────────
+    # ── handler: Analyse ────────────────────────────────────────────
 
-    def _handle_analyze(image, reference_artist: str):
+    def _handle_analyse(image, reference_artist: str):
         """Run the full analysis pipeline on a single artwork."""
         try:
             from artsleuth.config import AnalysisConfig
             from artsleuth.core.pipeline import run_pipeline
+            from artsleuth.core.attribution import estimate_artist_from_style
             from web.components import (
                 format_style_report,
                 format_attribution_report,
@@ -73,7 +74,7 @@ def create_app() -> gr.Blocks:
 
             if image is None:
                 empty = _info_html("Upload an artwork to begin.")
-                return empty, empty, empty, None
+                return empty, empty, empty, empty, None
 
             path = _save_pil_to_temp(image)
             ref = reference_artist.strip() or None
@@ -84,6 +85,13 @@ def create_app() -> gr.Blocks:
             )
 
             style_html = format_style_report(result.style)
+
+            artist_candidates = estimate_artist_from_style(
+                result.style.period.top_k,
+                result.style.technique.top_k,
+            )
+            artist_html = _format_artist_estimation(artist_candidates)
+
             attribution_html = format_attribution_report(
                 result.attribution,
             )
@@ -103,19 +111,18 @@ def create_app() -> gr.Blocks:
                 if explanation.composite is not None:
                     heatmap_image = explanation.composite
             except Exception:
-                forgery_html += _info_html(
-                    "Saliency heatmap could not be generated for this image."
-                )
+                pass
 
             return (
                 style_html,
+                artist_html,
                 attribution_html,
                 forgery_html,
                 heatmap_image,
             )
         except Exception as exc:
             err = _error_html(str(exc))
-            return err, err, err, None
+            return err, err, err, err, None
 
     # ── handler: Compare ────────────────────────────────────────────
 
@@ -307,29 +314,35 @@ def create_app() -> gr.Blocks:
         try:
             from artsleuth.config import AnalysisConfig
             from artsleuth.core.style import StyleClassifier
-            from artsleuth.core.temporal import TemporalRegistry
+            from artsleuth.core.temporal import (
+                TemporalRegistry,
+                estimate_date_from_style,
+            )
 
             if image is None:
-                return _info_html("Upload an artwork to estimate.")
-            if not artist_name.strip():
-                return _info_html(
-                    "Enter an artist name for temporal analysis."
-                )
+                return _info_html("Upload an artwork to estimate its date.")
 
             config = AnalysisConfig()
             classifier = StyleClassifier(config)
             style_report = classifier.classify(image)
 
-            registry = TemporalRegistry()
-            prediction = registry.predict(
-                artist_name.strip(), style_report.embedding,
-            )
+            prediction = None
+            method = "style classification"
+
+            if artist_name.strip():
+                registry = TemporalRegistry()
+                prediction = registry.predict(
+                    artist_name.strip(), style_report.embedding,
+                )
+                if prediction is not None:
+                    method = f"temporal model for {artist_name.strip()}"
 
             if prediction is None:
-                return _info_html(
-                    f"No temporal model available for "
-                    f"'{artist_name.strip()}'. The registry "
-                    f"requires dated reference works."
+                prediction = estimate_date_from_style(
+                    style_report.period.top_k,
+                )
+                method = (
+                    f"style classification ({style_report.period.label})"
                 )
 
             lo, hi = prediction.confidence_band
@@ -372,7 +385,11 @@ def create_app() -> gr.Blocks:
                 '<div style="font-size:1.1rem;font-weight:600;'
                 f'color:#0f1f35;margin-top:2px">'
                 f"{prediction.drift_rate:.3f}</div>"
-                "</div></div></div>"
+                "</div></div>"
+                f'<div style="font-size:0.78rem;color:#6b5e50;'
+                f'margin-top:1rem;font-weight:300;font-style:italic">'
+                f"Based on {method}</div>"
+                "</div>"
             )
         except Exception as exc:
             return _error_html(str(exc))
@@ -386,42 +403,46 @@ def create_app() -> gr.Blocks:
         gr.HTML(HEADER_HTML)
 
         with gr.Tabs():
-            # ── Tab 1: Analyze ──────────────────────────────────
-            with gr.Tab("Analyze"):
+            # ── Tab 1: Analyse ──────────────────────────────────
+            with gr.Tab("Analyse"):
                 with gr.Row():
                     with gr.Column(scale=1):
-                        analyze_image = gr.Image(
+                        analyse_image = gr.Image(
                             type="pil", label="Upload Artwork",
                         )
-                        analyze_ref = gr.Textbox(
+                        analyse_ref = gr.Textbox(
                             label="Reference Artist (optional)",
                             placeholder="e.g. Rembrandt",
                         )
-                        analyze_btn = gr.Button(
-                            "Analyze", variant="primary",
+                        analyse_btn = gr.Button(
+                            "Analyse", variant="primary",
                         )
                     with gr.Column(scale=2):
-                        analyze_style = gr.HTML(
+                        analyse_style = gr.HTML(
                             label="Style Report",
                         )
-                        analyze_attr = gr.HTML(
+                        analyse_artist = gr.HTML(
+                            label="Artist Estimation",
+                        )
+                        analyse_attr = gr.HTML(
                             label="Attribution Report",
                         )
-                        analyze_forgery = gr.HTML(
+                        analyse_forgery = gr.HTML(
                             label="Forgery Screening",
                         )
-                        analyze_heatmap = gr.Image(
+                        analyse_heatmap = gr.Image(
                             label="Saliency Heatmap",
                         )
 
-                analyze_btn.click(
-                    fn=_handle_analyze,
-                    inputs=[analyze_image, analyze_ref],
+                analyse_btn.click(
+                    fn=_handle_analyse,
+                    inputs=[analyse_image, analyse_ref],
                     outputs=[
-                        analyze_style,
-                        analyze_attr,
-                        analyze_forgery,
-                        analyze_heatmap,
+                        analyse_style,
+                        analyse_artist,
+                        analyse_attr,
+                        analyse_forgery,
+                        analyse_heatmap,
                     ],
                 )
 
@@ -477,15 +498,15 @@ def create_app() -> gr.Blocks:
                     outputs=[ws_report, ws_map],
                 )
 
-            # ── Tab 4: Timeline ─────────────────────────────────
-            with gr.Tab("Timeline"):
+            # ── Tab 4: Estimate Date ────────────────────────────
+            with gr.Tab("Estimate Date"):
                 with gr.Row():
                     with gr.Column(scale=1):
                         tl_image = gr.Image(
                             type="pil", label="Upload Artwork",
                         )
                         tl_artist = gr.Textbox(
-                            label="Artist Name",
+                            label="Artist Name (optional)",
                             placeholder="e.g. Artemisia Gentileschi",
                         )
                         tl_btn = gr.Button(
@@ -513,6 +534,49 @@ def create_app() -> gr.Blocks:
 
 
 # ── helpers ─────────────────────────────────────────────────────────
+
+
+def _format_artist_estimation(candidates) -> str:
+    """Render heuristic artist candidates as HTML."""
+    if not candidates:
+        return _info_html("Could not estimate artist for this image.")
+
+    top = candidates[0]
+    bars = ""
+    for cand in candidates:
+        pct = min(max(cand.score * 100, 0), 100)
+        bars += (
+            f'<div style="margin:6px 0;font-family:\'Inter\',sans-serif;">'
+            f'<div style="display:flex;justify-content:space-between;'
+            f'font-size:0.84rem;color:#0f1f35;font-weight:500;margin-bottom:3px;">'
+            f'<span>{cand.artist}</span>'
+            f'<span style="font-weight:600;">{pct:.1f}%</span></div>'
+            f'<div style="background:#e8e0d4;border-radius:6px;height:8px;'
+            f'overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,0.06);">'
+            f'<div style="width:{pct:.1f}%;height:100%;'
+            f'background:linear-gradient(90deg,#0f1f35,#0f1f35dd);'
+            f'border-radius:6px;transition:width 0.5s;"></div></div></div>'
+        )
+
+    return (
+        '<div style="background:#ffffff;border:1px solid rgba(127,179,211,0.18);'
+        'border-radius:10px;padding:1.2rem 1.4rem;margin:0.75rem 0;'
+        "font-family:'Inter',sans-serif;"
+        'box-shadow:0 2px 12px rgba(15,31,53,0.05);">'
+        "<h3 style=\"margin:0 0 0.8rem;color:#0f1f35;"
+        "font-family:'Cormorant Garamond',Georgia,serif;font-size:1.15rem;"
+        'font-weight:600;letter-spacing:0.02em;'
+        'border-bottom:2px solid #c9a84c;padding-bottom:0.4rem;">'
+        'Artist Estimation</h3>'
+        f'<div style="font-size:0.9rem;color:#0f1f35;margin-bottom:0.6rem;">'
+        f'<strong>Most likely:</strong> {top.artist} ({top.score:.0%})</div>'
+        f'{bars}'
+        '<div style="font-size:0.75rem;color:#6b5e50;margin-top:0.6rem;'
+        'font-style:italic;font-weight:300;">'
+        'Estimated from style classification (period + genre). '
+        'For definitive attribution, consult a qualified art historian.</div>'
+        '</div>'
+    )
 
 
 def _hand_map_palette(n: int) -> list[list[int]]:

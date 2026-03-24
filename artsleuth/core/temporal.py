@@ -20,9 +20,8 @@ Rasmussen, C. E. & Williams, C. K. I. (2006). *Gaussian Processes
 
 from __future__ import annotations
 
-import itertools
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -263,7 +262,7 @@ class TemporalStyleModel:
         total_distance = 0.0
         total_years = 0.0
 
-        for prev, curr in itertools.pairwise(sorted_refs):
+        for prev, curr in zip(sorted_refs[:-1], sorted_refs[1:]):
             gap = float(curr.year - prev.year)
             if gap <= 0:
                 continue
@@ -387,3 +386,82 @@ class TemporalRegistry:
         if model is None or not model.is_fitted:
             return None
         return model.predict(embedding)
+
+
+# --- Heuristic Date Estimation from Style Classification -------------------
+
+_PERIOD_DATE_RANGES: dict[str, tuple[int, int]] = {
+    "Abstract Expressionism": (1940, 1965),
+    "Action Painting": (1945, 1960),
+    "Analytical Cubism": (1909, 1912),
+    "Art Nouveau": (1890, 1910),
+    "Baroque": (1590, 1750),
+    "Color Field Painting": (1950, 1975),
+    "Contemporary Realism": (1970, 2020),
+    "Cubism": (1907, 1925),
+    "Early Renaissance": (1400, 1500),
+    "Expressionism": (1905, 1935),
+    "Fauvism": (1900, 1910),
+    "High Renaissance": (1490, 1530),
+    "Impressionism": (1860, 1890),
+    "Mannerism Late Renaissance": (1520, 1600),
+    "Minimalism": (1960, 1975),
+    "Naive Art Primitivism": (1880, 1940),
+    "New Realism": (1960, 1970),
+    "Northern Renaissance": (1430, 1570),
+    "Pointillism": (1884, 1910),
+    "Pop Art": (1955, 1975),
+    "Post Impressionism": (1880, 1910),
+    "Realism": (1840, 1900),
+    "Rococo": (1720, 1780),
+    "Romanticism": (1780, 1850),
+    "Symbolism": (1880, 1910),
+    "Synthetic Cubism": (1912, 1925),
+    "Ukiyo e": (1670, 1900),
+}
+
+
+def estimate_date_from_style(
+    period_top_k: list[tuple[str, float]],
+) -> TemporalPrediction:
+    """Estimate a date range from period classification softmax outputs.
+
+    Uses a weighted mixture of the date ranges for the top predicted
+    periods, producing a probability-weighted midpoint and confidence
+    band.  This is a heuristic — no GP or reference data required.
+    """
+    weighted_lo = 0.0
+    weighted_hi = 0.0
+    total_weight = 0.0
+
+    for label, conf in period_top_k:
+        date_range = _PERIOD_DATE_RANGES.get(label)
+        if date_range is None:
+            continue
+        lo, hi = date_range
+        weighted_lo += lo * conf
+        weighted_hi += hi * conf
+        total_weight += conf
+
+    if total_weight == 0:
+        return TemporalPrediction(
+            estimated_year=1700.0,
+            confidence_band=(1400.0, 2000.0),
+            temporal_score=0.1,
+            drift_rate=0.0,
+        )
+
+    est_lo = weighted_lo / total_weight
+    est_hi = weighted_hi / total_weight
+    midpoint = (est_lo + est_hi) / 2.0
+    half_span = (est_hi - est_lo) / 2.0
+
+    top_conf = period_top_k[0][1] if period_top_k else 0.0
+    plausibility = min(top_conf * 1.2, 1.0)
+
+    return TemporalPrediction(
+        estimated_year=midpoint,
+        confidence_band=(est_lo - half_span * 0.3, est_hi + half_span * 0.3),
+        temporal_score=plausibility,
+        drift_rate=0.0,
+    )

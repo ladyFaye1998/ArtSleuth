@@ -119,7 +119,7 @@ class AttributionAnalyzer:
 
     def attribute(
         self,
-        image: Image.Image,
+        image: "Image.Image",
         brushstroke_report: BrushstrokeReport | None = None,
         style_report: StyleReport | None = None,
         top_k: int = 5,
@@ -201,7 +201,7 @@ class AttributionAnalyzer:
 
     def _build_query_embedding(
         self,
-        image: Image.Image,
+        image: "Image.Image",
         brushstroke_report: BrushstrokeReport | None,
         style_report: StyleReport | None,
     ) -> np.ndarray:
@@ -216,8 +216,8 @@ class AttributionAnalyzer:
             components.append(stroke_embs.mean(axis=0))
 
         if not components:
-            from artsleuth.models.backbones import load_backbone
             from artsleuth.preprocessing.transforms import prepare_for_backbone
+            from artsleuth.models.backbones import load_backbone
 
             tensor = prepare_for_backbone(
                 image,
@@ -304,3 +304,117 @@ def _identify_supporting_features(similarity: float) -> list[str]:
     else:
         features.append("Weak feature correspondence; attribution uncertain.")
     return features
+
+
+# --- Heuristic Artist Estimation from Style Classification -----------------
+
+_ARTIST_PROFILES: list[tuple[str, list[str], list[str]]] = [
+    ("Leonardo da Vinci", ["High Renaissance"], ["Portrait", "Religious Painting"]),
+    ("Raphael", ["High Renaissance"], ["Portrait", "Religious Painting"]),
+    ("Michelangelo", ["High Renaissance"], ["Religious Painting", "Nude Painting"]),
+    ("Titian", ["High Renaissance"], ["Portrait", "Religious Painting"]),
+    ("Sandro Botticelli", ["Early Renaissance"], ["Religious Painting"]),
+    ("Giovanni Bellini", ["Early Renaissance"], ["Religious Painting"]),
+    ("Fra Angelico", ["Early Renaissance"], ["Religious Painting"]),
+    ("Jan van Eyck", ["Northern Renaissance"], ["Portrait", "Religious Painting"]),
+    ("Albrecht Dürer", ["Northern Renaissance"], ["Portrait", "Religious Painting"]),
+    ("Hieronymus Bosch", ["Northern Renaissance"], ["Religious Painting", "Genre Painting"]),
+    ("Hans Holbein the Younger", ["Northern Renaissance"], ["Portrait"]),
+    ("El Greco", ["Mannerism Late Renaissance"], ["Religious Painting", "Portrait"]),
+    ("Tintoretto", ["Mannerism Late Renaissance"], ["Religious Painting"]),
+    ("Caravaggio", ["Baroque"], ["Religious Painting", "Genre Painting"]),
+    ("Rembrandt", ["Baroque"], ["Portrait", "Religious Painting"]),
+    ("Vermeer", ["Baroque"], ["Genre Painting", "Portrait"]),
+    ("Peter Paul Rubens", ["Baroque"], ["Religious Painting", "Portrait", "Nude Painting"]),
+    ("Diego Velázquez", ["Baroque"], ["Portrait", "Genre Painting"]),
+    ("Artemisia Gentileschi", ["Baroque"], ["Religious Painting", "Genre Painting"]),
+    ("Frans Hals", ["Baroque"], ["Portrait"]),
+    ("Jean-Antoine Watteau", ["Rococo"], ["Genre Painting"]),
+    ("François Boucher", ["Rococo"], ["Genre Painting", "Nude Painting"]),
+    ("Jean-Honoré Fragonard", ["Rococo"], ["Genre Painting"]),
+    ("Francisco Goya", ["Romanticism"], ["Portrait", "Genre Painting"]),
+    ("Eugène Delacroix", ["Romanticism"], ["Religious Painting", "Genre Painting"]),
+    ("J.M.W. Turner", ["Romanticism"], ["Landscape"]),
+    ("Caspar David Friedrich", ["Romanticism"], ["Landscape"]),
+    ("Gustave Courbet", ["Realism"], ["Landscape", "Portrait", "Genre Painting"]),
+    ("Jean-François Millet", ["Realism"], ["Genre Painting", "Landscape"]),
+    ("Édouard Manet", ["Realism", "Impressionism"], ["Portrait", "Genre Painting"]),
+    ("Claude Monet", ["Impressionism"], ["Landscape"]),
+    ("Pierre-Auguste Renoir", ["Impressionism"], ["Portrait", "Genre Painting", "Nude Painting"]),
+    ("Edgar Degas", ["Impressionism"], ["Genre Painting", "Portrait"]),
+    ("Camille Pissarro", ["Impressionism"], ["Landscape", "Cityscape"]),
+    ("Alfred Sisley", ["Impressionism"], ["Landscape"]),
+    ("Vincent van Gogh", ["Post Impressionism"], ["Landscape", "Portrait", "Still Life"]),
+    ("Paul Cézanne", ["Post Impressionism"], ["Landscape", "Still Life", "Portrait"]),
+    ("Paul Gauguin", ["Post Impressionism"], ["Genre Painting", "Landscape"]),
+    ("Henri de Toulouse-Lautrec", ["Post Impressionism"], ["Genre Painting", "Portrait"]),
+    ("Georges Seurat", ["Pointillism"], ["Landscape", "Genre Painting"]),
+    ("Gustav Klimt", ["Art Nouveau", "Symbolism"], ["Portrait", "Nude Painting"]),
+    ("Alphonse Mucha", ["Art Nouveau"], ["Illustration", "Portrait"]),
+    ("Henri Matisse", ["Fauvism"], ["Portrait", "Landscape", "Still Life"]),
+    ("André Derain", ["Fauvism"], ["Landscape", "Portrait"]),
+    ("Pablo Picasso", ["Cubism", "Analytical Cubism", "Synthetic Cubism"], ["Portrait", "Abstract Painting"]),
+    ("Georges Braque", ["Cubism", "Analytical Cubism"], ["Still Life", "Abstract Painting"]),
+    ("Edvard Munch", ["Expressionism", "Symbolism"], ["Portrait", "Genre Painting"]),
+    ("Ernst Ludwig Kirchner", ["Expressionism"], ["Landscape", "Portrait"]),
+    ("Wassily Kandinsky", ["Abstract Expressionism", "Expressionism"], ["Abstract Painting"]),
+    ("Piet Mondrian", ["Abstract Expressionism"], ["Abstract Painting"]),
+    ("Jackson Pollock", ["Action Painting"], ["Abstract Painting"]),
+    ("Mark Rothko", ["Color Field Painting"], ["Abstract Painting"]),
+    ("Willem de Kooning", ["Abstract Expressionism", "Action Painting"], ["Abstract Painting"]),
+    ("Andy Warhol", ["Pop Art"], ["Portrait", "Illustration"]),
+    ("Roy Lichtenstein", ["Pop Art"], ["Illustration", "Genre Painting"]),
+    ("Salvador Dalí", ["Symbolism"], ["Landscape", "Genre Painting"]),
+    ("René Magritte", ["Symbolism"], ["Genre Painting", "Portrait"]),
+    ("Frida Kahlo", ["Naive Art Primitivism"], ["Portrait"]),
+    ("Henri Rousseau", ["Naive Art Primitivism"], ["Landscape", "Genre Painting"]),
+    ("Katsushika Hokusai", ["Ukiyo e"], ["Landscape"]),
+    ("Utagawa Hiroshige", ["Ukiyo e"], ["Landscape", "Cityscape"]),
+    ("Dante Gabriel Rossetti", ["Symbolism"], ["Portrait"]),
+    ("Edward Hopper", ["Contemporary Realism", "Realism"], ["Cityscape", "Genre Painting"]),
+]
+
+
+def estimate_artist_from_style(
+    period_top_k: list[tuple[str, float]],
+    genre_top_k: list[tuple[str, float]],
+    top_n: int = 5,
+) -> list[CandidateAttribution]:
+    """Rank candidate artists by how well they match the style prediction.
+
+    Cross-references period and genre softmax outputs against known
+    artist profiles.  This is a heuristic fallback — not a trained
+    classifier — and should be presented with appropriate caveats.
+    """
+    period_scores: dict[str, float] = {label: conf for label, conf in period_top_k}
+    genre_scores: dict[str, float] = {label: conf for label, conf in genre_top_k}
+
+    artist_scores: list[tuple[str, float]] = []
+    for artist, periods, genres in _ARTIST_PROFILES:
+        period_score = max(
+            (period_scores.get(p, 0.0) for p in periods), default=0.0,
+        )
+        genre_score = max(
+            (genre_scores.get(g, 0.0) for g in genres), default=0.0,
+        )
+        combined = 0.65 * period_score + 0.35 * genre_score
+        artist_scores.append((artist, combined))
+
+    artist_scores.sort(key=lambda x: x[1], reverse=True)
+    top = artist_scores[:top_n]
+
+    total = sum(s for _, s in top) or 1.0
+    return [
+        CandidateAttribution(
+            artist=artist,
+            score=score / total,
+            confidence_interval=(
+                max(0.0, score / total - 0.15),
+                min(1.0, score / total + 0.15),
+            ),
+            supporting_features=[
+                "Estimated from style classification (period + genre)."
+            ],
+        )
+        for artist, score in top
+    ]

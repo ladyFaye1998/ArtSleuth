@@ -192,8 +192,14 @@ class WorkshopDecomposition:
 
         n_patches = embeddings.shape[0]
 
+        if n_patches < 2:
+            return self._single_hand_report(
+                embeddings, bboxes, image_size,
+                coherences=coherences, energies=energies,
+            )
+
         model = BayesianGaussianMixture(
-            n_components=self._max_hands,
+            n_components=min(self._max_hands, n_patches),
             covariance_type="full",
             weight_concentration_prior_type="dirichlet_process",
             random_state=self._random_state,
@@ -306,6 +312,42 @@ class WorkshopDecomposition:
         )
 
     # --- Internal Methods ---------------------------------------------------
+
+    def _single_hand_report(
+        self,
+        embeddings: np.ndarray,
+        bboxes: list[tuple[int, int, int, int]],
+        image_size: tuple[int, int],
+        *,
+        coherences: np.ndarray | None = None,
+        energies: np.ndarray | None = None,
+    ) -> WorkshopReport:
+        """Return a trivial single-hand report when too few patches exist."""
+        n = embeddings.shape[0]
+        labels = np.zeros(n, dtype=np.int32)
+        probs = np.ones((n, 1), dtype=np.float64)
+        total_area = float(sum(w * h for _, _, w, h in bboxes)) or 1.0
+
+        assignment = HandAssignment(
+            hand_id=0,
+            label="primary_hand",
+            confidence=1.0,
+            patch_count=n,
+            spatial_extent=1.0,
+            mean_coherence=float(coherences.mean()) if coherences is not None and n else 0.0,
+            mean_energy=float(energies.mean()) if energies is not None and n else 0.0,
+        )
+        hand_map = self._build_hand_map(labels, bboxes, image_size) if bboxes else None
+
+        return WorkshopReport(
+            num_hands=1,
+            is_workshop=False,
+            assignments=[assignment],
+            patch_labels=labels,
+            patch_probabilities=probs,
+            hand_map=hand_map,
+            bic_score=0.0,
+        )
 
     @staticmethod
     def _build_hand_map(
