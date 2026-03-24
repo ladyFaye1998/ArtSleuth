@@ -122,7 +122,6 @@ def artsleuth_theme() -> gr.themes.Base:
         border_color_accent=GOLD,
         border_color_accent_dark=GOLD,
         color_accent=GOLD,
-        color_accent_dark=GOLD,
         link_text_color=AMBER,
         link_text_color_dark=AMBER,
         link_text_color_hover=GOLD,
