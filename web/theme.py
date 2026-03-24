@@ -19,6 +19,42 @@ TEXT_LIGHT = "#ddd8d0"
 WHITE = "#ffffff"
 MUTED = "#6b5e50"
 
+# --- gr.HTML surfaces -------------------------------------------------------
+# HuggingFace Spaces (and some browser / Gradio skins) use a dark chrome
+# around ``gr.HTML`` while our copy assumes a light card.  Use explicit
+# light panels + high-contrast text so nothing sits navy-on-near-black.
+HTML_LIGHT_PANEL = (
+    "background:linear-gradient(180deg,#fcfaf7 0%,#f2ebe3 100%);"
+    "color:#0f1f35;"
+    "padding:1.4rem 1.6rem;"
+    "border-radius:12px;"
+    "border:1px solid rgba(127,179,211,0.55);"
+    "box-shadow:0 4px 24px rgba(0,0,0,0.14);"
+)
+HTML_TEXT_MUTED = "#3d3834"
+HTML_INFO_BOX = (
+    "background:#e8f0f6;"
+    "color:#0f1f35;"
+    "border:1px solid rgba(127,179,211,0.65);"
+    "border-radius:10px;"
+    "padding:1rem 1.2rem;"
+    "margin:0.5rem 0;"
+    "font-family:'Inter',sans-serif;"
+    "font-size:0.88rem;"
+    "box-shadow:0 2px 12px rgba(0,0,0,0.08);"
+)
+HTML_ERROR_BOX = (
+    "color:#6b1f2e;"
+    "background:#fce8ec;"
+    "border:1px solid rgba(194,120,137,0.45);"
+    "border-radius:10px;"
+    "padding:1rem 1.2rem;"
+    "margin:0.5rem 0;"
+    "font-family:'Inter',sans-serif;"
+    "font-size:0.88rem;"
+    "box-shadow:0 2px 12px rgba(0,0,0,0.08);"
+)
+
 
 def artsleuth_theme() -> gr.themes.Base:
     """Build and return the ArtSleuth Gradio theme."""

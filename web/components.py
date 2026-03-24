@@ -29,7 +29,8 @@ _CREAM = "#f4efe8"
 _CREAM_DARK = "#e8e0d4"
 _TEXT_LIGHT = "#ddd8d0"
 _WHITE = "#ffffff"
-_MUTED = "#6b5e50"
+# Dark enough for WCAG contrast on cream / white cards (HF dark chrome safe).
+_MUTED = "#3d3834"
 _FONT = "'Inter', -apple-system, sans-serif"
 _FONT_DISPLAY = "'Cormorant Garamond', Georgia, serif"
 
@@ -161,8 +162,10 @@ def format_style_report(style_report: StyleReport) -> str:
             bars,
         ))
 
+    from web.theme import HTML_LIGHT_PANEL
+
     return (
-        f'<div style="font-family:{_FONT};">'
+        f'<div style="{HTML_LIGHT_PANEL}font-family:{_FONT};">'
         + "".join(parts)
         + "</div>"
     )

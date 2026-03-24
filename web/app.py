@@ -15,27 +15,20 @@ from pathlib import Path
 import gradio as gr
 import numpy as np
 
+from web.theme import HTML_ERROR_BOX, HTML_INFO_BOX, HTML_LIGHT_PANEL, HTML_TEXT_MUTED
+
 
 def _error_html(message: str) -> str:
     """Wrap an error message in styled HTML."""
     return (
-        '<div style="color:#8b2c3a;background:rgba(194,120,137,0.08);'
-        "border:1px solid rgba(194,120,137,0.25);border-radius:10px;"
-        "padding:1rem 1.2rem;margin:0.5rem 0;"
-        "font-family:'Inter',sans-serif;font-size:0.88rem;\">"
+        f'<div style="{HTML_ERROR_BOX}">'
         f"<strong>Error:</strong> {message}</div>"
     )
 
 
 def _info_html(message: str) -> str:
     """Wrap an informational message in styled HTML."""
-    return (
-        '<div style="color:#0f1f35;background:rgba(127,179,211,0.08);'
-        "border:1px solid rgba(127,179,211,0.2);border-radius:10px;"
-        "padding:1rem 1.2rem;margin:0.5rem 0;"
-        "font-family:'Inter',sans-serif;font-size:0.88rem;\">"
-        f"{message}</div>"
-    )
+    return f'<div style="{HTML_INFO_BOX}">{message}</div>'
 
 
 def _save_pil_to_temp(image) -> str:
@@ -177,16 +170,15 @@ def create_app() -> gr.Blocks:
                 interp = "Minimal similarity — markedly different stylistic profiles."
 
             sim_html = (
-                '<div style="text-align:center;padding:2rem 1.5rem;'
-                "font-family:'Inter',sans-serif;\">"
+                f'<div style="{HTML_LIGHT_PANEL}text-align:center;">'
                 "<div style=\"font-family:'Cormorant Garamond',Georgia,serif;"
                 'font-size:3.2rem;font-weight:700;'
                 f'color:#0f1f35">{similarity:.1%}</div>'
                 '<div style="font-size:0.72rem;letter-spacing:0.1em;'
-                'text-transform:uppercase;color:#c9a84c;font-weight:600;'
+                'text-transform:uppercase;color:#b8922e;font-weight:600;'
                 'margin-top:0.2rem">Embedding Similarity</div>'
-                '<div style="font-size:0.92rem;color:#6b5e50;'
-                'margin-top:0.8rem;font-weight:300;max-width:500px;'
+                f'<div style="font-size:0.92rem;color:{HTML_TEXT_MUTED};'
+                'margin-top:0.8rem;font-weight:400;max-width:500px;'
                 f'margin-left:auto;margin-right:auto">{interp}</div></div>'
             )
 
@@ -199,8 +191,9 @@ def create_app() -> gr.Blocks:
                 )
 
             comparison_html = (
+                f'<div style="{HTML_LIGHT_PANEL}margin-top:0.5rem;">'
                 '<table style="width:100%;border-collapse:collapse;'
-                "margin-top:1rem;font-family:'Inter',sans-serif;"
+                "font-family:'Inter',sans-serif;"
                 'font-size:0.88rem;color:#0f1f35">'
                 '<thead><tr style="border-bottom:2px solid #c9a84c">'
                 '<th style="padding:0.6rem 1rem;text-align:left;'
@@ -219,7 +212,7 @@ def create_app() -> gr.Blocks:
                     report_a.technique,
                     report_b.technique,
                 )
-                + "</tbody></table>"
+                + "</tbody></table></div>"
             )
 
             return sim_html, comparison_html
@@ -355,26 +348,25 @@ def create_app() -> gr.Blocks:
                 else "#f44336"
             )
             return (
-                '<div style="text-align:center;padding:2rem 1.5rem;'
-                "font-family:'Inter',sans-serif;\">"
+                f'<div style="{HTML_LIGHT_PANEL}text-align:center;">'
                 "<div style=\"font-family:'Cormorant Garamond',Georgia,serif;"
                 'font-size:3rem;font-weight:700;'
                 f'color:#0f1f35">c.\u2009{prediction.estimated_year:.0f}'
                 "</div>"
                 '<div style="font-size:0.72rem;letter-spacing:0.1em;'
-                'text-transform:uppercase;color:#c9a84c;font-weight:600;'
+                'text-transform:uppercase;color:#b8922e;font-weight:600;'
                 'margin-top:0.2rem">Estimated Date</div>'
                 '<div style="display:flex;justify-content:center;'
                 'gap:2rem;margin-top:1.2rem;flex-wrap:wrap">'
                 '<div style="text-align:center">'
-                '<div style="font-size:0.68rem;color:#6b5e50;'
+                f'<div style="font-size:0.68rem;color:{HTML_TEXT_MUTED};'
                 'text-transform:uppercase;letter-spacing:0.08em">'
                 "95% Band</div>"
                 '<div style="font-size:1.1rem;font-weight:600;'
                 f'color:#0f1f35;margin-top:2px">{lo:.0f}\u2013{hi:.0f}</div>'
                 "</div>"
                 '<div style="text-align:center">'
-                '<div style="font-size:0.68rem;color:#6b5e50;'
+                f'<div style="font-size:0.68rem;color:{HTML_TEXT_MUTED};'
                 'text-transform:uppercase;letter-spacing:0.08em">'
                 "Plausibility</div>"
                 '<div style="font-size:1.1rem;font-weight:600;'
@@ -382,15 +374,15 @@ def create_app() -> gr.Blocks:
                 f"{prediction.temporal_score:.0%}</div>"
                 "</div>"
                 '<div style="text-align:center">'
-                '<div style="font-size:0.68rem;color:#6b5e50;'
+                f'<div style="font-size:0.68rem;color:{HTML_TEXT_MUTED};'
                 'text-transform:uppercase;letter-spacing:0.08em">'
                 "Drift / Decade</div>"
                 '<div style="font-size:1.1rem;font-weight:600;'
                 f'color:#0f1f35;margin-top:2px">'
                 f"{prediction.drift_rate:.3f}</div>"
                 "</div></div>"
-                f'<div style="font-size:0.78rem;color:#6b5e50;'
-                f'margin-top:1rem;font-weight:300;font-style:italic">'
+                f'<div style="font-size:0.78rem;color:{HTML_TEXT_MUTED};'
+                f'margin-top:1rem;font-weight:400;font-style:italic">'
                 f"Based on {method}</div>"
                 "</div>"
             )
@@ -565,10 +557,8 @@ def _format_artist_estimation(candidates: list[tuple[str, float]]) -> str:
         )
 
     return (
-        '<div style="background:#ffffff;border:1px solid rgba(127,179,211,0.18);'
-        'border-radius:10px;padding:1.2rem 1.4rem;margin:0.75rem 0;'
-        "font-family:'Inter',sans-serif;"
-        'box-shadow:0 2px 12px rgba(15,31,53,0.05);">'
+        f'<div style="{HTML_LIGHT_PANEL}margin:0.75rem 0;'
+        "font-family:'Inter',sans-serif;\">"
         "<h3 style=\"margin:0 0 0.8rem;color:#0f1f35;"
         "font-family:'Cormorant Garamond',Georgia,serif;font-size:1.15rem;"
         'font-weight:600;letter-spacing:0.02em;'
@@ -577,8 +567,8 @@ def _format_artist_estimation(candidates: list[tuple[str, float]]) -> str:
         f'<div style="font-size:0.9rem;color:#0f1f35;margin-bottom:0.6rem;">'
         f'<strong>Most likely:</strong> {top_name} ({top_conf:.0%})</div>'
         f'{bars}'
-        '<div style="font-size:0.75rem;color:#6b5e50;margin-top:0.6rem;'
-        'font-style:italic;font-weight:300;">'
+        f'<div style="font-size:0.75rem;color:{HTML_TEXT_MUTED};margin-top:0.6rem;'
+        'font-style:italic;font-weight:400;">'
         'CLIP zero-shot estimation. '
         'For definitive attribution, consult a qualified art historian.</div>'
         '</div>'
@@ -634,15 +624,13 @@ def _build_benchmark_table() -> str:
                    f1="&mdash;", artist="79.0%", top5="96.9%", genre="76.6%"),
     ]
     return (
-        '<div style="padding:2.5rem 1.5rem;background:#ffffff;'
-        "border:1px solid rgba(127,179,211,0.15);border-radius:12px;"
-        "margin:1rem 0;box-shadow:0 2px 16px rgba(15,31,53,0.05);"
+        f'<div style="{HTML_LIGHT_PANEL}margin:1rem 0;'
         "font-family:'Inter',sans-serif;\">"
         '<div style="text-align:center;margin-bottom:1.5rem">'
         "<h3 style=\"font-family:'Cormorant Garamond',Georgia,serif;"
         'color:#0f1f35;margin:0 0 0.3rem;font-size:1.4rem;font-weight:600">'
         'WikiArt Benchmark</h3>'
-        '<div style="font-size:0.78rem;color:#6b5e50;font-weight:300">'
+        f'<div style="font-size:0.78rem;color:{HTML_TEXT_MUTED};font-weight:400">'
         '81,444 images &middot; 27 styles &middot; 129 artists &middot; 11 genres</div>'
         '</div>'
         '<table style="width:100%;border-collapse:collapse;'
@@ -668,8 +656,8 @@ def _build_benchmark_table() -> str:
         'color:#0f1f35">Genre</th></tr></thead><tbody>'
         + "".join(rows)
         + '</tbody></table>'
-        '<p style="color:#6b5e50;font-size:0.75rem;margin-top:1rem;'
-        'text-align:center;font-weight:300">'
+        f'<p style="color:{HTML_TEXT_MUTED};font-size:0.75rem;margin-top:1rem;'
+        'text-align:center;font-weight:400">'
         'Top four rows: linear probes. Bottom row: end-to-end heads. '
         'Fine-tuning: SupCon + CE, 3-block unfreeze, cosine annealing, '
         '5 epochs, Tesla P100. All numbers macro-averaged.</p></div>'
