@@ -55,6 +55,10 @@ HTML_ERROR_BOX = (
     "box-shadow:0 2px 12px rgba(0,0,0,0.08);"
 )
 
+# Apply to ``gr.HTML(..., elem_classes=HTML_ELEM_CLASSES)`` so global CSS can
+# beat Gradio/Tailwind ``.prose`` dark text on dark block backgrounds.
+HTML_ELEM_CLASSES: list[str] = ["artsleuth-html-host"]
+
 
 def artsleuth_theme() -> gr.themes.Base:
     """Build and return the ArtSleuth Gradio theme."""
@@ -287,5 +291,114 @@ table td {
     border: 1px solid rgba(127,179,211,0.15);
     border-radius: 10px;
     padding: 1.2rem;
+}
+
+/* -------------------------------------------------------------------------
+   gr.HTML on HF Spaces: Gradio wraps content in ``.prose`` and applies
+   theme/dark text colours. Inline ``style=`` on inner divs is often
+   overridden.  Force a light panel on the component host and reset prose.
+   ------------------------------------------------------------------------- */
+.artsleuth-html-host {
+    background-color: #e8dfd4 !important;
+    background-image: none !important;
+    color: #0a1422 !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    border: 1px solid rgba(100, 130, 165, 0.4) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.35) !important;
+}
+
+.artsleuth-html-host .prose,
+.artsleuth-html-host .prose-sm {
+    color: #0a1422 !important;
+}
+
+/* Inline callouts (forgery hint, upload prompts, etc.) */
+.artsleuth-html-host .prose .artsleuth-msg--info,
+.artsleuth-html-host .artsleuth-msg--info {
+    display: block !important;
+    background: #cfe4f2 !important;
+    color: #041018 !important;
+    border: 1px solid #6a9eb8 !important;
+    border-radius: 10px !important;
+    padding: 14px 16px !important;
+    margin: 0 !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.9rem !important;
+    line-height: 1.45 !important;
+    font-weight: 500 !important;
+}
+
+.artsleuth-html-host .prose .artsleuth-msg--error,
+.artsleuth-html-host .artsleuth-msg--error {
+    display: block !important;
+    background: #fcd4dc !important;
+    color: #4a0a14 !important;
+    border: 1px solid #c27889 !important;
+    border-radius: 10px !important;
+    padding: 14px 16px !important;
+    margin: 0 !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.9rem !important;
+}
+
+/* Date panel (Estimate Date tab): large figures must stay legible */
+.artsleuth-html-host .prose .artsleuth-date-panel,
+.artsleuth-html-host .artsleuth-date-panel {
+    text-align: center !important;
+    background: linear-gradient(180deg, #fffdf9 0%, #f2ebe3 100%) !important;
+    color: #0a1422 !important;
+    border: 1px solid rgba(127,179,211,0.5) !important;
+    border-radius: 12px !important;
+    padding: 1.5rem 1.25rem !important;
+    margin: 0 !important;
+}
+
+.artsleuth-html-host .artsleuth-date-panel .artsleuth-date-figure {
+    font-family: 'Cormorant Garamond', Georgia, serif !important;
+    font-size: 3rem !important;
+    font-weight: 700 !important;
+    color: #061018 !important;
+    line-height: 1.1 !important;
+}
+
+.artsleuth-html-host .artsleuth-date-panel .artsleuth-gold-label {
+    font-size: 0.72rem !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    color: #6b5610 !important;
+    font-weight: 600 !important;
+    margin-top: 0.25rem !important;
+}
+
+.artsleuth-html-host .artsleuth-date-panel .artsleuth-muted {
+    font-size: 0.68rem !important;
+    color: #3d3834 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+}
+
+.artsleuth-html-host .artsleuth-date-panel .artsleuth-date-sub {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    color: #061018 !important;
+    margin-top: 2px !important;
+}
+
+.artsleuth-html-host .artsleuth-date-panel .artsleuth-date-sub.artsleuth-score-good {
+    color: #1b5e20 !important;
+}
+.artsleuth-html-host .artsleuth-date-panel .artsleuth-date-sub.artsleuth-score-mid {
+    color: #e65100 !important;
+}
+.artsleuth-html-host .artsleuth-date-panel .artsleuth-date-sub.artsleuth-score-bad {
+    color: #b71c1c !important;
+}
+
+.artsleuth-html-host .artsleuth-date-panel .artsleuth-date-foot {
+    font-size: 0.78rem !important;
+    color: #3d3834 !important;
+    margin-top: 1rem !important;
+    font-style: italic !important;
 }
 """

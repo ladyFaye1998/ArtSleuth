@@ -9,26 +9,33 @@ with publication-quality visualisations.
 
 from __future__ import annotations
 
+import html as html_module
 import tempfile
 from pathlib import Path
 
 import gradio as gr
 import numpy as np
 
-from web.theme import HTML_ERROR_BOX, HTML_INFO_BOX, HTML_LIGHT_PANEL, HTML_TEXT_MUTED
+from web.theme import HTML_ELEM_CLASSES, HTML_LIGHT_PANEL, HTML_TEXT_MUTED
 
 
 def _error_html(message: str) -> str:
-    """Wrap an error message in styled HTML."""
+    """Wrap an error message in styled HTML.
+
+    Uses ``artsleuth-msg--error`` so ``CUSTOM_CSS`` can override Gradio
+    ``.prose`` colours (inline styles alone are not reliable on Spaces).
+    """
+    safe = html_module.escape(str(message))
     return (
-        f'<div style="{HTML_ERROR_BOX}">'
-        f"<strong>Error:</strong> {message}</div>"
+        '<div class="artsleuth-msg--error">'
+        f"<strong>Error:</strong> {safe}</div>"
     )
 
 
 def _info_html(message: str) -> str:
     """Wrap an informational message in styled HTML."""
-    return f'<div style="{HTML_INFO_BOX}">{message}</div>'
+    safe = html_module.escape(str(message))
+    return f'<div class="artsleuth-msg--info">{safe}</div>'
 
 
 def _save_pil_to_temp(image) -> str:
@@ -342,48 +349,35 @@ def create_app() -> gr.Blocks:
                 )
 
             lo, hi = prediction.confidence_band
-            score_color = (
-                "#4caf50" if prediction.temporal_score > 0.7
-                else "#ff9800" if prediction.temporal_score > 0.4
-                else "#f44336"
+            score_cls = (
+                "artsleuth-score-good" if prediction.temporal_score > 0.7
+                else "artsleuth-score-mid" if prediction.temporal_score > 0.4
+                else "artsleuth-score-bad"
             )
+            method_safe = html_module.escape(method)
             return (
-                f'<div style="{HTML_LIGHT_PANEL}text-align:center;">'
-                "<div style=\"font-family:'Cormorant Garamond',Georgia,serif;"
-                'font-size:3rem;font-weight:700;'
-                f'color:#0f1f35">c.\u2009{prediction.estimated_year:.0f}'
-                "</div>"
-                '<div style="font-size:0.72rem;letter-spacing:0.1em;'
-                'text-transform:uppercase;color:#b8922e;font-weight:600;'
-                'margin-top:0.2rem">Estimated Date</div>'
+                '<div class="artsleuth-date-panel">'
+                f'<div class="artsleuth-date-figure">c.\u2009'
+                f"{prediction.estimated_year:.0f}</div>"
+                '<div class="artsleuth-gold-label">Estimated Date</div>'
                 '<div style="display:flex;justify-content:center;'
                 'gap:2rem;margin-top:1.2rem;flex-wrap:wrap">'
                 '<div style="text-align:center">'
-                f'<div style="font-size:0.68rem;color:{HTML_TEXT_MUTED};'
-                'text-transform:uppercase;letter-spacing:0.08em">'
-                "95% Band</div>"
-                '<div style="font-size:1.1rem;font-weight:600;'
-                f'color:#0f1f35;margin-top:2px">{lo:.0f}\u2013{hi:.0f}</div>'
+                '<div class="artsleuth-muted">95% Band</div>'
+                '<div class="artsleuth-date-sub">'
+                f"{lo:.0f}\u2013{hi:.0f}</div>"
                 "</div>"
                 '<div style="text-align:center">'
-                f'<div style="font-size:0.68rem;color:{HTML_TEXT_MUTED};'
-                'text-transform:uppercase;letter-spacing:0.08em">'
-                "Plausibility</div>"
-                '<div style="font-size:1.1rem;font-weight:600;'
-                f'color:{score_color};margin-top:2px">'
+                '<div class="artsleuth-muted">Plausibility</div>'
+                f'<div class="artsleuth-date-sub {score_cls}">'
                 f"{prediction.temporal_score:.0%}</div>"
                 "</div>"
                 '<div style="text-align:center">'
-                f'<div style="font-size:0.68rem;color:{HTML_TEXT_MUTED};'
-                'text-transform:uppercase;letter-spacing:0.08em">'
-                "Drift / Decade</div>"
-                '<div style="font-size:1.1rem;font-weight:600;'
-                f'color:#0f1f35;margin-top:2px">'
+                '<div class="artsleuth-muted">Drift / Decade</div>'
+                f'<div class="artsleuth-date-sub">'
                 f"{prediction.drift_rate:.3f}</div>"
                 "</div></div>"
-                f'<div style="font-size:0.78rem;color:{HTML_TEXT_MUTED};'
-                f'margin-top:1rem;font-weight:400;font-style:italic">'
-                f"Based on {method}</div>"
+                f'<div class="artsleuth-date-foot">Based on {method_safe}</div>'
                 "</div>"
             )
         except Exception as exc:
@@ -415,15 +409,19 @@ def create_app() -> gr.Blocks:
                     with gr.Column(scale=2):
                         analyse_style = gr.HTML(
                             label="Style Report",
+                            elem_classes=HTML_ELEM_CLASSES,
                         )
                         analyse_artist = gr.HTML(
                             label="Artist Estimation",
+                            elem_classes=HTML_ELEM_CLASSES,
                         )
                         analyse_attr = gr.HTML(
                             label="Attribution Report",
+                            elem_classes=HTML_ELEM_CLASSES,
                         )
                         analyse_forgery = gr.HTML(
                             label="Forgery Screening",
+                            elem_classes=HTML_ELEM_CLASSES,
                         )
                         analyse_heatmap = gr.Image(
                             label="Saliency Heatmap",
@@ -453,8 +451,14 @@ def create_app() -> gr.Blocks:
                 compare_btn = gr.Button(
                     "Compare", variant="primary",
                 )
-                compare_sim = gr.HTML(label="Similarity")
-                compare_axes = gr.HTML(label="Style Comparison")
+                compare_sim = gr.HTML(
+                    label="Similarity",
+                    elem_classes=HTML_ELEM_CLASSES,
+                )
+                compare_axes = gr.HTML(
+                    label="Style Comparison",
+                    elem_classes=HTML_ELEM_CLASSES,
+                )
 
                 compare_btn.click(
                     fn=_handle_compare,
@@ -482,6 +486,7 @@ def create_app() -> gr.Blocks:
                     with gr.Column(scale=2):
                         ws_report = gr.HTML(
                             label="Workshop Report",
+                            elem_classes=HTML_ELEM_CLASSES,
                         )
                         ws_map = gr.Image(
                             label="Hand Map Overlay",
@@ -510,6 +515,7 @@ def create_app() -> gr.Blocks:
                     with gr.Column(scale=2):
                         tl_result = gr.HTML(
                             label="Temporal Prediction",
+                            elem_classes=HTML_ELEM_CLASSES,
                         )
 
                 tl_btn.click(
@@ -520,7 +526,10 @@ def create_app() -> gr.Blocks:
 
             # ── Tab 5: Benchmark ────────────────────────────────
             with gr.Tab("Benchmark"):
-                gr.HTML(_build_benchmark_table())
+                gr.HTML(
+                    _build_benchmark_table(),
+                    elem_classes=HTML_ELEM_CLASSES,
+                )
                 gr.Markdown(_benchmark_methodology())
 
         gr.HTML(FOOTER_HTML)
