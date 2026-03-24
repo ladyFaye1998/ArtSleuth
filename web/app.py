@@ -10,6 +10,7 @@ with publication-quality visualizations.
 from __future__ import annotations
 
 import tempfile
+from pathlib import Path
 
 import gradio as gr
 import numpy as np
@@ -18,9 +19,10 @@ import numpy as np
 def _error_html(message: str) -> str:
     """Wrap an error message in styled HTML."""
     return (
-        '<div style="color:#b91c1c;background:#fef2f2;'
-        'border:1px solid #fecaca;border-radius:8px;'
-        f'padding:1rem;margin:0.5rem 0">'
+        '<div style="color:#8b2c3a;background:rgba(194,120,137,0.08);'
+        "border:1px solid rgba(194,120,137,0.25);border-radius:10px;"
+        "padding:1rem 1.2rem;margin:0.5rem 0;"
+        "font-family:'Inter',sans-serif;font-size:0.88rem;\">"
         f"<strong>Error:</strong> {message}</div>"
     )
 
@@ -28,9 +30,11 @@ def _error_html(message: str) -> str:
 def _info_html(message: str) -> str:
     """Wrap an informational message in styled HTML."""
     return (
-        '<div style="color:#1e40af;background:#eff6ff;'
-        'border:1px solid #bfdbfe;border-radius:8px;'
-        f'padding:1rem;margin:0.5rem 0">{message}</div>'
+        '<div style="color:#0f1f35;background:rgba(127,179,211,0.08);'
+        "border:1px solid rgba(127,179,211,0.2);border-radius:10px;"
+        "padding:1rem 1.2rem;margin:0.5rem 0;"
+        "font-family:'Inter',sans-serif;font-size:0.88rem;\">"
+        f"{message}</div>"
     )
 
 
@@ -52,7 +56,7 @@ def create_app() -> gr.Blocks:
     gr.Blocks
         Fully wired Gradio Blocks application ready to ``.launch()``.
     """
-    from web.theme import CUSTOM_CSS, FOOTER_HTML, HEADER_HTML, artsleuth_theme
+    from web.theme import artsleuth_theme, CUSTOM_CSS, HEADER_HTML, FOOTER_HTML
 
     # ── handler: Analyze ────────────────────────────────────────────
 
@@ -62,9 +66,9 @@ def create_app() -> gr.Blocks:
             from artsleuth.config import AnalysisConfig
             from artsleuth.core.pipeline import run_pipeline
             from web.components import (
+                format_style_report,
                 format_attribution_report,
                 format_forgery_gauge,
-                format_style_report,
             )
 
             if image is None:
@@ -163,11 +167,17 @@ def create_app() -> gr.Blocks:
                 interp = "Minimal similarity — markedly different stylistic profiles."
 
             sim_html = (
-                '<div style="text-align:center;padding:1.5rem">'
-                '<div style="font-size:3rem;font-weight:700;'
-                f'color:#1A2E48">{similarity:.1%}</div>'
-                '<div style="font-size:1.1rem;color:#64748b;'
-                f'margin-top:0.5rem">{interp}</div></div>'
+                '<div style="text-align:center;padding:2rem 1.5rem;'
+                "font-family:'Inter',sans-serif;\">"
+                "<div style=\"font-family:'Cormorant Garamond',Georgia,serif;"
+                'font-size:3.2rem;font-weight:700;'
+                f'color:#0f1f35">{similarity:.1%}</div>'
+                '<div style="font-size:0.72rem;letter-spacing:0.1em;'
+                'text-transform:uppercase;color:#c9a84c;font-weight:600;'
+                'margin-top:0.2rem">Embedding Similarity</div>'
+                '<div style="font-size:0.92rem;color:#6b5e50;'
+                'margin-top:0.8rem;font-weight:300;max-width:500px;'
+                f'margin-left:auto;margin-right:auto">{interp}</div></div>'
             )
 
             def _axis_row(label, pred_a, pred_b):
@@ -180,9 +190,13 @@ def create_app() -> gr.Blocks:
 
             comparison_html = (
                 '<table style="width:100%;border-collapse:collapse;'
-                'margin-top:1rem">'
-                '<thead><tr style="border-bottom:2px solid #e2e8f0">'
-                "<th>Axis</th><th>Artwork A</th><th>Artwork B</th>"
+                "margin-top:1rem;font-family:'Inter',sans-serif;"
+                'font-size:0.88rem;color:#0f1f35">'
+                '<thead><tr style="border-bottom:2px solid #c9a84c">'
+                '<th style="padding:0.6rem 1rem;text-align:left;'
+                'font-weight:600;letter-spacing:0.04em">Axis</th>'
+                '<th style="padding:0.6rem 1rem;font-weight:600">Artwork A</th>'
+                '<th style="padding:0.6rem 1rem;font-weight:600">Artwork B</th>'
                 "</tr></thead><tbody>"
                 + _axis_row(
                     "Period", report_a.period, report_b.period,
@@ -259,6 +273,7 @@ def create_app() -> gr.Blocks:
             report_html = format_workshop_report(workshop_report)
             hand_map_image = None
             if workshop_report.hand_map is not None:
+                from PIL import Image as PILImage
 
                 unique_ids = np.unique(workshop_report.hand_map)
                 valid_ids = unique_ids[unique_ids >= 0]
@@ -318,19 +333,46 @@ def create_app() -> gr.Blocks:
                 )
 
             lo, hi = prediction.confidence_band
+            score_color = (
+                "#4caf50" if prediction.temporal_score > 0.7
+                else "#ff9800" if prediction.temporal_score > 0.4
+                else "#f44336"
+            )
             return (
-                '<div style="text-align:center;padding:1.5rem">'
-                '<div style="font-size:2.5rem;font-weight:700;'
-                f'color:#1A2E48">c.\u2009{prediction.estimated_year:.0f}'
+                '<div style="text-align:center;padding:2rem 1.5rem;'
+                "font-family:'Inter',sans-serif;\">"
+                "<div style=\"font-family:'Cormorant Garamond',Georgia,serif;"
+                'font-size:3rem;font-weight:700;'
+                f'color:#0f1f35">c.\u2009{prediction.estimated_year:.0f}'
                 "</div>"
-                '<div style="color:#64748b;margin-top:0.5rem">'
-                f"95% band: {lo:.0f}\u2013{hi:.0f}</div>"
-                '<div style="margin-top:1rem">'
-                f"Temporal plausibility: "
-                f"<strong>{prediction.temporal_score:.0%}</strong>"
-                f" &nbsp;|&nbsp; Drift rate: "
-                f"<strong>{prediction.drift_rate:.3f}</strong> / decade"
-                "</div></div>"
+                '<div style="font-size:0.72rem;letter-spacing:0.1em;'
+                'text-transform:uppercase;color:#c9a84c;font-weight:600;'
+                'margin-top:0.2rem">Estimated Date</div>'
+                '<div style="display:flex;justify-content:center;'
+                'gap:2rem;margin-top:1.2rem;flex-wrap:wrap">'
+                '<div style="text-align:center">'
+                '<div style="font-size:0.68rem;color:#6b5e50;'
+                'text-transform:uppercase;letter-spacing:0.08em">'
+                "95% Band</div>"
+                '<div style="font-size:1.1rem;font-weight:600;'
+                f'color:#0f1f35;margin-top:2px">{lo:.0f}\u2013{hi:.0f}</div>'
+                "</div>"
+                '<div style="text-align:center">'
+                '<div style="font-size:0.68rem;color:#6b5e50;'
+                'text-transform:uppercase;letter-spacing:0.08em">'
+                "Plausibility</div>"
+                '<div style="font-size:1.1rem;font-weight:600;'
+                f'color:{score_color};margin-top:2px">'
+                f"{prediction.temporal_score:.0%}</div>"
+                "</div>"
+                '<div style="text-align:center">'
+                '<div style="font-size:0.68rem;color:#6b5e50;'
+                'text-transform:uppercase;letter-spacing:0.08em">'
+                "Drift / Decade</div>"
+                '<div style="font-size:1.1rem;font-weight:600;'
+                f'color:#0f1f35;margin-top:2px">'
+                f"{prediction.drift_rate:.3f}</div>"
+                "</div></div></div>"
             )
         except Exception as exc:
             return _error_html(str(exc))
@@ -491,57 +533,76 @@ def _hand_map_palette(n: int) -> list[list[int]]:
 def _build_benchmark_table() -> str:
     """Return an HTML table with WikiArt benchmark numbers."""
     row = (
-        '<tr style="border-bottom:{border}">'
-        '<td style="padding:0.5rem 1rem;text-align:left;{extra}">{name}</td>'
-        '<td style="padding:0.5rem 0.7rem;{extra}">{style}</td>'
-        '<td style="padding:0.5rem 0.7rem;{extra}">{f1}</td>'
-        '<td style="padding:0.5rem 0.7rem;{extra}">{artist}</td>'
-        '<td style="padding:0.5rem 0.7rem;{extra}">{top5}</td>'
-        '<td style="padding:0.5rem 0.7rem;{extra}">{genre}</td></tr>'
+        '<tr style="border-bottom:{border};transition:background 0.2s" '
+        'onmouseover="this.style.background=\'rgba(201,168,76,0.04)\'" '
+        'onmouseout="this.style.background=\'transparent\'">'
+        '<td style="padding:0.6rem 1rem;text-align:left;{extra}">{name}</td>'
+        '<td style="padding:0.6rem 0.8rem;text-align:center;{extra}">{style}</td>'
+        '<td style="padding:0.6rem 0.8rem;text-align:center;{extra}">{f1}</td>'
+        '<td style="padding:0.6rem 0.8rem;text-align:center;{extra}">{artist}</td>'
+        '<td style="padding:0.6rem 0.8rem;text-align:center;{extra}">{top5}</td>'
+        '<td style="padding:0.6rem 0.8rem;text-align:center;{extra}">{genre}</td></tr>'
     )
-    thin = "1px solid #d4c5b9"
-    thick = "2px solid #1A2E48"
+    thin = "1px solid rgba(127,179,211,0.15)"
+    thick = "2px solid #c9a84c"
     rows = [
-        row.format(border=thin, extra="", name="DINOv2 · ViT-B/14",
+        row.format(border=thin, extra="", name="DINOv2 &middot; ViT-B/14",
                    style="57.5%", f1="0.553", artist="64.7%",
                    top5="90.9%", genre="71.0%"),
-        row.format(border=thin, extra="", name="CLIP · ViT-L/14",
+        row.format(border=thin, extra="", name="CLIP &middot; ViT-L/14",
                    style="67.1%", f1="0.656", artist="74.6%",
                    top5="95.9%", genre="75.0%"),
-        row.format(border=thin, extra="", name="Fusion · frozen",
+        row.format(border=thin, extra="", name="Fusion &middot; frozen",
                    style="65.0%", f1="0.633", artist="71.0%",
                    top5="94.2%", genre="74.2%"),
-        row.format(border=thin, extra="", name="Fusion · fine-tuned",
+        row.format(border=thin, extra="", name="Fusion &middot; fine-tuned",
                    style="71.6%", f1="0.703", artist="77.8%",
                    top5="96.2%", genre="75.1%"),
-        row.format(border=thick, extra="font-weight:600",
-                   name="Fusion · e2e", style="72.7%", f1="—",
-                   artist="79.0%", top5="96.9%", genre="76.6%"),
+        row.format(border=thick,
+                   extra="font-weight:700;color:#c9a84c;background:rgba(201,168,76,0.06)",
+                   name="Fusion &middot; end-to-end", style="72.7%",
+                   f1="&mdash;", artist="79.0%", top5="96.9%", genre="76.6%"),
     ]
     return (
-        '<div style="text-align:center;padding:2rem 1rem;'
-        'background:#F5F0EB;border-radius:8px;margin:1rem 0">'
-        '<h3 style="color:#1A2E48;margin:0 0 0.5rem">'
-        'WikiArt Benchmark (81 444 images)</h3>'
-        '<table style="margin:1rem auto;border-collapse:collapse;'
-        'font-size:0.9rem;color:#1A2E48">'
-        '<tr style="border-bottom:2px solid #1A2E48">'
-        '<th style="padding:0.5rem 1rem;text-align:left">Backbone</th>'
-        '<th style="padding:0.5rem 0.7rem">Style</th>'
-        '<th style="padding:0.5rem 0.7rem">Style F1</th>'
-        '<th style="padding:0.5rem 0.7rem">Artist</th>'
-        '<th style="padding:0.5rem 0.7rem">Artist Top-5</th>'
-        '<th style="padding:0.5rem 0.7rem">Genre</th></tr>'
+        '<div style="padding:2.5rem 1.5rem;background:#ffffff;'
+        "border:1px solid rgba(127,179,211,0.15);border-radius:12px;"
+        "margin:1rem 0;box-shadow:0 2px 16px rgba(15,31,53,0.05);"
+        "font-family:'Inter',sans-serif;\">"
+        '<div style="text-align:center;margin-bottom:1.5rem">'
+        "<h3 style=\"font-family:'Cormorant Garamond',Georgia,serif;"
+        'color:#0f1f35;margin:0 0 0.3rem;font-size:1.4rem;font-weight:600">'
+        'WikiArt Benchmark</h3>'
+        '<div style="font-size:0.78rem;color:#6b5e50;font-weight:300">'
+        '81,444 images &middot; 27 styles &middot; 129 artists &middot; 11 genres</div>'
+        '</div>'
+        '<table style="width:100%;border-collapse:collapse;'
+        'font-size:0.85rem;color:#0f1f35">'
+        '<thead><tr style="border-bottom:2px solid #0f1f35">'
+        '<th style="padding:0.6rem 1rem;text-align:left;font-weight:600;'
+        'font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;'
+        'color:#0f1f35">Backbone</th>'
+        '<th style="padding:0.6rem 0.8rem;text-align:center;font-weight:600;'
+        'font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;'
+        'color:#0f1f35">Style</th>'
+        '<th style="padding:0.6rem 0.8rem;text-align:center;font-weight:600;'
+        'font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;'
+        'color:#0f1f35">F1</th>'
+        '<th style="padding:0.6rem 0.8rem;text-align:center;font-weight:600;'
+        'font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;'
+        'color:#0f1f35">Artist</th>'
+        '<th style="padding:0.6rem 0.8rem;text-align:center;font-weight:600;'
+        'font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;'
+        'color:#0f1f35">Top-5</th>'
+        '<th style="padding:0.6rem 0.8rem;text-align:center;font-weight:600;'
+        'font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;'
+        'color:#0f1f35">Genre</th></tr></thead><tbody>'
         + "".join(rows)
-        + '</table>'
-        '<p style="color:#988b7e;font-size:0.78rem;margin-top:0.5rem">'
-        'Top four rows: logistic-regression linear probes. Bottom row: '
-        'end-to-end classification heads. Fine-tuning uses SupCon + CE loss, '
-        'partial backbone unfreezing (3 blocks), cosine annealing, 5 epochs.'
-        '</p>'
-        '<p style="color:#988b7e;font-size:0.72rem;margin-top:0.3rem;font-style:italic">'
-        'These numbers are pre-computed from the published benchmark run. '
-        'They do not update dynamically.</p></div>'
+        + '</tbody></table>'
+        '<p style="color:#6b5e50;font-size:0.75rem;margin-top:1rem;'
+        'text-align:center;font-weight:300">'
+        'Top four rows: linear probes. Bottom row: end-to-end heads. '
+        'Fine-tuning: SupCon + CE, 3-block unfreeze, cosine annealing, '
+        '5 epochs, Tesla P100. All numbers macro-averaged.</p></div>'
     )
 
 

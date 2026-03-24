@@ -20,15 +20,18 @@ if TYPE_CHECKING:
 # Palette constants (kept in sync with theme.py)
 # ---------------------------------------------------------------------------
 
-_NAVY = "#1A2E48"
-_BLUE = "#9DC0D8"
-_ROSE = "#D4899A"
-_GOLD = "#d4af37"
-_CREAM = "#F5F0EB"
-_TEXT_LIGHT = "#F0F0F0"
-_WHITE = "#FFFFFF"
-_MUTED = "#68594a"
-_FONT = "'Lora', Georgia, serif"
+_NAVY = "#0f1f35"
+_NAVY_MID = "#162d4a"
+_BLUE = "#7fb3d3"
+_ROSE = "#c27889"
+_GOLD = "#c9a84c"
+_CREAM = "#f4efe8"
+_CREAM_DARK = "#e8e0d4"
+_TEXT_LIGHT = "#ddd8d0"
+_WHITE = "#ffffff"
+_MUTED = "#6b5e50"
+_FONT = "'Inter', -apple-system, sans-serif"
+_FONT_DISPLAY = "'Cormorant Garamond', Georgia, serif"
 
 # ---------------------------------------------------------------------------
 # Shared helpers
@@ -54,17 +57,20 @@ def _bar_html(
     """Render a single labelled horizontal confidence bar."""
     pct = min(max(value * 100, 0), 100)
     return (
-        f'<div style="margin:4px 0;font-family:{_FONT};">'
+        f'<div style="margin:6px 0;font-family:{_FONT};">'
         f'  <div style="display:flex;justify-content:space-between;'
-        f'    font-size:0.88rem;color:{_NAVY};">'
+        f'    font-size:0.84rem;color:{_NAVY};font-weight:500;'
+        f'    margin-bottom:3px;">'
         f"    <span>{_esc(label)}</span>"
-        f"    <span>{pct:.1f}%</span>"
+        f'    <span style="font-weight:600;">{pct:.1f}%</span>'
         f"  </div>"
-        f'  <div style="background:{_CREAM};border-radius:4px;'
-        f'    height:10px;width:{max_width};overflow:hidden;">'
+        f'  <div style="background:{_CREAM_DARK};border-radius:6px;'
+        f'    height:8px;width:{max_width};overflow:hidden;'
+        f'    box-shadow:inset 0 1px 3px rgba(0,0,0,0.06);">'
         f'    <div style="width:{pct:.1f}%;height:100%;'
-        f"      background:{bar_color};border-radius:4px;"
-        f'      transition:width 0.4s ease;"></div>'
+        f"      background:linear-gradient(90deg,{bar_color},{bar_color}dd);"
+        f"      border-radius:6px;"
+        f'      transition:width 0.5s cubic-bezier(0.4,0,0.2,1);"></div>'
         f"  </div>"
         f"</div>"
     )
@@ -73,12 +79,16 @@ def _bar_html(
 def _section(title: str, body: str) -> str:
     """Wrap *body* in a titled card section."""
     return (
-        f'<div style="background:{_WHITE};border:1px solid {_BLUE};'
-        f'  border-radius:6px;padding:1rem;margin:0.75rem 0;'
-        f'  font-family:{_FONT};">'
-        f'  <h3 style="margin:0 0 0.6rem;color:{_NAVY};'
-        f'    font-size:1.05rem;border-bottom:2px solid {_GOLD};'
-        f'    padding-bottom:0.3rem;">{_esc(title)}</h3>'
+        f'<div style="background:{_WHITE};'
+        f'  border:1px solid rgba(127,179,211,0.18);'
+        f'  border-radius:10px;padding:1.2rem 1.4rem;margin:0.75rem 0;'
+        f'  font-family:{_FONT};'
+        f'  box-shadow:0 2px 12px rgba(15,31,53,0.05);">'
+        f'  <h3 style="margin:0 0 0.8rem;color:{_NAVY};'
+        f'    font-family:{_FONT_DISPLAY};font-size:1.15rem;'
+        f'    font-weight:600;letter-spacing:0.02em;'
+        f'    border-bottom:2px solid {_GOLD};'
+        f'    padding-bottom:0.4rem;">{_esc(title)}</h3>'
         f"  {body}"
         f"</div>"
     )
@@ -88,8 +98,9 @@ def _badge(text: str, bg: str = _ROSE, fg: str = _WHITE) -> str:
     """Small inline badge."""
     return (
         f'<span style="display:inline-block;background:{bg};'
-        f"  color:{fg};font-size:0.75rem;padding:2px 8px;"
-        f'  border-radius:10px;font-weight:600;">'
+        f"  color:{fg};font-size:0.7rem;padding:3px 10px;"
+        f"  border-radius:12px;font-weight:600;"
+        f'  letter-spacing:0.04em;text-transform:uppercase;">'
         f"  {_esc(text)}"
         f"</span>"
     )
@@ -102,26 +113,16 @@ def _badge(text: str, bg: str = _ROSE, fg: str = _WHITE) -> str:
 
 def build_header() -> str:
     """Return HTML for the ArtSleuth app header banner."""
-    return (
-        '<div class="artsleuth-header">'
-        "  <h1>ArtSleuth</h1>"
-        "  <p>Computational Art Analysis Framework</p>"
-        "</div>"
-    )
+    from web.theme import HEADER_HTML
+
+    return HEADER_HTML
 
 
 def build_footer() -> str:
     """Return HTML for the ArtSleuth footer."""
-    return (
-        '<div class="artsleuth-footer">'
-        "  ArtSleuth &mdash; Computational Art Analysis"
-        "  Framework &bull; Research use only<br>"
-        '  <span style="font-size:0.78rem;color:#988b7e;">'
-        "    Results are probabilistic and should be reviewed"
-        "    by qualified art historians."
-        "  </span>"
-        "</div>"
-    )
+    from web.theme import FOOTER_HTML
+
+    return FOOTER_HTML
 
 
 # ---------------------------------------------------------------------------
@@ -282,30 +283,31 @@ def format_forgery_gauge(forgery_report: ForgeryReport) -> str:
 
     gauge_html = (
         f'<div style="text-align:center;font-family:{_FONT};">'
-        # Outer ring
         f'  <div style="width:160px;height:160px;'
         f"    border-radius:50%;margin:0 auto;"
         f"    background:conic-gradient("
         f"      {ring_color} 0deg {score_pct * 3.6:.1f}deg,"
-        f"      {_CREAM} {score_pct * 3.6:.1f}deg 360deg"
-        f'    );">'
-        # Inner disc
+        f"      {_CREAM_DARK} {score_pct * 3.6:.1f}deg 360deg"
+        f"    );"
+        f'    box-shadow:0 4px 20px rgba(15,31,53,0.1);">'
         f'    <div style="width:120px;height:120px;'
         f"      border-radius:50%;background:{_WHITE};"
         f"      position:relative;top:20px;left:20px;"
         f"      display:flex;align-items:center;"
-        f'      justify-content:center;flex-direction:column;">'
-        f'      <span style="font-size:1.8rem;font-weight:700;'
+        f"      justify-content:center;flex-direction:column;"
+        f'      box-shadow:inset 0 2px 8px rgba(0,0,0,0.04);">'
+        f'      <span style="font-family:{_FONT_DISPLAY};'
+        f"        font-size:2rem;font-weight:700;"
         f'        color:{_NAVY};">{score:.2f}</span>'
-        f'      <span style="font-size:0.7rem;color:{_MUTED};'
-        f'        text-transform:uppercase;letter-spacing:0.06em;">'
+        f'      <span style="font-size:0.68rem;color:{_MUTED};'
+        f"        text-transform:uppercase;letter-spacing:0.08em;"
+        f'        font-weight:600;">'
         f"        {verdict}</span>"
         f"    </div>"
         f"  </div>"
-        # Flag
-        f'  <div style="margin-top:0.5rem;">{flag_badge}</div>'
+        f'  <div style="margin-top:0.6rem;">{flag_badge}</div>'
         f'  <div style="font-size:0.82rem;color:{_MUTED};'
-        f'    margin-top:0.3rem;">'
+        f'    margin-top:0.3rem;font-weight:300;">'
         f"    Reference: {_esc(forgery_report.reference_artist)}"
         f"  </div>"
         f"</div>"

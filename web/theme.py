@@ -1,72 +1,50 @@
 """Custom Gradio theme for ArtSleuth.
 
-Defines a cohesive visual identity based on the ArtSleuth design
-system: navy primary, soft-blue secondary, rose accent, gold tertiary,
-and cream neutrals — all set in the *Lora* serif typeface.
+Defines a cohesive visual identity using the ArtSleuth design system:
+navy primary, soft-blue secondary, rose accent, gold tertiary, cream
+neutrals, set in Cormorant Garamond for display and Inter for body.
 """
 from __future__ import annotations
 
 import gradio as gr
 
-# ---------------------------------------------------------------------------
-# Palette
-# ---------------------------------------------------------------------------
-
-NAVY = "#1A2E48"
-SOFT_BLUE = "#9DC0D8"
-ROSE = "#D4899A"
-GOLD = "#d4af37"
-CREAM = "#F5F0EB"
-TEXT_LIGHT = "#F0F0F0"
-WHITE = "#FFFFFF"
+NAVY = "#0f1f35"
+NAVY_MID = "#162d4a"
+SOFT_BLUE = "#7fb3d3"
+ROSE = "#c27889"
+GOLD = "#c9a84c"
+CREAM = "#f4efe8"
+CREAM_DARK = "#e8e0d4"
+TEXT_LIGHT = "#ddd8d0"
+WHITE = "#ffffff"
+MUTED = "#6b5e50"
 
 
 def artsleuth_theme() -> gr.themes.Base:
     """Build and return the ArtSleuth Gradio theme."""
     theme = gr.themes.Base(
         primary_hue=gr.themes.Color(
-            c50="#e8edf3",
-            c100="#c5d2e2",
-            c200="#9db4cf",
-            c300="#7596bc",
-            c400="#4e78a9",
-            c500=NAVY,
-            c600="#17283f",
-            c700="#132136",
-            c800="#0f1b2d",
-            c900="#0b1424",
-            c950="#070e1b",
+            c50="#e4eaf1", c100="#c2d0e0", c200="#99b3cd",
+            c300="#7096ba", c400="#4779a7", c500=NAVY,
+            c600="#0d1b2f", c700="#0b1626", c800="#08101d",
+            c900="#060b14", c950="#03060b",
         ),
         secondary_hue=gr.themes.Color(
-            c50="#f0f6fa",
-            c100="#daeaf3",
-            c200="#c4deec",
-            c300=SOFT_BLUE,
-            c400="#7eb0cb",
-            c500="#5fa0be",
-            c600="#4a8fae",
-            c700="#3a7a98",
-            c800="#2e6682",
-            c900="#22516b",
-            c950="#163d55",
+            c50="#eef5f9", c100="#d6e8f1", c200="#bddbe9",
+            c300=SOFT_BLUE, c400="#5fa0c0", c500="#4090b3",
+            c600="#357fa0", c700="#2c6d8a", c800="#235b73",
+            c900="#1a495c", c950="#123745",
         ),
         neutral_hue=gr.themes.Color(
-            c50=CREAM,
-            c100="#ede6df",
-            c200="#e0d6cc",
-            c300="#c8bdb2",
-            c400="#b0a498",
-            c500="#988b7e",
-            c600="#807264",
-            c700="#68594a",
-            c800="#504030",
-            c900="#382816",
-            c950="#201000",
+            c50=CREAM, c100=CREAM_DARK, c200="#dcd4c8",
+            c300="#c8bdb2", c400="#b0a498", c500="#988b7e",
+            c600="#807264", c700=MUTED, c800="#504030",
+            c900="#382816", c950="#201000",
         ),
         font=[
-            gr.themes.GoogleFont("Lora"),
-            "Georgia",
-            "serif",
+            gr.themes.GoogleFont("Inter"),
+            "-apple-system",
+            "sans-serif",
         ],
         font_mono=[
             gr.themes.GoogleFont("Fira Code"),
@@ -74,202 +52,204 @@ def artsleuth_theme() -> gr.themes.Base:
             "monospace",
         ],
     ).set(
-        # Global
         body_background_fill=CREAM,
         body_text_color=NAVY,
-        # Buttons — primary
-        button_primary_background_fill=NAVY,
-        button_primary_background_fill_hover="#243a58",
-        button_primary_text_color=CREAM,
-        button_primary_border_color=NAVY,
-        # Buttons — secondary
+        button_primary_background_fill=GOLD,
+        button_primary_background_fill_hover="#b89540",
+        button_primary_text_color=NAVY,
+        button_primary_border_color=GOLD,
         button_secondary_background_fill=SOFT_BLUE,
-        button_secondary_background_fill_hover="#89b3cb",
+        button_secondary_background_fill_hover="#6aa3c4",
         button_secondary_text_color=NAVY,
         button_secondary_border_color=SOFT_BLUE,
-        # Blocks
         block_title_text_color=NAVY,
         block_label_text_color=NAVY,
         block_background_fill=WHITE,
-        block_border_color=SOFT_BLUE,
+        block_border_color="rgba(127,179,211,0.2)",
         block_border_width="1px",
-        block_shadow="0 1px 4px rgba(26,46,72,0.08)",
-        # Inputs
+        block_shadow="0 2px 16px rgba(15,31,53,0.06)",
         input_background_fill=WHITE,
-        input_border_color=SOFT_BLUE,
+        input_border_color="rgba(127,179,211,0.25)",
         input_placeholder_color="#988b7e",
-        # Checkboxes / radios
         checkbox_label_background_fill=CREAM,
         checkbox_background_color=WHITE,
         checkbox_border_color=SOFT_BLUE,
-        # Accordions & tabs
         border_color_accent=GOLD,
         color_accent=GOLD,
-        # Links
         link_text_color=ROSE,
         link_text_color_hover=GOLD,
-        # Shadows & radius
         shadow_spread="4px",
-        block_radius="6px",
-        # Table
-        table_border_color=SOFT_BLUE,
+        block_radius="10px",
+        table_border_color="rgba(127,179,211,0.2)",
         table_even_background_fill=CREAM,
         table_odd_background_fill=WHITE,
     )
     return theme
 
 
-# ---------------------------------------------------------------------------
-# Custom CSS
-# ---------------------------------------------------------------------------
+HEADER_HTML = """
+<div class="artsleuth-header">
+  <h1>ArtSleuth</h1>
+  <p>Computational Art Analysis Framework</p>
+  <div class="header-line"></div>
+</div>
+"""
 
-HEADER_HTML = (
-    '<div class="artsleuth-header">'
-    "  <h1>ArtSleuth</h1>"
-    "  <p>Computational Art Analysis Framework</p>"
-    "</div>"
-)
-
-FOOTER_HTML = (
-    '<div class="artsleuth-footer">'
-    "  ArtSleuth &mdash; Computational Art Analysis"
-    "  Framework &bull; Research use only<br>"
-    '  <span style="font-size:0.78rem;color:#988b7e;">'
-    "    Results are probabilistic and should be reviewed"
-    "    by qualified art historians."
-    "  </span>"
-    "</div>"
-)
+FOOTER_HTML = """
+<div class="artsleuth-footer">
+  <div class="footer-line"></div>
+  ArtSleuth &mdash; Computational Art Analysis Framework &bull; Research use only<br>
+  <span class="footer-sub">
+    Results are probabilistic and should be reviewed by qualified art historians.
+    &ensp;|&ensp;
+    <a href="https://github.com/ladyFaye1998/ArtSleuth" target="_blank">GitHub</a>
+    &ensp;|&ensp;
+    <a href="https://huggingface.co/ladyFaye1998/artsleuth-weights" target="_blank">Weights</a>
+  </span>
+</div>
+"""
 
 CUSTOM_CSS = """
-@import url(
-    'https://fonts.googleapis.com/css2?family=Lora:'
-    'ital,wght@0,400;0,600;0,700;1,400&display=swap'
-);
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
 
 .gradio-container {
-    font-family: 'Lora', Georgia, serif !important;
+    font-family: 'Inter', -apple-system, sans-serif !important;
     max-width: 1200px;
     margin: 0 auto;
 }
 
-/* ---- Header ---- */
+/* Header */
 .artsleuth-header {
-    background: linear-gradient(135deg, #1A2E48 0%, #243a58 100%);
-    color: #F5F0EB;
+    background: linear-gradient(145deg, #0f1f35 0%, #162d4a 50%, #1e3a5f 100%);
+    color: #f4efe8;
     text-align: center;
-    padding: 2rem 1rem 1.5rem;
-    border-radius: 8px;
+    padding: 2.5rem 1.5rem 2rem;
+    border-radius: 12px;
     margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+.artsleuth-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 300px 300px at 25% 60%, rgba(201,168,76,0.06), transparent),
+        radial-gradient(ellipse 250px 250px at 75% 30%, rgba(127,179,211,0.06), transparent);
 }
 .artsleuth-header h1 {
-    font-size: 2.4rem;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 2.8rem;
     font-weight: 700;
-    margin: 0 0 0.3rem;
-    letter-spacing: 0.04em;
-    color: #d4af37;
-}
-.artsleuth-header p {
-    font-size: 1.05rem;
-    margin: 0;
-    color: #F0F0F0;
-    font-style: italic;
-}
-
-/* ---- Forgery gauge ---- */
-.artsleuth-gauge {
-    width: 160px;
-    height: 160px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    background: conic-gradient(
-        #4caf50 0deg 120deg,
-        #ff9800 120deg 240deg,
-        #f44336 240deg 360deg
-    );
+    margin: 0 0 0.2rem;
+    letter-spacing: 0.06em;
+    background: linear-gradient(135deg, #c9a84c, #e6c96e, #c9a84c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     position: relative;
 }
-.artsleuth-gauge .gauge-inner {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: #FFFFFF;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
+.artsleuth-header p {
+    font-size: 1rem;
+    margin: 0;
+    color: #ddd8d0;
+    font-style: italic;
+    font-weight: 300;
+    position: relative;
+    opacity: 0.8;
 }
-.artsleuth-gauge .gauge-value {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #1A2E48;
-}
-.artsleuth-gauge .gauge-label {
-    font-size: 0.75rem;
-    color: #988b7e;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+.header-line {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #c9a84c, transparent);
+    margin: 1rem auto 0;
+    position: relative;
 }
 
-/* ---- Tables ---- */
-table.artsleuth-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.92rem;
-}
-table.artsleuth-table th {
-    background: #1A2E48;
-    color: #F5F0EB;
-    padding: 0.55rem 0.75rem;
-    text-align: left;
-    font-weight: 600;
-}
-table.artsleuth-table td {
-    padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid #9DC0D8;
-}
-table.artsleuth-table tr:nth-child(even) {
-    background: #F5F0EB;
-}
-table.artsleuth-table tr:nth-child(odd) {
-    background: #FFFFFF;
-}
-
-/* ---- Tabs ---- */
+/* Tabs */
 .tab-nav button {
-    font-family: 'Lora', Georgia, serif !important;
-    font-weight: 600;
-    color: #1A2E48;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 0.04em !important;
+    color: #0f1f35 !important;
+    border-bottom: 2px solid transparent !important;
+    transition: all 0.3s ease !important;
+    text-transform: uppercase !important;
 }
 .tab-nav button:hover {
-    color: #9DC0D8;
-    border-bottom-color: #9DC0D8;
+    color: #7fb3d3 !important;
+    border-bottom-color: #7fb3d3 !important;
 }
 .tab-nav button.selected {
-    color: #1A2E48 !important;
-    border-bottom: 3px solid #1A2E48 !important;
+    color: #0f1f35 !important;
+    border-bottom: 3px solid #c9a84c !important;
 }
 
-/* ---- Footer ---- */
+/* Buttons */
+button.primary {
+    background: linear-gradient(135deg, #c9a84c, #b8953f) !important;
+    color: #0f1f35 !important;
+    border: none !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.03em !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 16px rgba(201,168,76,0.25) !important;
+    transition: all 0.3s !important;
+}
+button.primary:hover {
+    box-shadow: 0 6px 24px rgba(201,168,76,0.4) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Footer */
 .artsleuth-footer {
     text-align: center;
-    padding: 1.2rem 1rem;
+    padding: 1.5rem 1rem;
     margin-top: 1.5rem;
-    border-top: 1px solid #9DC0D8;
-    color: #68594a;
-    font-size: 0.85rem;
+    color: #6b5e50;
+    font-size: 0.82rem;
+    font-weight: 400;
 }
-.artsleuth-footer a {
-    color: #D4899A;
+.footer-line {
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #7fb3d3, transparent);
+    margin: 0 auto 1rem;
+}
+.footer-sub {
+    font-size: 0.75rem;
+    color: #988b7e;
+    display: block;
+    margin-top: 0.4rem;
+}
+.footer-sub a {
+    color: #c27889;
     text-decoration: none;
 }
-.artsleuth-footer a:hover {
-    color: #d4af37;
-    text-decoration: underline;
+.footer-sub a:hover {
+    color: #c9a84c;
+}
+
+/* Tables in benchmark tab */
+table {
+    font-size: 0.88rem !important;
+}
+table th {
+    background: #0f1f35 !important;
+    color: #f4efe8 !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.03em !important;
+}
+table td {
+    border-bottom: 1px solid rgba(127,179,211,0.15) !important;
+}
+
+/* Gauge and result cards */
+.result-section {
+    background: #ffffff;
+    border: 1px solid rgba(127,179,211,0.15);
+    border-radius: 10px;
+    padding: 1.2rem;
 }
 """
